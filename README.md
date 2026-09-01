@@ -487,3 +487,108 @@ node server/src/scripts/test_edge_cases.js
 | 💼 **HR** | `hr@hrms.local` | `HrAdmin@1810#` | HR, Manager, Employee (Admin denied: 403) |
 | 👔 **Manager** | `manager@hrms.local` | `Manager@123456` | Manager, Employee (Admin & HR denied: 403) |
 | 👤 **Employee** | `employee@hrms.local` | `Employee@123456` | Employee only (Admin, HR, Manager denied: 403) |
+
+---
+
+# STAGE 2.5: ROLE-BASED UI, DASHBOARDS & NAVIGATION
+
+Stage 2.5 establishes the complete frontend role-driven UI architecture, global authenticated layout, dynamic sidebar navigation, and dedicated role dashboards.
+
+---
+
+## 1. Global Application Shell (`DashboardLayout`)
+- **Desktop Sidebar**: Sticky left navigation dynamically generated based on authenticated `user.role` via `navConfig.js`. Includes employee profile indicator and direct logout action.
+- **Responsive Topbar**: Provides mobile hamburger drawer toggle, active application context, and quick link to Stage 1 System Health.
+- **Mobile Drawer**: Responsive backdrop overlay and collapsible navigation for tablet/mobile viewports (`<= 1024px`).
+- **Route Protection**: Reusable `<ProtectedRoute>` guards all dashboard routes. Unauthenticated visitors are automatically redirected to `/login`, while unauthorized roles are greeted with the `<ForbiddenPage>` (403 Access Forbidden).
+
+---
+
+## 2. Role-Based Navigation Matrix
+
+| Role | Permitted Sidebar Navigation Menu |
+| :--- | :--- |
+| **👑 ADMIN** | Dashboard, User Management, Employee Management, Departments, Attendance, Leave Management, Payroll, Performance, Recruitment, Reports, System Administration, Settings, Profile |
+| **💼 HR** | Dashboard, Employee Management, Departments, Attendance, Leave Management, HR Analytics, Reports, Profile, Settings |
+| **👔 MANAGER** | Dashboard, My Team, Team Attendance, Team Leave, Team Performance, Team Reports, Profile |
+| **👤 EMPLOYEE** | Dashboard, My Profile, My Attendance, My Leave, My Payroll, My Documents, My Performance, Settings |
+
+---
+
+## 3. Dedicated Role Dashboards (`/dashboard`)
+
+The system dynamically renders the role-tailored dashboard at `/dashboard`:
+1. **Admin Dashboard**: Executive workforce stats (Total Employees, Total Users, Departments, Present Today, On Leave, Pending Requests), recent employee additions, security protocol checklist, quick action shortcuts.
+2. **HR Dashboard**: Operational workforce stats, attendance overview, pending leave approval queue, action items checklist.
+3. **Manager Dashboard**: Departmental team roster, present team count, team leave reviews (Approve/Decline), team performance quick links.
+4. **Employee Dashboard**: Welcome card with personal identity summary, today's attendance check-in record, remaining leave balances (Annual, Sick, Casual), and self-service quick action tiles.
+
+---
+
+# STAGE 3: EMPLOYEE MANAGEMENT MODULE
+
+Stage 3 provides an end-to-end, production-grade Employee Management module across the full MERN stack.
+
+---
+
+## 1. Employee Data Model & Schema
+- **Collection**: `employees` (MongoDB Atlas `hr_db`)
+- **Key Fields**:
+  - `employeeId`: Unique uppercase identifier (auto-generated sequentially: `EMP001`, `EMP002`, ...).
+  - `firstName`, `lastName`, `email` (indexed, unique, lowercase).
+  - `phone`, `alternatePhone`, `address` (`street`, `city`, `state`, `postalCode`, `country`).
+  - `department` (indexed), `designation`, `employmentType` (`full-time`, `part-time`, `contract`, `intern`).
+  - `employmentStatus` (indexed: `active`, `inactive`, `on-leave`, `terminated`).
+  - `manager` (ObjectId reference to `Employee`).
+  - `user` (ObjectId reference to `User` for authenticated login linkage).
+  - `dateOfBirth`, `gender`, `emergencyContact` (`name`, `phone`, `relationship`).
+  - `createdAt`, `updatedAt` (Mongoose timestamps).
+
+---
+
+## 2. Resource-Level Authorization Rules
+
+| Operation | ADMIN | HR | MANAGER | EMPLOYEE |
+| :--- | :---: | :---: | :---: | :---: |
+| **List Employees** (`GET /api/employees`) | All | All | Assigned Team & Self | Self Only |
+| **View Profile** (`GET /api/employees/:id`) | Any | Any | Team & Self Only | Self Only |
+| **Create Employee** (`POST /api/employees`) | Allowed | Allowed | 403 Forbidden | 403 Forbidden |
+| **Update Employee** (`PATCH /api/employees/:id`) | Allowed | Allowed | 403 Forbidden | 403 Forbidden |
+| **Deactivate** (`DELETE /api/employees/:id`) | Soft Delete | Soft Delete | 403 Forbidden | 403 Forbidden |
+
+---
+
+## 3. API Endpoints Reference (`/api/employees`)
+
+| Method | Route | Description | Query Parameters |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/employees` | Paginated, filtered list | `page`, `limit`, `search`, `department`, `employmentStatus` |
+| `GET` | `/api/employees/:id` | Single employee profile | Supports MongoDB ObjectId or `EMPxxx` |
+| `POST` | `/api/employees` | Onboard new employee | Body: `firstName`, `lastName`, `email`, `department`, `designation`, etc. |
+| `PATCH` | `/api/employees/:id` | Update employee record | Body: fields to modify |
+| `DELETE` | `/api/employees/:id` | Soft-deactivate employee | Sets `employmentStatus: 'inactive'` |
+| `GET` | `/api/employees/meta/departments` | Distinct department list | None |
+
+---
+
+## 4. Frontend Employee Management Pages
+- **`/employees`**: Employee directory table with search, department filter, status filter, pagination, and role-based actions (View, Edit, Deactivate).
+- **`/employees/new`**: Multi-section onboarding form (Personal, Contact, Employment, Emergency).
+- **`/employees/:id`**: Comprehensive profile page with tabbed views (Personal, Employment & Manager, Contact & Emergency, Future Module Placeholders).
+- **`/employees/:id/edit`**: Form for updating designation, status, supervisor, address, and contact details.
+
+---
+
+## 5. Automated Test Suite Execution
+
+Run the complete 46-test automated verification suite:
+```bash
+# Auth and RBAC suite
+node server/src/scripts/test_auth_suite.js
+
+# Expired token and inactive user edge cases
+node server/src/scripts/test_edge_cases.js
+
+# Full Employee CRUD and Resource Authorization suite
+node server/src/scripts/test_employee_suite.js
+```
