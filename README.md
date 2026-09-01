@@ -1,0 +1,387 @@
+# HR Management System — Stage 1: Foundation & Full-Stack Integration
+
+A modular, scalable, enterprise-ready Human Resources Management System built on the **MERN** stack (MongoDB, Express, React, Node.js).
+
+This repository contains **Stage 1 — Foundation & Full-Stack Integration**, establishing the architectural baseline, directory layout, environment configuration, and end-to-end communication across all tiers of the application.
+
+---
+
+## 1. Project Purpose & Scope
+
+The purpose of **Stage 1** is to create a clean, maintainable, and scalable architectural workspace with a verified communication bridge between:
+
+$$\text{React (Vite)} \longrightarrow \text{Axios API Client} \longrightarrow \text{Express + Node.js} \longrightarrow \text{Mongoose} \longrightarrow \text{MongoDB Atlas}$$
+
+> **Note**: Higher-level HR business modules (Authentication, Employee Management, Payroll, Attendance, Leaves, Performance, etc.) are intentionally deferred to subsequent development stages. Stage 1 focuses strictly on foundational integrity and health monitoring.
+
+---
+
+## 2. Technology Stack
+
+### Frontend (`client/`)
+- **React 19**: Declarative user interface library.
+- **Vite 8**: Modern build tool and ultra-fast development server with HMR.
+- **JavaScript (ES Modules)**: Modern, clean ECMAScript syntax.
+- **React Router DOM 7**: Client-side routing and layout management.
+- **Axios**: Centralized HTTP client configured with interceptors and environment-driven base URLs.
+
+### Backend (`server/`)
+- **Node.js**: Asynchronous event-driven JavaScript runtime (v18+ recommended, v24+ verified).
+- **Express 5**: Fast, minimalist web framework for Node.js.
+- **Mongoose 9**: Object Data Modeling (ODM) library for MongoDB and Node.js.
+- **CORS**: Cross-Origin Resource Sharing middleware configured for environment-defined origins.
+- **dotenv**: Environment variable loader.
+- **nodemon**: Development tool for automatic server reloads upon file changes.
+
+### Root Orchestration
+- **concurrently**: Concurrently executes backend and frontend development servers from a single root command.
+
+---
+
+## 3. Directory Structure
+
+```
+HR-Management-System/
+│
+├── client/                                 # Frontend React application
+│   ├── public/                             # Static assets
+│   ├── src/
+│   │   ├── assets/                         # SVG/Image assets
+│   │   ├── components/                     # Reusable UI components
+│   │   │   ├── Header.jsx                  # Application branding header
+│   │   │   └── StatusBadge.jsx             # Status indicator badge component
+│   │   ├── context/                        # React context providers (Stage 2+)
+│   │   ├── hooks/                          # Custom React hooks
+│   │   │   └── useHealth.js                # Live API & Database health check hook
+│   │   ├── layouts/                        # Page layouts
+│   │   │   └── RootLayout.jsx              # Main application shell layout
+│   │   ├── pages/                          # Application view pages
+│   │   │   └── HomePage.jsx                # System integration status page
+│   │   ├── services/                       # Centralized API clients
+│   │   │   ├── api.js                      # Axios instance with interceptors
+│   │   │   └── healthService.js            # Health check API service
+│   │   ├── utils/                          # Frontend utility helpers
+│   │   ├── App.css                         # App-level styling
+│   │   ├── App.jsx                         # React Router configuration
+│   │   ├── index.css                       # Global modern stylesheet
+│   │   └── main.jsx                        # React 19 application entrypoint
+│   ├── .env.example                        # Client environment template
+│   ├── .env                                # Local client environment (git-ignored)
+│   ├── index.html                          # HTML entrypoint
+│   ├── package.json                        # Client dependencies & scripts
+│   └── vite.config.js                      # Vite build configuration (Port 5173)
+│
+├── server/                                 # Backend Express application
+│   ├── src/
+│   │   ├── config/                         # Database and system configuration
+│   │   │   └── db.js                       # Mongoose connection & lifecycle handlers
+│   │   ├── controllers/                    # Express request/response controllers
+│   │   │   └── health.controller.js        # Health check endpoint controller
+│   │   ├── middlewares/                    # Custom Express middlewares
+│   │   │   └── errorHandler.js             # 404 handler & centralized error handler
+│   │   ├── models/                         # Mongoose data models (Stage 2+)
+│   │   ├── routes/                         # API route declarations
+│   │   │   ├── health.routes.js            # /api/health route definitions
+│   │   │   └── index.js                    # Central API router (/api/...)
+│   │   ├── services/                       # Business & integration services
+│   │   │   └── health.service.js           # Live database connection inspector
+│   │   ├── utils/                          # Server helper utilities
+│   │   └── validators/                     # Request payload validators (Stage 2+)
+│   ├── .env.example                        # Server environment template
+│   ├── .env                                # Local server environment (git-ignored)
+│   ├── app.js                              # Express app configuration & middleware
+│   ├── package.json                        # Server dependencies & scripts
+│   └── server.js                           # Server entrypoint & DB connection boot
+│
+├── .gitignore                              # Git exclusion rules
+├── package.json                            # Root scripts for full-stack workflows
+└── README.md                               # System documentation & developer guide
+```
+
+---
+
+## 4. Prerequisites
+
+Ensure you have the following installed on your local development machine:
+
+1. **Node.js**: v18.0.0 or later (v24.x LTS tested and verified). Check with:
+   ```bash
+   node -v
+   ```
+2. **NPM**: v9.0.0 or later (v11.x tested and verified). Check with:
+   ```bash
+   npm -v
+   ```
+3. **MongoDB Atlas Account**: A free cloud cluster on [MongoDB Atlas](https://www.mongodb.com/atlas).
+
+---
+
+## 5. MongoDB Atlas Setup Guide
+
+To connect the application to MongoDB Atlas:
+
+### Step 1: Create a Cluster
+1. Sign in to your [MongoDB Atlas Console](https://cloud.mongodb.com/).
+2. Create a free shared cluster (e.g., `M0 Sandbox`).
+
+### Step 2: Configure Database User Credentials
+1. In the left navigation, navigate to **Security** $\rightarrow$ **Database Access**.
+2. Click **Add New Database User**.
+3. Choose **Password Authentication**.
+4. Create a username (e.g., `hr_admin`) and a secure password.
+5. Under **Database User Privileges**, select **Read and write to any database** (or assign specific database privileges).
+6. Click **Add User**.
+
+### Step 3: Configure Network Access (IP Whitelist)
+1. In the left navigation, navigate to **Security** $\rightarrow$ **Network Access**.
+2. Click **Add IP Address**.
+3. Select **Add Current IP Address** (or select `Allow Access From Anywhere` (`0.0.0.0/0`) for development).
+4. Confirm and allow Atlas 1-2 minutes to apply changes.
+
+### Step 4: Retrieve Connection String
+1. Navigate to **Deployment** $\rightarrow$ **Database**.
+2. Click **Connect** on your cluster.
+3. Select **Drivers** (Node.js).
+4. Copy the connection string format:
+   ```
+   mongodb+srv://<username>:<password>@cluster0.abcde.mongodb.net/hr_db?retryWrites=true&w=majority
+   ```
+5. Replace `<username>` and `<password>` with your database user credentials.
+
+---
+
+## 6. Environment Configuration
+
+### Backend Environment (`server/.env`)
+
+Copy `server/.env.example` to `server/.env`:
+
+```bash
+# In server/ directory
+cp .env.example .env
+```
+
+Edit `server/.env` with your settings:
+
+```env
+PORT=5000
+MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/hr_db?retryWrites=true&w=majority
+CLIENT_URL=http://localhost:5173
+```
+
+| Variable | Description | Default |
+| :--- | :--- | :--- |
+| `PORT` | HTTP port where Express server listens | `5000` |
+| `MONGODB_URI` | MongoDB Atlas SRV connection string | Required for DB |
+| `CLIENT_URL` | Allowed origin for CORS validation | `http://localhost:5173` |
+
+> 🔒 **Security Notice**: Never commit `server/.env` or hardcode credentials into source files. The `.gitignore` file automatically excludes all `.env` files.
+
+### Frontend Environment (`client/.env`)
+
+Copy `client/.env.example` to `client/.env`:
+
+```bash
+# In client/ directory
+cp .env.example .env
+```
+
+Edit `client/.env`:
+
+```env
+VITE_API_URL=http://localhost:5000/api
+```
+
+| Variable | Description | Default |
+| :--- | :--- | :--- |
+| `VITE_API_URL` | Base API URL prefix for backend communication | `http://localhost:5000/api` |
+
+---
+
+## 7. Installation & Setup
+
+You can install dependencies for the root, server, and client all at once from the root directory:
+
+```bash
+# From HR-Management-System/ root
+npm run install:all
+```
+
+Or install them individually:
+
+```bash
+# Root dependencies
+npm install
+
+# Server dependencies
+cd server
+npm install
+
+# Client dependencies
+cd ../client
+npm install
+```
+
+---
+
+## 8. Starting the Application
+
+### Option A: Run Both Services Simultaneously (Recommended)
+
+From the project root:
+
+```bash
+npm run dev
+```
+
+This concurrently starts:
+- **Express Backend**: Listening on [http://localhost:5000](http://localhost:5000) (via nodemon)
+- **Vite Frontend**: Serving on [http://localhost:5173](http://localhost:5173) (with HMR)
+
+### Option B: Run Services Separately
+
+Open two terminal windows:
+
+**Terminal 1 — Backend:**
+```bash
+cd server
+npm run dev
+```
+
+**Terminal 2 — Frontend:**
+```bash
+cd client
+npm run dev
+```
+
+---
+
+## 9. API Health Check Endpoint
+
+### Endpoint: `GET /api/health`
+
+The health check endpoint provides a structured, live inspection of the API server and the underlying MongoDB connection state.
+
+#### Response Structure
+
+**When Connected to MongoDB Atlas (`200 OK`):**
+```json
+{
+  "success": true,
+  "message": "HR Management API is running",
+  "database": "connected",
+  "timestamp": "2026-09-01T17:20:09.575Z",
+  "uptime": "42s",
+  "environment": "development"
+}
+```
+
+**When MongoDB is Disconnected / Unconfigured (`200 OK` / Degraded Mode):**
+```json
+{
+  "success": false,
+  "message": "HR Management API is running (Database disconnected)",
+  "database": "disconnected",
+  "timestamp": "2026-09-01T17:20:09.575Z",
+  "uptime": "12s",
+  "environment": "development"
+}
+```
+
+#### Manual Verification via cURL / PowerShell:
+```bash
+# cURL
+curl http://localhost:5000/api/health
+
+# PowerShell
+Invoke-RestMethod -Uri "http://localhost:5000/api/health" | ConvertTo-Json
+```
+
+---
+
+## 10. Architectural Data Flow
+
+```
+[ User Browser ]
+       │
+       ▼
+[ React Application (:5173) ]
+       │ (Calls useHealth hook on mount / refresh)
+       ▼
+[ Centralized Axios Client (services/api.js) ]
+       │ (Sends GET request to VITE_API_URL/health)
+       ▼
+[ Express Server (:5000) (app.js) ]
+       │ (CORS validation against CLIENT_URL)
+       │ (express.json() parser)
+       ▼
+[ Health Route (routes/health.routes.js) ]
+       │
+       ▼
+[ Health Controller (controllers/health.controller.js) ]
+       │
+       ▼
+[ Health Service (services/health.service.js) ]
+       │
+       ▼
+[ Mongoose Database Module (config/db.js) ]
+       │ (Inspects mongoose.connection.readyState)
+       ▼
+[ MongoDB Atlas Cluster ]
+       │
+       ▲ (Returns connection status)
+       │
+[ Formatted JSON Response ]
+       │
+       ▼
+[ React UI Updates Badges & Metadata ]
+```
+
+---
+
+## 11. Common Development Errors & Troubleshooting
+
+### Issue 1: `CORS error: Origin http://localhost:5173 not allowed by CORS policy`
+- **Cause**: `CLIENT_URL` in `server/.env` is either missing, misconfigured, or contains trailing slashes.
+- **Solution**: Check `server/.env` and ensure `CLIENT_URL=http://localhost:5173`. Restart the server.
+
+### Issue 2: `[Database] Connection Error: MONGODB_URI is not configured`
+- **Cause**: `MONGODB_URI` in `server/.env` is empty or still contains placeholder values.
+- **Solution**: Add your valid MongoDB Atlas SRV URI to `server/.env` and save. Nodemon will automatically reload.
+
+### Issue 3: `MongoServerSelectionError: connection timed out / IP not whitelisted`
+- **Cause**: Your current client IP address is not in MongoDB Atlas Network Access whitelist.
+- **Solution**: In Atlas, navigate to **Network Access** $\rightarrow$ **Add IP Address** $\rightarrow$ select **Add Current IP Address** or `0.0.0.0/0` for development.
+
+### Issue 4: `MongoServerError: bad auth: Authentication failed`
+- **Cause**: Invalid database username or password in `MONGODB_URI`. Special characters in passwords must be URL-encoded (e.g., `@` as `%40`).
+- **Solution**: Verify credentials in **Database Access** in Atlas. Update `server/.env`.
+
+### Issue 5: `Error: listen EADDRINUSE: address already in use :::5000`
+- **Cause**: Another process is already running on port 5000.
+- **Solution**: Terminate the existing process or change `PORT=5001` in `server/.env` and update `VITE_API_URL=http://localhost:5001/api` in `client/.env`.
+
+---
+
+## 12. Verification & Build Commands
+
+- **Build Frontend**:
+  ```bash
+  npm run build:client
+  ```
+- **Lint Frontend**:
+  ```bash
+  npm --prefix client run lint
+  ```
+- **Run Backend in Development**:
+  ```bash
+  npm run dev:server
+  ```
+- **Run Frontend in Development**:
+  ```bash
+  npm run dev:client
+  ```
+- **Run Full-Stack Concurrently**:
+  ```bash
+  npm run dev
+  ```

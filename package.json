@@ -1,0 +1,25 @@
+{
+  "name": "hr-management-system",
+  "version": "1.0.0",
+  "description": "HR Management System - MERN Stack (Stage 1)",
+  "private": true,
+  "scripts": {
+    "install:all": "npm install && npm --prefix server install && npm --prefix client install",
+    "dev:server": "npm --prefix server run dev",
+    "dev:client": "npm --prefix client run dev",
+    "dev": "concurrently -n \"server,client\" -c \"blue,magenta\" \"npm run dev:server\" \"npm run dev:client\"",
+    "build:client": "npm --prefix client run build"
+  },
+  "keywords": [
+    "mern",
+    "hr-management-system",
+    "express",
+    "react",
+    "mongodb"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
