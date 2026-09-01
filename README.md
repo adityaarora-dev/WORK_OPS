@@ -385,3 +385,105 @@ Invoke-RestMethod -Uri "http://localhost:5000/api/health" | ConvertTo-Json
   ```bash
   npm run dev
   ```
+
+---
+
+# STAGE 2: AUTHENTICATION & AUTHORIZATION
+
+Stage 2 delivers a robust, secure, and scalable Role-Based Access Control (RBAC) and JWT authentication system across the entire MERN stack.
+
+---
+
+## 1. Authentication & Authorization Architecture
+
+### A. Authentication ("Who is the user?")
+- **Algorithm**: HMAC-SHA256 (`HS256`) JSON Web Tokens via `jsonwebtoken`.
+- **Payload**: Minimal safe identity info only (`{ id: user._id, role: user.role }`). Sensitive data, passwords, and password hashes are strictly excluded from the token.
+- **Header**: Standard HTTP `Authorization: Bearer <token>`.
+- **Password Security**: Salted bcrypt hashing via `bcryptjs` (salt work factor: 10). Passwords are only hashed if newly created or modified, preventing double-hashing. Password fields are marked with `select: false` and explicitly sanitized via Mongoose `toJSON` transforms.
+
+### B. Authorization ("What is the user allowed to do?")
+- **Backend as Source of Truth**: Authorization middleware (`authorizeRoles('admin', 'hr', ...)`) enforces role permissions at the route handler level before any controller or service executes.
+- **Frontend Route Protection**: `<ProtectedRoute allowedRoles={[...]}>` component guards client-side routes, gracefully redirecting unauthenticated traffic to `/login` and rendering a clean `403 Forbidden` card for unauthorized roles.
+
+---
+
+## 2. Supported Roles & Permission Matrix
+
+The system implements four distinct hierarchical roles:
+
+| Role | Access Level | Permitted Operations |
+| :--- | :--- | :--- |
+| **ADMIN** | Full System Access | User management, employee management, department management, attendance, leave, payroll, performance, system administration, and reports. |
+| **HR** | Human Resources Operations | Employee onboarding & profile management, attendance monitoring, leave administration, HR analytics, and operational reports. |
+| **MANAGER** | Team Leadership | View assigned team employees, track team attendance, review/approve/reject team leave requests, team performance reports. |
+| **EMPLOYEE** | Self-Service | View personal profile, submit & view personal leave requests, log & view personal attendance. Cannot access administrative tools. |
+
+---
+
+## 3. Safe HR-User Handling & Initial Admin Creation
+
+### Non-Destructive Data Preservation
+When `npm run seed` executes:
+1. Connects to MongoDB Atlas and inspects the database.
+2. If an existing HR user is detected:
+   - Preserves all existing fields and custom attributes.
+   - Inspects whether the password is a valid bcrypt hash (`$2a$` / `$2b$`).
+   - If not hashed, migrates the password using `HR_PASSWORD` or fallback `HrAdmin@1810#` without deleting or altering any existing user metadata.
+   - Never creates duplicate HR users.
+3. If no HR user exists, seeds initial HR user (`hr@hrms.local`).
+4. Seeds the primary system administrator (`admin@hrms.local`, `ADM001`) with bcrypt hashing.
+5. Seeds demo manager (`manager@hrms.local`) and employee (`employee@hrms.local`) accounts for end-to-end testing.
+
+### Command:
+```bash
+# From project root
+npm run seed
+
+# Or inside server/
+npm --prefix server run seed
+```
+
+---
+
+## 4. API Endpoints Reference
+
+### Authentication Endpoints (`/api/auth`)
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/auth/login` | Public | Authenticates credentials and returns JWT + safe user object. |
+| `GET` | `/api/auth/me` | Protected | Returns the authenticated user profile from token. |
+| `POST` | `/api/auth/logout` | Protected/Public | Confirms session termination and token invalidation. |
+| `POST` | `/api/auth/register` | Public | Self-registration strictly restricted to `employee` role. |
+
+### Role Authorization Verification Endpoints (`/api/test`)
+| Method | Endpoint | Allowed Roles | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/test/admin` | `admin` | Verifies top-tier administrator clearance. |
+| `GET` | `/api/test/hr` | `admin`, `hr` | Verifies HR operational clearance. |
+| `GET` | `/api/test/manager` | `admin`, `hr`, `manager` | Verifies departmental managerial clearance. |
+| `GET` | `/api/test/employee` | All Authenticated | Verifies baseline employee clearance. |
+
+---
+
+## 5. Automated Verification Test Suites
+
+Run the comprehensive 26-assertion automated test suite:
+```bash
+# Run backend test suite
+node server/src/scripts/test_auth_suite.js
+
+# Run expired token and inactive account edge-case tests
+node server/src/scripts/test_edge_cases.js
+```
+
+---
+
+## 6. Pre-Configured Test Credentials
+
+| Role | Email | Password | Allowed Test Endpoints |
+| :--- | :--- | :--- | :--- |
+| 👑 **Admin** | `admin@hrms.local` | `Admin@123456` | Admin, HR, Manager, Employee |
+| 💼 **HR** | `hr@hrms.local` | `HrAdmin@1810#` | HR, Manager, Employee (Admin denied: 403) |
+| 👔 **Manager** | `manager@hrms.local` | `Manager@123456` | Manager, Employee (Admin & HR denied: 403) |
+| 👤 **Employee** | `employee@hrms.local` | `Employee@123456` | Employee only (Admin, HR, Manager denied: 403) |

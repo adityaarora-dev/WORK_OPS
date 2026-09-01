@@ -8,6 +8,7 @@
     "dev:server": "npm --prefix server run dev",
     "dev:client": "npm --prefix client run dev",
     "dev": "concurrently -n \"server,client\" -c \"blue,magenta\" \"npm run dev:server\" \"npm run dev:client\"",
+    "seed": "npm --prefix server run seed",
     "build:client": "npm --prefix client run build"
   },
   "keywords": [
