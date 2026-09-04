@@ -1,4 +1,4 @@
-﻿const express = require('express');
+const express = require('express');
 const employeeController = require('../controllers/employee.controller');
 const { authenticateUser, authorizeRoles } = require('../middlewares/auth');
 
@@ -41,6 +41,7 @@ router.get('/:id', employeeController.getEmployee);
  * @access  Private (Admin, HR)
  */
 router.patch('/:id', authorizeRoles('admin', 'hr'), employeeController.updateEmployee);
+router.put('/:id', authorizeRoles('admin', 'hr'), employeeController.updateEmployee);
 
 /**
  * @route   DELETE /api/employees/:id

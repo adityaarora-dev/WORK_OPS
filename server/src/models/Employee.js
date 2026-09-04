@@ -1,4 +1,4 @@
-﻿const mongoose = require('mongoose');
+const mongoose = require('mongoose');
 
 const EMPLOYMENT_TYPES = ['full-time', 'part-time', 'contract', 'intern'];
 const EMPLOYMENT_STATUSES = ['active', 'inactive', 'on-leave', 'terminated'];
@@ -54,9 +54,9 @@ const employeeSchema = new mongoose.Schema(
       country: { type: String, trim: true, default: 'United States' },
     },
     department: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Department',
       required: [true, 'Department is required'],
-      trim: true,
       index: true,
     },
     designation: {

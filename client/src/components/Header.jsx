@@ -17,14 +17,14 @@ export const Header = () => {
         <Link to="/" className="logo-group-link">
           <div className="logo-icon">🏢</div>
           <div>
-            <h1 className="logo-title">HR Management System</h1>
-            <p className="logo-subtitle">Stage 2 — Authentication & Authorization</p>
+            <h1 className="logo-title">Enterprise HRMS</h1>
+            <p className="logo-subtitle">Corporate Workspace Portal</p>
           </div>
         </Link>
 
         <nav className="header-nav">
           <Link to="/" className="nav-link">
-            System Health
+            Role Portal
           </Link>
           {isAuthenticated ? (
             <Link to="/dashboard" className="nav-link">
@@ -45,8 +45,8 @@ export const Header = () => {
               </button>
             </div>
           ) : (
-            <Link to="/login" className="btn-primary header-login-btn">
-              Sign In
+            <Link to="/" className="btn-primary header-login-btn">
+              Select Role
             </Link>
           )}
         </nav>

@@ -10,7 +10,7 @@ export const RootLayout = () => {
         <Outlet />
       </main>
       <footer className="layout-footer">
-        <p>HR Management System &copy; {new Date().getFullYear()} — Stage 1 Foundation</p>
+        <p>Enterprise HRMS &copy; {new Date().getFullYear()} • All Rights Reserved</p>
       </footer>
     </div>
   );

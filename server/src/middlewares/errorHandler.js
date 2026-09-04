@@ -22,7 +22,7 @@ const notFoundHandler = (req, res, next) => {
  * @param {import('express').NextFunction} next
  */
 const errorHandler = (err, req, res, next) => {
-  const statusCode = err.statusCode || (res.statusCode !== 200 && res.statusCode !== 404 ? res.statusCode : 500);
+  const statusCode = err.statusCode || err.status || (res.statusCode !== 200 && res.statusCode !== 404 ? res.statusCode : 500);
   const isProduction = process.env.NODE_ENV === 'production';
 
   console.error(`❌ [Error] ${req.method} ${req.originalUrl}:`, err.message);

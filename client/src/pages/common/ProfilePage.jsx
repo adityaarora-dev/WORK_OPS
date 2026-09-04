@@ -1,4 +1,5 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Mail } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { getEmployees } from '../../services/employeeService';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
@@ -12,10 +13,12 @@ export const ProfilePage = () => {
     getEmployees()
       .then((res) => {
         if (res.data && res.data.length > 0) {
-          // In employee/manager mode, the first/only record is self
-          const match = res.data.find(
-            (e) => e.email?.toLowerCase() === user?.email?.toLowerCase() || e.employeeId === user?.employeeId
-          ) || res.data[0];
+          const match =
+            res.data.find(
+              (e) =>
+                e.email?.toLowerCase() === user?.email?.toLowerCase() ||
+                e.employeeId === user?.employeeId
+            ) || res.data[0];
           setEmployee(match);
         }
       })
@@ -27,81 +30,110 @@ export const ProfilePage = () => {
     return <LoadingSpinner message="Loading your profile credentials..." />;
   }
 
+  const getInitials = () => {
+    if (!user) return 'US';
+    const f = user.firstName ? user.firstName[0] : '';
+    const l = user.lastName ? user.lastName[0] : '';
+    return (f + l).toUpperCase() || 'US';
+  };
+
   return (
     <div className="profile-page-container">
       <div className="dashboard-page-header">
         <div>
-          <h1 className="page-main-title">Personal Profile</h1>
+          <h1 className="page-main-title">User Account Profile</h1>
           <p className="page-sub-title">
             Your verified identity, organizational credentials, and account details.
           </p>
         </div>
       </div>
 
-      <div className="profile-hero-card">
-        <div className="hero-avatar">
-          {user?.firstName?.[0]}
-          {user?.lastName?.[0]}
-        </div>
-        <div className="hero-content">
-          <div className="hero-title-row">
-            <h2>{user?.firstName} {user?.lastName}</h2>
-            <span className={`status-tag status-active`}>ACTIVE ACCOUNT</span>
-          </div>
-          <p className="hero-designation">
-            {employee?.designation || 'Staff Member'} • <strong>{employee?.department || 'Administration'}</strong>
-          </p>
-          <div className="hero-meta-pills">
-            <span className="code-pill">ID: {user?.employeeId}</span>
-            <span className="email-pill">✉️ {user?.email}</span>
-            <span className={`role-badge badge-${user?.role}`}>
-              ROLE: {user?.role?.toUpperCase()}
-            </span>
+      <div className="employee-hero-banner">
+        <div className="employee-hero-main">
+          <div className="employee-large-avatar">{getInitials()}</div>
+          <div className="employee-hero-details">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <h2 style={{ margin: 0 }}>
+                {user?.firstName} {user?.lastName}
+              </h2>
+              <span className="status-tag status-active">
+                <span className="badge-dot"></span>
+                ACTIVE SESSION
+              </span>
+            </div>
+            <p className="employee-hero-sub">
+              {employee?.designation || 'Staff Member'} •{' '}
+              <strong>
+                {(typeof employee?.department === 'object' && employee?.department !== null
+                  ? employee?.department.name
+                  : employee?.department) || 'Administration'}
+              </strong>
+            </p>
+            <div className="employee-tags-row">
+              <span className="code-pill">ID: {user?.employeeId || 'USR001'}</span>
+              <span className="email-pill">
+                <Mail size={12} style={{ display: 'inline', marginRight: '4px' }} />
+                {user?.email}
+              </span>
+              <span className={`role-badge badge-${user?.role}`}>
+                ROLE: {user?.role?.toUpperCase()}
+              </span>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="dashboard-panels-grid mt-6">
-        <div className="info-card">
-          <h4>Account & Authentication</h4>
-          <div className="info-table">
-            <div className="info-row">
-              <span className="info-key">User ID:</span>
-              <span className="info-value font-mono text-xs">{user?._id || user?.id}</span>
-            </div>
-            <div className="info-row">
-              <span className="info-key">Email:</span>
-              <span className="info-value">{user?.email}</span>
-            </div>
-            <div className="info-row">
-              <span className="info-key">Role:</span>
-              <span className="info-value uppercase font-bold text-blue-400">{user?.role}</span>
-            </div>
-            <div className="info-row">
-              <span className="info-key">Security Protocol:</span>
-              <span className="info-value">JWT HMAC-SHA256 Token</span>
+      <div className="dashboard-panels-grid">
+        <div className="panel-card">
+          <div className="panel-header">
+            <h3>Account & Authentication</h3>
+          </div>
+          <div style={{ padding: '20px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div className="metric-item">
+                <span className="metric-label">Account Identifier</span>
+                <span className="code-pill">{user?._id || user?.id}</span>
+              </div>
+              <div className="metric-item">
+                <span className="metric-label">Work Email</span>
+                <span>{user?.email}</span>
+              </div>
+              <div className="metric-item">
+                <span className="metric-label">System Role</span>
+                <span className={`role-badge badge-${user?.role}`}>
+                  {user?.role?.toUpperCase()}
+                </span>
+              </div>
+              <div className="metric-item">
+                <span className="metric-label">Security Protocol</span>
+                <span className="badge badge-success">JWT HMAC-SHA256</span>
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="info-card">
-          <h4>Organizational Assignment</h4>
-          <div className="info-table">
-            <div className="info-row">
-              <span className="info-key">Department:</span>
-              <span className="info-value font-semibold">{employee?.department || 'Executive'}</span>
-            </div>
-            <div className="info-row">
-              <span className="info-key">Job Title:</span>
-              <span className="info-value">{employee?.designation || 'Specialist'}</span>
-            </div>
-            <div className="info-row">
-              <span className="info-key">Work Type:</span>
-              <span className="info-value capitalize">{employee?.employmentType || 'Full-time'}</span>
-            </div>
-            <div className="info-row">
-              <span className="info-key">Contact Phone:</span>
-              <span className="info-value">{employee?.phone || 'Not recorded'}</span>
+        <div className="panel-card">
+          <div className="panel-header">
+            <h3>Organizational Assignment</h3>
+          </div>
+          <div style={{ padding: '20px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div className="metric-item">
+                <span className="metric-label">Department</span>
+                <span style={{ fontWeight: 600 }}>
+                  {(typeof employee?.department === 'object' && employee?.department !== null
+                    ? employee?.department.name
+                    : employee?.department) || 'Executive Unit'}
+                </span>
+              </div>
+              <div className="metric-item">
+                <span className="metric-label">Official Title</span>
+                <span>{employee?.designation || 'Specialist'}</span>
+              </div>
+              <div className="metric-item">
+                <span className="metric-label">Employment Type</span>
+                <span className="badge badge-info">{employee?.employmentType || 'Full-Time'}</span>
+              </div>
             </div>
           </div>
         </div>

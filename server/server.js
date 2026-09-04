@@ -1,7 +1,8 @@
+const path = require('path');
 const dotenv = require('dotenv');
 
-// Load environment variables before importing configuration
-dotenv.config();
+// Load environment variables reliably regardless of working directory
+dotenv.config({ path: path.join(__dirname, '.env') });
 
 const app = require('./app');
 const { connectDB, closeDB } = require('./src/config/db');
@@ -25,12 +26,21 @@ const startServer = async () => {
     console.warn('⚠️  [Server Warning] Health check (/api/health) will report database as disconnected.');
   }
 
-  const server = app.listen(PORT, () => {
+  const server = app.listen(PORT, '0.0.0.0', () => {
     console.log('--------------------------------------------------');
     console.log(`🚀 Server running on: http://localhost:${PORT}`);
     console.log(`🩺 Health check URL:  http://localhost:${PORT}/api/health`);
     console.log(`📡 Database status:   ${dbConnected ? 'CONNECTED' : 'DISCONNECTED (Degraded)'}`);
     console.log('--------------------------------------------------');
+  });
+
+  server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error(`❌ [Server Error] Port ${PORT} is already in use by another process.`);
+      console.error(`❌ [Server Error] Please terminate the process using port ${PORT} or check running instances.`);
+    } else {
+      console.error('❌ [Server Error]:', err.message);
+    }
   });
 
   // Graceful shutdown handler

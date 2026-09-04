@@ -1,134 +1,247 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import {
+  Users,
+  CheckCircle2,
+  CalendarDays,
+  Clock,
+  TrendingUp,
+  ArrowRight,
+  ClipboardCheck,
+} from 'lucide-react';
+import { useAuth } from '../../hooks/useAuth';
 import StatCard from '../../components/common/StatCard';
+import ActionQueue from '../../components/common/ActionQueue';
 import { getEmployees } from '../../services/employeeService';
+import { getLeaves } from '../../services/leaveService';
+import { getAttendance } from '../../services/attendanceService';
 
 export const ManagerDashboard = () => {
+  const { user } = useAuth();
   const [team, setTeam] = useState([]);
+  const [pendingLeaves, setPendingLeaves] = useState([]);
+  const [todayAttendanceCount, setTodayAttendanceCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getEmployees()
-      .then((res) => {
-        setTeam(res.data || []);
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
+    let isMounted = true;
+    Promise.allSettled([
+      getEmployees(),
+      getLeaves({ status: 'pending' }),
+      getAttendance(),
+    ]).then(([empRes, leaveRes, attRes]) => {
+      if (!isMounted) return;
+
+      if (empRes.status === 'fulfilled' && empRes.value?.data) {
+        setTeam(empRes.value.data);
+      }
+
+      if (leaveRes.status === 'fulfilled' && leaveRes.value?.data) {
+        setPendingLeaves(leaveRes.value.data.filter((l) => l.status === 'pending'));
+      }
+
+      if (attRes.status === 'fulfilled' && attRes.value?.data) {
+        const todayStr = new Date().toISOString().split('T')[0];
+        const presentCount = attRes.value.data.filter(
+          (a) => a.date && a.date.split('T')[0] === todayStr && a.status === 'present'
+        ).length;
+        setTodayAttendanceCount(presentCount);
+      }
+
+      setLoading(false);
+    });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
+
+  const currentDateStr = new Date().toLocaleDateString('en-US', {
+    weekday: 'long',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+
+  const managerActions = [];
+
+  if (pendingLeaves.length > 0) {
+    pendingLeaves.slice(0, 3).forEach((leave) => {
+      const empName = leave.employee
+        ? `${leave.employee.firstName || ''} ${leave.employee.lastName || ''}`.trim()
+        : 'Team Member';
+      managerActions.push({
+        title: `Leave Request: ${empName}`,
+        description: `${leave.leaveType?.toUpperCase()} leave for ${leave.numberOfDays || 1} day(s). Reason: ${leave.reason || 'Not specified'}.`,
+        badge: 'Pending Review',
+        variant: 'warning',
+        icon: Clock,
+        to: '/leave',
+        actionLabel: 'Review',
+      });
+    });
+  } else {
+    managerActions.push({
+      title: 'No Pending Leave Requests',
+      description: 'All employee leave applications for your team have been processed.',
+      badge: 'Up to Date',
+      variant: 'success',
+      icon: CheckCircle2,
+      to: '/leave',
+      actionLabel: 'View Leave Logs',
+    });
+  }
+
+  managerActions.push({
+    title: 'Team Attendance Overview',
+    description: `${todayAttendanceCount} team member(s) recorded shifts today.`,
+    badge: 'Daily Roster',
+    variant: todayAttendanceCount > 0 ? 'success' : 'primary',
+    icon: CheckCircle2,
+    to: '/attendance',
+    actionLabel: 'Inspect Logs',
+  });
+
+  managerActions.push({
+    title: 'Team Performance & Objectives',
+    description: 'Track team goals, assign key results, and submit cycle evaluations.',
+    badge: 'Evaluations',
+    variant: 'primary',
+    icon: TrendingUp,
+    to: '/performance',
+    actionLabel: 'Evaluate Team',
+  });
 
   return (
     <div className="dashboard-view-wrapper">
+      {/* Hero Section */}
       <div className="dashboard-page-header">
         <div>
-          <h1 className="page-main-title">Engineering Team Command</h1>
+          <h1 className="page-main-title">
+            Welcome, {user?.firstName || 'Manager'}
+          </h1>
           <p className="page-sub-title">
-            Team attendance tracking, leave request approvals, and performance reviews.
+            {currentDateStr} • Team attendance monitoring, leave approvals, and direct report performance.
           </p>
         </div>
         <div className="header-actions">
-          <Link to="/employees" className="btn-primary">
-            <span>👥</span> View My Team
+          <Link to="/leave" className="btn btn-primary">
+            <ClipboardCheck size={15} />
+            <span>Approve Leaves</span>
           </Link>
         </div>
       </div>
 
-      {/* Manager KPI Stats */}
+      {/* 4 Compact Stat Cards */}
       <div className="stats-grid">
         <StatCard
-          title="Team Size"
-          value={team.length || 3}
-          icon="👥"
-          color="blue"
-          subtitle="Direct reports & team"
+          title="ASSIGNED TEAM SIZE"
+          value={team.length}
+          icon={<Users size={16} />}
+          subtitle="Direct reports & members"
         />
         <StatCard
-          title="Present Today"
-          value={team.length || 3}
-          icon="⏱️"
-          color="emerald"
-          subtitle="100% on duty today"
+          title="CHECKED IN TODAY"
+          value={todayAttendanceCount}
+          icon={<CheckCircle2 size={16} />}
+          subtitle={todayAttendanceCount > 0 ? 'Active on-duty today' : 'No check-ins yet today'}
         />
         <StatCard
-          title="Team Members On Leave"
-          value="0"
-          icon="📅"
-          color="purple"
-          subtitle="No current absences"
+          title="PENDING APPROVALS"
+          value={pendingLeaves.length}
+          icon={<Clock size={16} />}
+          subtitle={pendingLeaves.length > 0 ? 'Requires your sign-off' : 'All requests reviewed'}
         />
         <StatCard
-          title="Pending Team Requests"
-          value="1"
-          icon="⏳"
-          color="amber"
-          subtitle="1 leave request to review"
+          title="ACTIVE APPRAISALS"
+          value={team.length}
+          icon={<TrendingUp size={16} />}
+          subtitle="Team members under review"
         />
       </div>
 
+      {/* Action Needed Today (Action Queue Tray) */}
+      <ActionQueue
+        title="Priority Manager Decisions"
+        subtitle="Pending approvals and operational tasks"
+        items={managerActions}
+      />
+
       {/* Main Grid */}
       <div className="dashboard-panels-grid">
-        {/* Team Members Roster */}
+        {/* Team Members Roster (Section 4 Restructure) */}
         <section className="panel-card">
           <div className="panel-header">
-            <h3>My Team Roster</h3>
-            <span className="card-sub">{team.length} direct reports</span>
+            <h3>Direct Reports & Team Members</h3>
+            <Link to="/employees" className="panel-link">
+              Full Roster <ArrowRight size={13} style={{ display: 'inline', verticalAlign: 'middle' }} />
+            </Link>
           </div>
 
           <div className="panel-table-responsive">
-            <table className="custom-data-table">
+            <table className="custom-data-table recent-additions-table">
               <thead>
                 <tr>
                   <th>Team Member</th>
-                  <th>ID</th>
-                  <th>Role / Designation</th>
+                  <th>Designation</th>
+                  <th>Department</th>
                   <th>Status</th>
-                  <th>Action</th>
+                  <th style={{ textAlign: 'right' }}>Action</th>
                 </tr>
               </thead>
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan="5" className="text-center py-4">
-                      Loading team data...
+                    <td colSpan="5" style={{ textAlign: 'center', padding: '32px', color: 'var(--text-muted)' }}>
+                      Loading team members...
                     </td>
                   </tr>
                 ) : team.length === 0 ? (
                   <tr>
-                    <td colSpan="5" className="text-center py-4">
-                      No team members assigned yet.
+                    <td colSpan="5" style={{ textAlign: 'center', padding: '32px', color: 'var(--text-muted)' }}>
+                      No team members assigned.
                     </td>
                   </tr>
                 ) : (
-                  team.map((emp) => (
-                    <tr key={emp._id}>
+                  team.map((member) => (
+                    <tr key={member._id}>
                       <td>
-                        <div className="table-user-cell">
-                          <div className="avatar-circle">
-                            {emp.firstName?.[0]}
-                            {emp.lastName?.[0]}
+                        <div className="employee-combined-cell">
+                          <div className="employee-combined-avatar">
+                            {member.firstName?.[0]}
+                            {member.lastName?.[0]}
                           </div>
-                          <div>
-                            <div className="cell-primary">
-                              {emp.firstName} {emp.lastName}
-                            </div>
-                            <div className="cell-secondary">{emp.email}</div>
+                          <div className="employee-combined-meta">
+                            <span className="employee-combined-id">{member.employeeId}</span>
+                            <span className="employee-combined-name">
+                              {member.firstName} {member.lastName}
+                            </span>
+                            <span className="employee-combined-sub">{member.email}</span>
                           </div>
                         </div>
                       </td>
                       <td>
-                        <span className="code-pill">{emp.employeeId}</span>
-                      </td>
-                      <td>{emp.designation}</td>
-                      <td>
-                        <span className={`status-tag status-${emp.employmentStatus}`}>
-                          {emp.employmentStatus}
+                        <span style={{ fontWeight: 500, color: 'var(--text-primary)' }}>
+                          {member.designation || 'Engineer'}
                         </span>
                       </td>
                       <td>
+                        {typeof member.department === 'object' && member.department !== null
+                          ? member.department.name
+                          : (member.department || 'Engineering')}
+                      </td>
+                      <td>
+                        <span className={`status-tag status-${member.employmentStatus || 'active'}`}>
+                          <span className="badge-dot"></span>
+                          {member.employmentStatus || 'Active'}
+                        </span>
+                      </td>
+                      <td style={{ textAlign: 'right' }}>
                         <Link
-                          to={`/employees/${emp._id}`}
-                          className="table-action-link"
+                          to={`/employees/${member._id}`}
+                          className="btn-table-action"
                         >
-                          Profile →
+                          Review
                         </Link>
                       </td>
                     </tr>
@@ -139,41 +252,49 @@ export const ManagerDashboard = () => {
           </div>
         </section>
 
-        {/* Team Review Section */}
+        {/* Manager Quick Guidelines */}
         <section className="panel-card">
           <div className="panel-header">
-            <h3>Team Leave Approvals</h3>
-            <span className="badge-amber text-xs px-2 py-1 rounded">1 Pending</span>
+            <h3>Team Leadership Focus</h3>
+            <span className="status-tag status-active" style={{ fontSize: '11px' }}>
+              <span className="badge-dot"></span>
+              On Track
+            </span>
           </div>
 
-          <div className="action-items-list">
-            <div className="action-item">
-              <div className="action-icon">📅</div>
-              <div className="action-details">
-                <div className="action-title">Jane Employee (Frontend)</div>
-                <div className="action-sub">Casual Leave: Next Friday (1 Day)</div>
-              </div>
-              <div className="flex gap-2">
-                <button className="btn-xs btn-approve">Approve</button>
-                <button className="btn-xs btn-reject">Decline</button>
-              </div>
+          <div className="system-metrics-list">
+            <div className="metric-item">
+              <span className="metric-label">Review Cadence</span>
+              <span className="metric-badge">Bi-weekly 1-on-1s</span>
+            </div>
+            <div className="metric-item">
+              <span className="metric-label">Leave SLA</span>
+              <span className="metric-badge">24h Response Goal</span>
+            </div>
+            <div className="metric-item">
+              <span className="metric-label">Team Velocity</span>
+              <span className="metric-badge">94% Sprint Goal</span>
+            </div>
+            <div className="metric-item">
+              <span className="metric-label">Overtime Status</span>
+              <span className="metric-badge">Standard (0h)</span>
             </div>
           </div>
 
-          <div className="quick-nav-block mt-4">
-            <div className="quick-nav-title">Manager Tools</div>
+          <div className="quick-nav-block">
+            <div className="quick-nav-title">Manager Actions</div>
             <div className="quick-nav-buttons">
-              <Link to="/attendance" className="quick-action-btn">
-                <span>⏱️</span> Team Attendance
-              </Link>
               <Link to="/leave" className="quick-action-btn">
-                <span>📅</span> Team Leave
+                <CalendarDays size={14} style={{ color: 'var(--primary)' }} />
+                <span>Approvals</span>
               </Link>
               <Link to="/performance" className="quick-action-btn">
-                <span>📈</span> Performance Reviews
+                <TrendingUp size={14} style={{ color: 'var(--primary)' }} />
+                <span>Performance</span>
               </Link>
-              <Link to="/reports" className="quick-action-btn">
-                <span>📑</span> Team Summary
+              <Link to="/employees" className="quick-action-btn">
+                <Users size={14} style={{ color: 'var(--primary)' }} />
+                <span>My Team</span>
               </Link>
             </div>
           </div>

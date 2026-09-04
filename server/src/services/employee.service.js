@@ -1,6 +1,10 @@
-﻿const mongoose = require('mongoose');
+const mongoose = require('mongoose');
 const { Employee } = require('../models/Employee');
 const { User } = require('../models/User');
+const { Department } = require('../models/Department');
+const departmentService = require('./department.service');
+const { sendWelcomeEmail } = require('./email.service');
+const { logAuditEvent } = require('./audit.service');
 
 /**
  * Generates the next sequential Employee ID (e.g. EMP001, EMP002).
@@ -66,7 +70,22 @@ const getEmployees = async ({ user, query = {} }) => {
 
   // Filters
   if (query.department && query.department.trim() !== '') {
-    filter.department = { $regex: new RegExp(`^${query.department.trim()}$`, 'i') };
+    const dVal = query.department.trim();
+    if (mongoose.Types.ObjectId.isValid(dVal)) {
+      filter.department = dVal;
+    } else {
+      const foundDept = await Department.findOne({
+        $or: [{ name: new RegExp(`^${dVal}$`, 'i') }, { departmentId: dVal.toUpperCase() }],
+      }).select('_id');
+      if (foundDept) {
+        filter.department = foundDept._id;
+      } else {
+        return {
+          employees: [],
+          pagination: { page, limit, total: 0, totalPages: 0 },
+        };
+      }
+    }
   }
 
   if (query.employmentStatus && query.employmentStatus.trim() !== '') {
@@ -86,7 +105,6 @@ const getEmployees = async ({ user, query = {} }) => {
       { email: searchRegex },
       { employeeId: searchRegex },
       { designation: searchRegex },
-      { department: searchRegex },
     ];
 
     if (filter.$or) {
@@ -106,6 +124,7 @@ const getEmployees = async ({ user, query = {} }) => {
     Employee.countDocuments(filter),
     Employee.find(filter)
       .populate('manager', 'firstName lastName email employeeId designation')
+      .populate('department', 'departmentId name location')
       .sort(sort)
       .skip(skip)
       .limit(limit)
@@ -139,6 +158,7 @@ const getEmployeeById = async ({ user, id }) => {
 
   const employee = await Employee.findOne(query)
     .populate('manager', 'firstName lastName email employeeId designation')
+    .populate('department', 'departmentId name location description status')
     .populate('user', 'role isActive');
 
   if (!employee) {
@@ -236,14 +256,27 @@ const createEmployee = async ({ user, data }) => {
     }
   }
 
-  // Link to existing user if available
+  // Link or auto-provision User credentials for new employee
   let linkedUserId = data.user || null;
+  let tempPassword = null;
   if (!linkedUserId) {
     const existingUser = await User.findOne({
       $or: [{ email }, { employeeId }],
     }).select('_id');
     if (existingUser) {
       linkedUserId = existingUser._id;
+    } else {
+      tempPassword = `Corp@${employeeId}#`;
+      const newUser = await User.create({
+        employeeId,
+        firstName: (data.firstName || '').trim(),
+        lastName: (data.lastName || '').trim(),
+        email,
+        password: tempPassword,
+        role: data.role || 'employee',
+        isActive: true,
+      });
+      linkedUserId = newUser._id;
     }
   }
 
@@ -254,6 +287,14 @@ const createEmployee = async ({ user, data }) => {
     if (mgr) {
       managerId = mgr._id;
     }
+  }
+
+  // Resolve Department
+  const deptId = await departmentService.resolveDepartmentId(data.department);
+  if (!deptId) {
+    const err = new Error('Department is required');
+    err.statusCode = 400;
+    throw err;
   }
 
   const newEmployee = await Employee.create({
@@ -270,7 +311,7 @@ const createEmployee = async ({ user, data }) => {
       postalCode: data.address?.postalCode?.trim() || '',
       country: data.address?.country?.trim() || 'United States',
     },
-    department: (data.department || '').trim(),
+    department: deptId,
     designation: (data.designation || '').trim(),
     employmentType: data.employmentType || 'full-time',
     joiningDate: data.joiningDate ? new Date(data.joiningDate) : new Date(),
@@ -285,6 +326,29 @@ const createEmployee = async ({ user, data }) => {
       relationship: data.emergencyContact?.relationship?.trim() || '',
     },
     profileImage: data.profileImage || '',
+  });
+
+  // Automatically dispatch welcome & login credentials email to new employee
+  if (tempPassword) {
+    sendWelcomeEmail({
+      to: email,
+      name: `${newEmployee.firstName} ${newEmployee.lastName}`.trim(),
+      employeeId,
+      tempPassword,
+      designation: newEmployee.designation,
+    }).catch((err) => console.warn('⚠️ Welcome email dispatch error:', err.message));
+  }
+
+  // Audit log (non-blocking)
+  logAuditEvent({
+    actor: user._id,
+    actorEmail: user.email,
+    actorRole: user.role,
+    action: 'EMPLOYEE_CREATE',
+    entityType: 'Employee',
+    entityId: newEmployee._id,
+    description: `New employee created: ${newEmployee.firstName} ${newEmployee.lastName} (${newEmployee.employeeId})`,
+    metadata: { employeeId: newEmployee.employeeId, designation: newEmployee.designation, employmentType: newEmployee.employmentType },
   });
 
   return newEmployee;
@@ -335,7 +399,9 @@ const updateEmployee = async ({ user, id, data }) => {
   if (data.lastName !== undefined) employee.lastName = data.lastName.trim();
   if (data.phone !== undefined) employee.phone = data.phone.trim();
   if (data.alternatePhone !== undefined) employee.alternatePhone = data.alternatePhone.trim();
-  if (data.department !== undefined) employee.department = data.department.trim();
+  if (data.department !== undefined && data.department !== '') {
+    employee.department = await departmentService.resolveDepartmentId(data.department);
+  }
   if (data.designation !== undefined) employee.designation = data.designation.trim();
   if (data.employmentType !== undefined) employee.employmentType = data.employmentType;
   if (data.employmentStatus !== undefined) employee.employmentStatus = data.employmentStatus;
@@ -404,6 +470,18 @@ const deactivateEmployee = async ({ user, id }) => {
   employee.employmentStatus = 'inactive';
   await employee.save();
 
+  // Audit log (non-blocking)
+  logAuditEvent({
+    actor: user._id,
+    actorEmail: user.email,
+    actorRole: user.role,
+    action: 'EMPLOYEE_DEACTIVATE',
+    entityType: 'Employee',
+    entityId: employee._id,
+    description: `Employee ${employee.firstName} ${employee.lastName} (${employee.employeeId}) was deactivated`,
+    metadata: { employeeId: employee.employeeId, status: 'inactive' },
+  });
+
   return employee;
 };
 
@@ -413,6 +491,10 @@ const deactivateEmployee = async ({ user, id }) => {
  * @returns {Promise<string[]>}
  */
 const getDistinctDepartments = async () => {
+  const depts = await Department.find({ status: 'active' }).select('name departmentId').lean();
+  if (depts.length > 0) {
+    return depts.map((d) => d.name);
+  }
   return Employee.distinct('department');
 };
 

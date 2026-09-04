@@ -1,5 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import {
+  Search,
+  X,
+  UserPlus,
+  Eye,
+  Edit2,
+  UserX,
+  ChevronLeft,
+  ChevronRight,
+} from 'lucide-react';
+import { toast } from 'sonner';
 import { useAuth } from '../../hooks/useAuth';
 import {
   getEmployees,
@@ -8,6 +19,7 @@ import {
 } from '../../services/employeeService';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import EmptyState from '../../components/common/EmptyState';
+import ConfirmModal from '../../components/common/ConfirmModal';
 
 export const EmployeeListPage = () => {
   const { user } = useAuth();
@@ -25,9 +37,13 @@ export const EmployeeListPage = () => {
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0, totalPages: 1 });
 
-  // Deactivate feedback
-  const [deactivatingId, setDeactivatingId] = useState(null);
-  const [actionNotice, setActionNotice] = useState(null);
+  // Deactivate modal state
+  const [deactivateModal, setDeactivateModal] = useState({
+    isOpen: false,
+    employeeId: null,
+    employeeName: '',
+  });
+  const [deactivating, setDeactivating] = useState(false);
 
   // Load distinct departments once
   useEffect(() => {
@@ -93,63 +109,55 @@ export const EmployeeListPage = () => {
     reloadEmployees();
   };
 
-  const handleDeactivate = async (id, name) => {
-    if (!window.confirm(`Are you sure you want to deactivate employee "${name}"? Their status will be set to inactive.`)) {
-      return;
-    }
+  const handleConfirmDeactivate = async () => {
+    if (!deactivateModal.employeeId) return;
 
-    setDeactivatingId(id);
-    setActionNotice(null);
+    setDeactivating(true);
     try {
-      await deactivateEmployee(id);
-      setActionNotice({ type: 'success', message: `Employee "${name}" deactivated successfully.` });
+      await deactivateEmployee(deactivateModal.employeeId);
+      toast.success(`Employee "${deactivateModal.employeeName}" has been deactivated.`);
+      setDeactivateModal({ isOpen: false, employeeId: null, employeeName: '' });
       reloadEmployees();
     } catch (err) {
-      setActionNotice({ type: 'error', message: err.message || 'Failed to deactivate employee.' });
+      toast.error(err.message || 'Failed to deactivate employee.');
     } finally {
-      setDeactivatingId(null);
+      setDeactivating(false);
     }
   };
 
   return (
     <div className="employee-page-container">
-      {/* Header Banner */}
+      {/* Header */}
       <div className="dashboard-page-header">
         <div>
           <h1 className="page-main-title">
-            {user?.role === 'manager' ? 'My Team Directory' : 'Employee Directory'}
+            {user?.role === 'manager' ? 'Team Directory' : 'Workforce Directory'}
           </h1>
           <p className="page-sub-title">
             {user?.role === 'manager'
-              ? 'View records for employees assigned directly to your management scope.'
-              : 'Comprehensive company directory with role-based oversight and profile access.'}
+              ? 'View records for team members within your managerial scope.'
+              : 'Enterprise directory with profile records, department links, and status control.'}
           </p>
         </div>
 
         {isManagerOrAdmin && (
           <div className="header-actions">
-            <Link to="/employees/new" className="btn-primary">
-              <span>➕</span> Add New Employee
+            <Link to="/employees/new" className="btn btn-primary">
+              <UserPlus size={15} />
+              <span>Add Employee</span>
             </Link>
           </div>
         )}
       </div>
 
-      {actionNotice && (
-        <div className={`action-banner banner-${actionNotice.type}`}>
-          <span>{actionNotice.type === 'success' ? '✅' : '⚠️'}</span>
-          <span>{actionNotice.message}</span>
-        </div>
-      )}
-
       {/* Filter and Search Bar */}
       <div className="filter-card">
         <form onSubmit={handleSearchSubmit} className="search-form">
           <div className="search-input-group">
-            <span className="search-icon">🔍</span>
+            <Search size={15} className="search-icon" />
             <input
               type="text"
-              placeholder="Search by name, ID, email, or designation..."
+              placeholder="Search by name, ID, or email..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="search-input"
@@ -162,12 +170,13 @@ export const EmployeeListPage = () => {
                   setSearch('');
                   setPage(1);
                 }}
+                aria-label="Clear search"
               >
-                ✕
+                <X size={14} />
               </button>
             )}
           </div>
-          <button type="submit" className="btn-secondary">
+          <button type="submit" className="btn btn-secondary">
             Search
           </button>
         </form>
@@ -199,164 +208,189 @@ export const EmployeeListPage = () => {
           >
             <option value="">All Statuses</option>
             <option value="active">Active</option>
-            <option value="on-leave">On Leave</option>
             <option value="inactive">Inactive</option>
+            <option value="on-leave">On Leave</option>
             <option value="terminated">Terminated</option>
           </select>
         </div>
       </div>
 
-      {/* Employee Data Table */}
-      <div className="panel-card table-panel">
+      {/* Main Table Card */}
+      <div className="table-card">
         {loading ? (
-          <LoadingSpinner message="Retrieving employee directory..." />
+          <LoadingSpinner message="Loading employee directory..." />
         ) : error ? (
-          <div className="error-banner-panel">
-            <span className="error-icon">⚠️</span>
+          <div style={{ padding: '32px', textAlign: 'center', color: 'var(--danger)' }}>
             <p>{error}</p>
-            <button className="btn-secondary mt-2" onClick={reloadEmployees}>
+            <button
+              type="button"
+              className="btn btn-secondary btn-sm"
+              onClick={reloadEmployees}
+              style={{ marginTop: '12px' }}
+            >
               Retry
             </button>
           </div>
         ) : employees.length === 0 ? (
           <EmptyState
-            icon="👥"
             title="No employees found"
-            description="No employee records match the active search query or filter parameters."
+            description={
+              search || selectedDept || selectedStatus
+                ? 'Try adjusting your search query or filters to find records.'
+                : 'No employees have been added to the system yet.'
+            }
             action={
-              (search || selectedDept || selectedStatus) && (
-                <button
-                  className="btn-secondary"
-                  onClick={() => {
-                    setSearch('');
-                    setSelectedDept('');
-                    setSelectedStatus('');
-                    setPage(1);
-                  }}
-                >
-                  Clear Filters
-                </button>
+              isManagerOrAdmin && (
+                <Link to="/employees/new" className="btn btn-primary btn-sm">
+                  <UserPlus size={14} />
+                  <span>Add First Employee</span>
+                </Link>
               )
             }
           />
         ) : (
-          <>
-            <div className="panel-table-responsive">
-              <table className="custom-data-table">
-                <thead>
-                  <tr>
-                    <th>Employee</th>
-                    <th>Employee ID</th>
-                    <th>Department</th>
-                    <th>Designation</th>
-                    <th>Type</th>
-                    <th>Status</th>
-                    <th className="text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {employees.map((emp) => {
-                    const isDeactivating = deactivatingId === emp._id;
-                    const canEdit = isManagerOrAdmin;
-
-                    return (
-                      <tr key={emp._id}>
-                        <td>
-                          <div className="table-user-cell">
-                            <div className="avatar-circle">
-                              {emp.firstName?.[0]}
-                              {emp.lastName?.[0]}
-                            </div>
-                            <div>
-                              <div className="cell-primary">
-                                {emp.firstName} {emp.lastName}
-                              </div>
-                              <div className="cell-secondary">{emp.email}</div>
-                            </div>
+          <div className="table-responsive">
+            <table className="custom-data-table">
+              <thead>
+                <tr>
+                  <th>Employee</th>
+                  <th>ID</th>
+                  <th>Department</th>
+                  <th>Designation</th>
+                  <th>Status</th>
+                  <th style={{ textAlign: 'right' }}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {employees.map((emp) => (
+                  <tr key={emp._id}>
+                    <td>
+                      <div className="table-user-cell">
+                        <div className="avatar-circle">
+                          {emp.firstName?.[0]}
+                          {emp.lastName?.[0]}
+                        </div>
+                        <div>
+                          <div className="cell-primary">
+                            {emp.firstName} {emp.lastName}
                           </div>
-                        </td>
-                        <td>
-                          <span className="code-pill">{emp.employeeId}</span>
-                        </td>
-                        <td>{emp.department}</td>
-                        <td>{emp.designation}</td>
-                        <td>
-                          <span className="type-tag">{emp.employmentType}</span>
-                        </td>
-                        <td>
-                          <span className={`status-tag status-${emp.employmentStatus}`}>
-                            {emp.employmentStatus}
-                          </span>
-                        </td>
-                        <td className="text-right">
-                          <div className="table-actions-group">
+                          <div className="cell-secondary">{emp.email}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <span className="code-pill">{emp.employeeId}</span>
+                    </td>
+                    <td>
+                      {typeof emp.department === 'object' && emp.department !== null
+                        ? emp.department.name
+                        : (emp.department || '—')}
+                    </td>
+                    <td>{emp.designation || '—'}</td>
+                    <td>
+                      <span className={`status-tag status-${emp.employmentStatus}`}>
+                        <span className="badge-dot"></span>
+                        {emp.employmentStatus}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="table-actions">
+                        <Link
+                          to={`/employees/${emp._id}`}
+                          className="btn btn-ghost btn-sm"
+                          title="View Employee Profile"
+                        >
+                          <Eye size={14} />
+                          <span>View</span>
+                        </Link>
+
+                        {isManagerOrAdmin && (
+                          <>
                             <Link
-                              to={`/employees/${emp._id}`}
-                              className="action-btn-icon"
-                              title="View Full Profile"
+                              to={`/employees/${emp._id}/edit`}
+                              className="btn btn-ghost btn-sm"
+                              title="Edit Employee Details"
                             >
-                              👁️
+                              <Edit2 size={14} />
+                              <span>Edit</span>
                             </Link>
 
-                            {canEdit && (
-                              <Link
-                                to={`/employees/${emp._id}/edit`}
-                                className="action-btn-icon"
-                                title="Edit Employee"
-                              >
-                                ✏️
-                              </Link>
-                            )}
-
-                            {canEdit && emp.employmentStatus !== 'inactive' && (
+                            {emp.employmentStatus !== 'inactive' && (
                               <button
-                                className="action-btn-icon btn-danger-icon"
+                                type="button"
+                                className="btn btn-ghost btn-sm"
                                 onClick={() =>
-                                  handleDeactivate(emp._id, `${emp.firstName} ${emp.lastName}`)
+                                  setDeactivateModal({
+                                    isOpen: true,
+                                    employeeId: emp._id,
+                                    employeeName: `${emp.firstName} ${emp.lastName}`,
+                                  })
                                 }
-                                disabled={isDeactivating}
                                 title="Deactivate Employee"
+                                style={{ color: 'var(--danger)' }}
                               >
-                                🚫
+                                <UserX size={14} />
+                                <span>Deactivate</span>
                               </button>
                             )}
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+                          </>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
 
-            {/* Pagination Controls */}
-            <div className="pagination-bar">
-              <span className="pagination-info">
-                Showing {employees.length} of {pagination.total} employees (Page {pagination.page} of{' '}
-                {pagination.totalPages || 1})
+        {/* Table Pagination */}
+        {!loading && employees.length > 0 && (
+          <div className="table-pagination">
+            <span>
+              Showing {employees.length} of {pagination.total} employees
+            </span>
+            <div className="pagination-controls">
+              <button
+                type="button"
+                className="btn btn-secondary btn-sm"
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page <= 1}
+              >
+                <ChevronLeft size={14} />
+                <span>Prev</span>
+              </button>
+              <span style={{ padding: '0 8px', fontWeight: 500 }}>
+                Page {pagination.page} of {pagination.totalPages}
               </span>
-
-              <div className="pagination-buttons">
-                <button
-                  className="pagination-btn"
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  disabled={page <= 1}
-                >
-                  ← Previous
-                </button>
-                <span className="current-page-pill">{page}</span>
-                <button
-                  className="pagination-btn"
-                  onClick={() => setPage((p) => Math.min(pagination.totalPages, p + 1))}
-                  disabled={page >= pagination.totalPages}
-                >
-                  Next →
-                </button>
-              </div>
+              <button
+                type="button"
+                className="btn btn-secondary btn-sm"
+                onClick={() => setPage((p) => Math.min(pagination.totalPages, p + 1))}
+                disabled={page >= pagination.totalPages}
+              >
+                <span>Next</span>
+                <ChevronRight size={14} />
+              </button>
             </div>
-          </>
+          </div>
         )}
       </div>
+
+      {/* Deactivate Confirmation Modal */}
+      <ConfirmModal
+        isOpen={deactivateModal.isOpen}
+        title="Deactivate Employee"
+        message={`Are you sure you want to deactivate ${deactivateModal.employeeName}? Their status will be set to inactive, but existing organizational records and history will be preserved.`}
+        confirmText="Deactivate Employee"
+        cancelText="Cancel"
+        isDestructive={true}
+        loading={deactivating}
+        onConfirm={handleConfirmDeactivate}
+        onCancel={() =>
+          setDeactivateModal({ isOpen: false, employeeId: null, employeeName: '' })
+        }
+      />
     </div>
   );
 };

@@ -22,5 +22,10 @@
   "license": "ISC",
   "devDependencies": {
     "concurrently": "^9.1.2"
+  },
+  "dependencies": {
+    "lucide-react": "^1.39.0",
+    "motion": "^13.1.1",
+    "sonner": "^2.0.8"
   }
 }

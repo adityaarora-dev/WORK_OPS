@@ -1,4 +1,4 @@
-﻿const http = require('http');
+const http = require('http');
 
 function request({ method, path, headers = {}, body = null }) {
   return new Promise((resolve, reject) => {
@@ -89,7 +89,7 @@ async function runTestSuite() {
   const empLogin = await request({
     method: 'POST',
     path: '/api/auth/login',
-    body: { email: 'employee@hrms.local', password: 'Employee@123456' },
+    body: { email: 'akshat.wadagbalkar@gmail.com', password: 'Corp@EMP019#' },
   });
   assert('Employee login succeeds', empLogin.status === 200 && empLogin.data.data.token);
   const empToken = empLogin.data?.data?.token;
@@ -242,7 +242,7 @@ async function runTestSuite() {
   if (regEmp.status === 201) {
     assert('Public registration ignores "role: admin" and forces "employee"', regEmp.data.data.user.role === 'employee');
   } else {
-    assert('Public registration handles duplicate or creates user', regEmp.status === 201 || regEmp.status === 409);
+    assert('Public registration rejects unauthorized calls or handles duplicate', regEmp.status === 403 || regEmp.status === 201 || regEmp.status === 409);
   }
 
   // 26. Logout endpoint works

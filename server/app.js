@@ -1,5 +1,7 @@
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
+const { rateLimit } = require('express-rate-limit');
 const dotenv = require('dotenv');
 const routes = require('./src/routes');
 const { notFoundHandler, errorHandler } = require('./src/middlewares/errorHandler');
@@ -9,30 +11,78 @@ dotenv.config();
 
 const app = express();
 
-// CORS configuration - strict origin matching from environment variable
+// Security HTTP Headers with Helmet
+app.use(
+  helmet({
+    contentSecurityPolicy: false, // Allows cross-origin API calls from frontend
+    crossOriginEmbedderPolicy: false,
+  })
+);
+
+// Rate Limiting (Protects API and prevents brute-force abuse)
+const generalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 1500, // 1500 requests per 15 min per IP
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    message: 'Too many requests from this IP. Please try again after a few minutes.',
+  },
+});
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 200, // 200 requests per 15 min for auth endpoints
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    message: 'Too many authentication attempts from this IP. Please try again after 15 minutes.',
+  },
+});
+
+// CORS configuration - flexible and resilient origin matching
 const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+const configuredOrigins = clientUrl
+  .split(',')
+  .map((url) => url.trim().replace(/\/$/, ''))
+  .filter(Boolean);
+
 const corsOptions = {
   origin: (origin, callback) => {
-    // Allow requests with no origin (such as mobile apps, curl, or Postman)
+    // Allow requests with no origin (such as mobile apps, curl, server-to-server, or Postman)
     if (!origin) return callback(null, true);
 
-    // Support multiple comma-separated origins or single origin
-    const allowedOrigins = clientUrl.split(',').map((url) => url.trim());
-    if (allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error(`CORS error: Origin ${origin} not allowed by CORS policy.`));
+    const normalizedOrigin = origin.replace(/\/$/, '');
+
+    // Allow all localhost, 127.0.0.1, and loopback ports during local development
+    const isLocalDevelopment = /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/.test(normalizedOrigin);
+
+    if (isLocalDevelopment || configuredOrigins.includes(normalizedOrigin)) {
+      return callback(null, true);
     }
+
+    // Gracefully reject disallowed origins without throwing a 500 server error
+    return callback(null, false);
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
 };
 
 // Global Middlewares
 app.use(cors(corsOptions));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '5mb' }));
+app.use(express.urlencoded({ extended: true, limit: '5mb' }));
+
+// Apply Rate Limiters
+app.use('/api', generalLimiter);
+app.use('/api/auth/login', authLimiter);
+app.use('/api/auth/send-otp', authLimiter);
+app.use('/api/auth/verify-otp', authLimiter);
+app.use('/api/auth/forgot-password', authLimiter);
+app.use('/api/auth/reset-password', authLimiter);
 
 // Root route for basic server check
 app.get('/', (req, res) => {
@@ -46,6 +96,8 @@ app.get('/', (req, res) => {
 
 // API Routes
 app.use('/api', routes);
+// Direct alias support for /auth/* endpoints
+app.use('/auth', require('./src/routes/auth.routes'));
 
 // 404 Handler for undefined routes
 app.use(notFoundHandler);

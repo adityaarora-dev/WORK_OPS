@@ -1,9 +1,6 @@
-﻿import React from 'react';
+import React from 'react';
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import AdminDashboard from './AdminDashboard';
-import HrDashboard from './HrDashboard';
-import ManagerDashboard from './ManagerDashboard';
-import EmployeeDashboard from './EmployeeDashboard';
 
 export const DashboardRouter = () => {
   const { user } = useAuth();
@@ -11,14 +8,14 @@ export const DashboardRouter = () => {
 
   switch (role) {
     case 'admin':
-      return <AdminDashboard />;
+      return <Navigate to="/admin/dashboard" replace />;
     case 'hr':
-      return <HrDashboard />;
+      return <Navigate to="/hr/dashboard" replace />;
     case 'manager':
-      return <ManagerDashboard />;
+      return <Navigate to="/manager/dashboard" replace />;
     case 'employee':
     default:
-      return <EmployeeDashboard />;
+      return <Navigate to="/employee/dashboard" replace />;
   }
 };
 

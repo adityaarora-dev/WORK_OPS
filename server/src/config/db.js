@@ -3,6 +3,9 @@ const dns = require('dns');
 
 // Ensure reliable DNS resolution for mongodb+srv:// SRV records (especially on Windows)
 try {
+  if (dns.setDefaultResultOrder) {
+    dns.setDefaultResultOrder('ipv4first');
+  }
   dns.setServers(['8.8.8.8', '1.1.1.1']);
 } catch {
   // Gracefully fallback to system default resolver
@@ -67,6 +70,9 @@ const connectDB = async () => {
     console.log('⏳ [Database] Attempting connection to MongoDB Atlas...');
     const conn = await mongoose.connect(mongoURI, {
       serverSelectionTimeoutMS: 5000,
+      connectTimeoutMS: 10000,
+      socketTimeoutMS: 45000,
+      family: 4,
     });
 
     console.log(`✅ [Database] Successfully connected to MongoDB Atlas! Host: ${conn.connection.host}`);

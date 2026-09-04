@@ -1,4 +1,5 @@
-﻿import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { toast } from 'sonner';
 import { AuthContext } from './authContextDef';
 import { loginUser, getCurrentUser, logoutUser } from '../services/authService';
 
@@ -14,6 +15,7 @@ export const AuthProvider = ({ children }) => {
     const savedToken = localStorage.getItem('hrms_token');
 
     if (!savedToken) {
+      setLoading(false);
       return;
     }
 
@@ -40,6 +42,22 @@ export const AuthProvider = ({ children }) => {
     };
   }, []);
 
+  // Listen for global unauthorized / token expired event
+  useEffect(() => {
+    const handleExpired = (e) => {
+      const msg = e.detail?.message || 'Session expired. Please sign in again.';
+      toast.error(msg);
+      setUser(null);
+      setToken(null);
+      setLoading(false);
+    };
+
+    window.addEventListener('hrms:auth-expired', handleExpired);
+    return () => {
+      window.removeEventListener('hrms:auth-expired', handleExpired);
+    };
+  }, []);
+
   /**
    * Logs the user in and persists token.
    */
@@ -54,10 +72,24 @@ export const AuthProvider = ({ children }) => {
       setToken(receivedToken);
       return { success: true, user: loggedInUser };
     } catch (err) {
-      const message = err.message || 'Login failed. Please check your credentials.';
+      const message = err.response?.data?.message || err.message || 'Login failed. Please check your credentials.';
       setAuthError(message);
-      return { success: false, error: message };
+      return {
+        success: false,
+        error: message,
+        notFound: Boolean(err.response?.data?.notFound),
+      };
     }
+  }, []);
+
+  /**
+   * Directly sets active session (for OTP verification / registration).
+   */
+  const setSession = useCallback((newUser, newToken) => {
+    localStorage.setItem('hrms_token', newToken);
+    setUser(newUser);
+    setToken(newToken);
+    setAuthError(null);
   }, []);
 
   /**
@@ -76,6 +108,16 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
+  const getRoleDashboard = useCallback((userRole) => {
+    const r = (userRole || user?.role || 'employee').toLowerCase();
+    return `/${r}/dashboard`;
+  }, [user]);
+
+  const getRoleLogin = useCallback((roleName) => {
+    const r = (roleName || 'employee').toLowerCase();
+    return `/${r}/login`;
+  }, []);
+
   const value = {
     user,
     token,
@@ -83,7 +125,10 @@ export const AuthProvider = ({ children }) => {
     authError,
     isAuthenticated: Boolean(user && token),
     login,
+    setSession,
     logout,
+    getRoleDashboard,
+    getRoleLogin,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

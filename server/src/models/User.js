@@ -1,4 +1,4 @@
-﻿const mongoose = require('mongoose');
+const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
 const ROLES = ['admin', 'hr', 'manager', 'employee'];
@@ -53,12 +53,22 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    resetToken: {
+      type: String,
+      select: false,
+    },
+    resetTokenExpiry: {
+      type: Date,
+      select: false,
+    },
   },
   {
     timestamps: true,
     toJSON: {
       transform: (doc, ret) => {
         delete ret.password;
+        delete ret.resetToken;
+        delete ret.resetTokenExpiry;
         delete ret.__v;
         return ret;
       },
@@ -66,6 +76,8 @@ const userSchema = new mongoose.Schema(
     toObject: {
       transform: (doc, ret) => {
         delete ret.password;
+        delete ret.resetToken;
+        delete ret.resetTokenExpiry;
         delete ret.__v;
         return ret;
       },
