@@ -2,10 +2,13 @@ import axios from 'axios';
 
 /**
  * Base API URL read dynamically from Vite environment variable.
+ * Defaults to production Render URL in production builds, and localhost in dev.
  * Normalizes user-supplied URL with or without trailing /api.
  */
 const rawApiUrl = import.meta.env.VITE_API_URL;
-let baseURL = 'http://localhost:5000/api';
+let baseURL = import.meta.env.PROD
+  ? 'https://hr-2027.onrender.com/api'
+  : 'http://localhost:5000/api';
 
 if (rawApiUrl && rawApiUrl.trim()) {
   const cleanUrl = rawApiUrl.trim().replace(/\/$/, '');

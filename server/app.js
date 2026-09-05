@@ -63,15 +63,12 @@ const corsOptions = {
 
     const normalizedOrigin = origin.replace(/\/$/, '');
 
-    // Allow all localhost, 127.0.0.1, and loopback ports during local development/tests
-    const isLocalDevelopment = process.env.NODE_ENV !== 'production' && /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/.test(normalizedOrigin);
+    // Allow all localhost, 127.0.0.1, and loopback ports
+    const isLocalhost = /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/.test(normalizedOrigin);
+    // Allow any Vercel deployment (*.vercel.app)
+    const isVercel = normalizedOrigin.endsWith('.vercel.app');
 
-    if (isLocalDevelopment || configuredOrigins.includes(normalizedOrigin)) {
-      return callback(null, true);
-    }
-
-    // Optional: Allow Vercel preview domains if enabled
-    if (process.env.ALLOW_VERCEL_PREVIEWS === 'true' && normalizedOrigin.endsWith('.vercel.app')) {
+    if (isLocalhost || isVercel || configuredOrigins.includes(normalizedOrigin)) {
       return callback(null, true);
     }
 
