@@ -42,28 +42,40 @@ const authLimiter = rateLimit({
   },
 });
 
-// CORS configuration - flexible and resilient origin matching
-const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
-const configuredOrigins = clientUrl
-  .split(',')
+// CORS configuration - flexible and resilient origin matching across Render & Vercel
+const rawOrigins = [
+  ...(process.env.FRONTEND_URL ? process.env.FRONTEND_URL.split(',') : []),
+  ...(process.env.CLIENT_URL ? process.env.CLIENT_URL.split(',') : []),
+];
+
+if (rawOrigins.length === 0) {
+  rawOrigins.push('http://localhost:5173', 'http://127.0.0.1:5173');
+}
+
+const configuredOrigins = rawOrigins
   .map((url) => url.trim().replace(/\/$/, ''))
   .filter(Boolean);
 
 const corsOptions = {
   origin: (origin, callback) => {
-    // Allow requests with no origin (such as mobile apps, curl, server-to-server, or Postman)
+    // Allow requests with no origin (such as mobile apps, curl, server-to-server, or health monitors)
     if (!origin) return callback(null, true);
 
     const normalizedOrigin = origin.replace(/\/$/, '');
 
-    // Allow all localhost, 127.0.0.1, and loopback ports during local development
-    const isLocalDevelopment = /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/.test(normalizedOrigin);
+    // Allow all localhost, 127.0.0.1, and loopback ports during local development/tests
+    const isLocalDevelopment = process.env.NODE_ENV !== 'production' && /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/.test(normalizedOrigin);
 
     if (isLocalDevelopment || configuredOrigins.includes(normalizedOrigin)) {
       return callback(null, true);
     }
 
-    // Gracefully reject disallowed origins without throwing a 500 server error
+    // Optional: Allow Vercel preview domains if enabled
+    if (process.env.ALLOW_VERCEL_PREVIEWS === 'true' && normalizedOrigin.endsWith('.vercel.app')) {
+      return callback(null, true);
+    }
+
+    // Gracefully reject disallowed origins without crashing the server
     return callback(null, false);
   },
   credentials: true,

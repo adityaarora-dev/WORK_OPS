@@ -1,10 +1,16 @@
 import axios from 'axios';
 
 /**
- * Base API URL read from Vite environment variable.
- * Fallback to default development endpoint if not configured.
+ * Base API URL read dynamically from Vite environment variable.
+ * Normalizes user-supplied URL with or without trailing /api.
  */
-const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const rawApiUrl = import.meta.env.VITE_API_URL;
+let baseURL = 'http://localhost:5000/api';
+
+if (rawApiUrl && rawApiUrl.trim()) {
+  const cleanUrl = rawApiUrl.trim().replace(/\/$/, '');
+  baseURL = cleanUrl.endsWith('/api') ? cleanUrl : `${cleanUrl}/api`;
+}
 
 /**
  * Centralized Axios instance for the HR Management System.
@@ -91,7 +97,7 @@ api.interceptors.response.use(
         ? 'Authentication required. Please sign in to continue.'
         : error.response?.data?.message ||
           (isNetErr
-            ? 'Network Error: Unable to reach HRMS backend server. Please verify backend is running on port 5000.'
+            ? 'Network Error: Unable to reach HRMS backend server. Please verify backend service status.'
             : error.message || 'Unknown network error'),
       data: error.response?.data || null,
       isNetworkError: isNetErr,

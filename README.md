@@ -38,13 +38,12 @@ The system is structured as a full-stack monorepo featuring a clean separation o
 
 ```
 HR-Management-System/
-├── package.json                        # Root workspace scripts (concurrent full-stack boot)
-├── package-lock.json                   # Root package lockfile
 ├── .gitignore                          # Monorepo git exclusion definitions
-├── functioning.md                      # Complete system execution and operational guide
-├── README.md                           # Complete project structure and file inventory
+├── credentials.md                      # Master verified user credentials and reporting hierarchy
+├── README.md                           # Complete project structure, architecture & deployment guide
 │
-├── client/                             # Frontend React 19 + Vite 8 Application
+├── client/                             # Frontend React 19 + Vite 8 Application (Deploy to Vercel)
+│   ├── vercel.json                     # Vercel SPA routing rewrite configuration
 │   ├── index.html                      # HTML5 web application entrypoint
 │   ├── package.json                    # Client dependencies (Lucide, Axios, Sonner, Router)
 │   ├── vite.config.js                  # Vite bundler configuration (Dev port: 5173)
@@ -300,26 +299,30 @@ HR-Management-System/
 
 ---
 
-## 4. Setup & Installation Guide
+## 4. Local Setup & Development Guide
 
 ### 4.1 Prerequisites
 - **Node.js**: v20.x or v24.x installed
 - **npm**: v10.x or higher
 - **MongoDB Atlas**: Sharded or serverless cluster with connection URI
-- **Google Gmail SMTP App Password**: For passwordless email OTP verification
+- **Google Gmail SMTP App Password**: For real-time email OTP verification
 
-### 4.2 Configuration Files
+### 4.2 Local Configuration Files
 
 #### Server Configuration (`server/.env`)
 ```env
 PORT=5000
-MONGODB_URI=mongodb+srv://<username>:<password>@cluster.ptyfyms.mongodb.net/hrms_db?retryWrites=true&w=majority
-JWT_SECRET=super_secret_enterprise_jwt_signing_key_2026
-CLIENT_URL=http://localhost:5173
-EMAIL_SERVICE=gmail
-EMAIL_USER=your_corporate_email@gmail.com
-EMAIL_PASS=your_16_digit_app_password
 NODE_ENV=development
+MONGO_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/hrms_db?retryWrites=true&w=majority
+FRONTEND_URL=http://localhost:5173
+JWT_SECRET=super_secret_enterprise_jwt_signing_key_2026
+JWT_EXPIRES_IN=24h
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_EMAIL=your_corporate_email@gmail.com
+SMTP_PASSWORD=your_16_digit_app_password
+EMAIL_FROM="HR Management System" <your_corporate_email@gmail.com>
 ```
 
 #### Client Configuration (`client/.env`)
@@ -327,60 +330,143 @@ NODE_ENV=development
 VITE_API_URL=http://localhost:5000/api
 ```
 
-### 4.3 Running the Application
+### 4.3 Running Locally
 
-1. **Install Dependencies**:
+1. **Start the Backend Server**:
    ```bash
+   cd server
    npm install
-   cd client && npm install && cd ..
-   cd server && npm install && cd ..
+   npm run dev
    ```
+   - Backend API is accessible at `http://localhost:5000/api`
+   - Health check endpoint at `http://localhost:5000/api/health`
 
-2. **Run Full-Stack Environment (Concurrent)**:
+2. **Start the Frontend Client** (in a separate terminal):
    ```bash
+   cd client
+   npm install
    npm run dev
    ```
    - Frontend is accessible at `http://localhost:5173`
-   - Backend API is accessible at `http://localhost:5000/api`
 
-3. **Build Frontend for Production**:
+3. **Build Frontend Bundle**:
    ```bash
-   npm --prefix client run build
+   cd client
+   npm run build
    ```
 
 ---
 
-## 5. Automated Verification Test Suites
+## 5. Production Deployment Guide (Client $\rightarrow$ Vercel, Server $\rightarrow$ Render)
 
-Execute any test suite directly from the project root:
+### 5.1 Step 1: MongoDB Atlas Network Configuration
+Render web services operate on dynamic cloud IPs. For uninterrupted database connectivity:
+1. Log in to [MongoDB Atlas Console](https://cloud.mongodb.com).
+2. Navigate to **Security** $\rightarrow$ **Network Access**.
+3. Click **Add IP Address**.
+4. Select **Allow Access From Anywhere** (`0.0.0.0/0`) and save.
+5. In **Database Access**, verify your database user has `readWriteAnyDatabase` or read/write privileges on `hrms_db`.
+
+### 5.2 Step 2: Backend Deployment on Render (`server` folder)
+1. Log in to [Render Dashboard](https://dashboard.render.com).
+2. Click **New +** $\rightarrow$ **Web Service**.
+3. Connect your GitHub repository (`HR-Management-System`).
+4. Configure service settings:
+   * **Name**: `hrms-backend` (or your preferred name)
+   * **Region**: Choose closest to your users (e.g., Oregon, Frankfurt, Singapore)
+   * **Root Directory**: `server` *(CRITICAL: points Render strictly to the server subdirectory)*
+   * **Runtime**: `Node`
+   * **Build Command**: `npm install`
+   * **Start Command**: `npm start`
+   * **Instance Type**: Free / Starter
+5. Under **Environment Variables**, add the following:
+   * `NODE_ENV`: `production`
+   * `PORT`: `5000` (Render will map this internally or provide `PORT`)
+   * `MONGO_URI`: Your MongoDB Atlas connection string (e.g. `mongodb+srv://user:pass@cluster.mongodb.net/hrms_db?retryWrites=true&w=majority`)
+   * `FRONTEND_URL`: `https://<your-vercel-app>.vercel.app` *(Set this once your Vercel URL is known)*
+   * `JWT_SECRET`: A secure 32+ character random string
+   * `JWT_EXPIRES_IN`: `24h`
+   * `SMTP_HOST`: `smtp.gmail.com`
+   * `SMTP_PORT`: `587`
+   * `SMTP_SECURE`: `false`
+   * `SMTP_EMAIL`: Your Gmail address for sending OTPs
+   * `SMTP_PASSWORD`: Your Google 16-character App Password
+   * `EMAIL_FROM`: `"HR Management System" <your-email@gmail.com>`
+6. Click **Deploy Web Service**.
+7. Note down your assigned Render URL: `https://<your-service>.onrender.com`.
+8. Verify health check by visiting: `https://<your-service>.onrender.com/api/health`.
+
+### 5.3 Step 3: Frontend Deployment on Vercel (`client` folder)
+1. Log in to [Vercel Dashboard](https://vercel.com).
+2. Click **Add New...** $\rightarrow$ **Project**.
+3. Import your GitHub repository (`HR-Management-System`).
+4. In the configuration screen:
+   * **Framework Preset**: `Vite`
+   * **Root Directory**: Click **Edit** and select `client` *(CRITICAL: points Vercel strictly to client)*
+   * **Build Command**: `npm run build` (default)
+   * **Output Directory**: `dist` (default)
+5. Under **Environment Variables**, configure:
+   * **Key**: `VITE_API_URL`
+   * **Value**: `https://<your-service>.onrender.com/api` *(Note: `client/src/services/api.js` automatically ensures `/api` is included even if omitted)*
+6. The included [`client/vercel.json`](file:///D:/Projects/HR-Management-System/client/vercel.json) automatically handles SPA route rewrites to `/index.html` to prevent 404s on page reload.
+7. Click **Deploy**.
+8. Once deployed, copy your production Vercel URL (e.g., `https://hrms-system.vercel.app`).
+
+### 5.4 Step 4: Link Frontend URL to Backend CORS
+1. Go back to the **Render Dashboard** $\rightarrow$ `hrms-backend` $\rightarrow$ **Environment Variables**.
+2. Update `FRONTEND_URL` with your exact Vercel URL: `https://<your-vercel-app>.vercel.app`.
+3. Render will automatically redeploy with the updated CORS allowed origins.
+
+---
+
+## 6. Post-Deployment Verification Checklist
+
+- [ ] **Backend Health Check**: `GET https://<your-backend>.onrender.com/api/health` returns `{"status":"ok","database":{"connected":true}}`.
+- [ ] **Root API Check**: `GET https://<your-backend>.onrender.com/` returns API welcome JSON.
+- [ ] **CORS Verification**: Client makes requests without CORS origin or preflight errors.
+- [ ] **Password Login**: Sign in with any of the 6 verified accounts in `credentials.md`.
+- [ ] **Email OTP Dispatch**: Request a 6-digit OTP code on login and verify delivery in Gmail inbox.
+- [ ] **Password Reset Flow**: Request reset from the forgot password modal, receive email, click token link, and set new password.
+- [ ] **SPA Route Refresh**: Navigate to `/admin/dashboard` or `/leave-management` and refresh the browser — page reloads cleanly without 404.
+- [ ] **Role-Based Access Control**: Verify Admin, HR, Manager, and Employee dashboards enforce correct permissions.
+
+---
+
+## 7. Automated Verification Test Suites
+
+Execute any test suite directly from the `server` directory:
+
+```bash
+cd server
+```
 
 ```bash
 # 1. Invite-Only Access Policy & Google SMTP OTP
-node server/src/scripts/test_invite_only_policy.js
+node src/scripts/test_invite_only_policy.js
 
 # 2. Stages 4–8 Core Workforce Modules
-node server/src/scripts/test_all_modules_suite.js
+node src/scripts/test_all_modules_suite.js
 
 # 3. Stage 9 Performance & OKR Goals
-node server/src/scripts/test_stage9_performance.js
+node src/scripts/test_stage9_performance.js
 
 # 4. Stage 10 Recruitment ATS & Candidate-to-Employee Conversion
-node server/src/scripts/test_stage10_recruitment.js
+node src/scripts/test_stage10_recruitment.js
 
 # 5. Stage 11 Reports, Notifications & Redacted Audit Logs
-node server/src/scripts/test_stage11_reports_notifications_audit.js
+node src/scripts/test_stage11_reports_notifications_audit.js
 
 # 6. Stage 12 Final Hardening & End-to-End Security
-node server/src/scripts/test_stage12_hardening_and_e2e.js
+node src/scripts/test_stage12_hardening_and_e2e.js
 
 # 7. Authentication & Token Lifecycle
-node server/src/scripts/test_auth_suite.js
+node src/scripts/test_auth_suite.js
 
 # 8. Token Expiry & Account Deactivation
-node server/src/scripts/test_edge_cases.js
+node src/scripts/test_edge_cases.js
 
 # 9. Employee CRUD & Resource-Level Scoping
-node server/src/scripts/test_employee_suite.js
+node src/scripts/test_employee_suite.js
 ```
 
 ---

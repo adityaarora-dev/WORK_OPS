@@ -43,11 +43,11 @@ const isDatabaseConnected = () => {
  * @returns {Promise<boolean>} Resolves to true if connected, false otherwise.
  */
 const connectDB = async () => {
-  const mongoURI = process.env.MONGODB_URI;
+  const mongoURI = process.env.MONGO_URI || process.env.MONGODB_URI;
 
   if (!mongoURI || mongoURI.trim() === '' || mongoURI.includes('your_mongodb_connection_string') || mongoURI.includes('<db_password>')) {
-    console.error('❌ [Database] Connection Error: MONGODB_URI is not configured or contains placeholder values.');
-    console.warn('⚠️  [Database] Please set a valid MongoDB Atlas URI in server/.env.');
+    console.error('❌ [Database] Connection Error: MONGO_URI / MONGODB_URI is not configured or contains placeholder values.');
+    console.warn('⚠️  [Database] Please set a valid MongoDB Atlas URI in server environment variables.');
     return false;
   }
 

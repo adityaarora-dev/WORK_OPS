@@ -12,40 +12,38 @@ async function getTransporter() {
     return transporter;
   }
 
-  const {
-    SMTP_HOST,
-    SMTP_PORT,
-    SMTP_USER,
-    SMTP_PASS,
-    SMTP_SECURE,
-    EMAIL_SERVICE,
-  } = process.env;
+  const smtpHost = process.env.SMTP_HOST;
+  const smtpPort = process.env.SMTP_PORT;
+  const smtpUser = process.env.SMTP_USER || process.env.SMTP_EMAIL;
+  const smtpPass = process.env.SMTP_PASS || process.env.SMTP_PASSWORD;
+  const smtpSecure = process.env.SMTP_SECURE;
+  const emailService = process.env.EMAIL_SERVICE;
 
   // 1. If explicit SMTP credentials are provided in .env
-  if (SMTP_HOST && SMTP_USER && SMTP_PASS) {
+  if (smtpHost && smtpUser && smtpPass) {
     transporter = nodemailer.createTransport({
-      host: SMTP_HOST,
-      port: Number(SMTP_PORT) || 587,
-      secure: SMTP_SECURE === 'true' || Number(SMTP_PORT) === 465,
+      host: smtpHost,
+      port: Number(smtpPort) || 587,
+      secure: smtpSecure === 'true' || Number(smtpPort) === 465,
       auth: {
-        user: SMTP_USER,
-        pass: SMTP_PASS,
+        user: smtpUser,
+        pass: smtpPass,
       },
     });
-    console.log(`📧 [EMAIL SERVICE] Configured with custom SMTP host: ${SMTP_HOST}`);
+    console.log(`📧 [EMAIL SERVICE] Configured with custom SMTP host: ${smtpHost}`);
     return transporter;
   }
 
   // 2. If popular service (e.g., Gmail with App Password) is provided
-  if (EMAIL_SERVICE && SMTP_USER && SMTP_PASS) {
+  if (emailService && smtpUser && smtpPass) {
     transporter = nodemailer.createTransport({
-      service: EMAIL_SERVICE,
+      service: emailService,
       auth: {
-        user: SMTP_USER,
-        pass: SMTP_PASS,
+        user: smtpUser,
+        pass: smtpPass,
       },
     });
-    console.log(`📧 [EMAIL SERVICE] Configured with ${EMAIL_SERVICE} account: ${SMTP_USER}`);
+    console.log(`📧 [EMAIL SERVICE] Configured with ${emailService} account: ${smtpUser}`);
     return transporter;
   }
 
@@ -281,7 +279,8 @@ async function sendOtpEmail({ to, otp, purpose = 'registration', name = '' }) {
 async function sendWelcomeEmail({ to, name, employeeId, tempPassword, designation }) {
   const mailer = await getTransporter();
   const fromAddress = process.env.EMAIL_FROM || '"HR Operations" <no-reply@hrms.internal>';
-  const portalUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+  const rawUrl = process.env.FRONTEND_URL || process.env.CLIENT_URL || 'http://localhost:5173';
+  const portalUrl = rawUrl.split(',')[0].trim().replace(/\/$/, '');
 
   const subject = `Welcome to the Team, ${name}! Your HRMS Corporate Access is Ready`;
 
@@ -459,7 +458,8 @@ async function sendNotificationEmail({ to, subject, title, message, name = '', t
 
   const greeting = name ? `Hello ${name},` : 'Hello,';
   const fromAddress = process.env.EMAIL_FROM || '"HR Management System" <no-reply@hrms.internal>';
-  const portalUrl = process.env.CLIENT_URL ? process.env.CLIENT_URL.split(',')[0].trim().replace(/\/$/, '') : 'http://localhost:5173';
+  const rawUrl = process.env.FRONTEND_URL || process.env.CLIENT_URL || 'http://localhost:5173';
+  const portalUrl = rawUrl.split(',')[0].trim().replace(/\/$/, '');
 
   const htmlContent = `
 <!DOCTYPE html>

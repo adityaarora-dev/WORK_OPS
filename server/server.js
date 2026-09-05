@@ -26,10 +26,11 @@ const startServer = async () => {
     console.warn('⚠️  [Server Warning] Health check (/api/health) will report database as disconnected.');
   }
 
+  const isProduction = process.env.NODE_ENV === 'production';
   const server = app.listen(PORT, '0.0.0.0', () => {
     console.log('--------------------------------------------------');
-    console.log(`🚀 Server running on: http://localhost:${PORT}`);
-    console.log(`🩺 Health check URL:  http://localhost:${PORT}/api/health`);
+    console.log(`🚀 Server listening on port: ${PORT} (${isProduction ? 'Production' : 'Development'})`);
+    console.log(`🩺 Health check route: /api/health`);
     console.log(`📡 Database status:   ${dbConnected ? 'CONNECTED' : 'DISCONNECTED (Degraded)'}`);
     console.log('--------------------------------------------------');
   });
