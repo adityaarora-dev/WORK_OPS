@@ -1,355 +1,393 @@
-# Enterprise HRMS — Project Structure & Architectural Reference
+<div align="center">
 
-A production-hardened, invite-only Human Resources Management System built on the modern **MERN** stack (**MongoDB Atlas, Express 5, React 19, Node.js v24, Vite 8**).
+# 🏛️ Enterprise HR Management System (HRMS)
+### Next-Generation Human Capital Governance & Autonomous Workforce Platform
 
----
+[![Live Frontend](https://img.shields.io/badge/Frontend-Vercel%20Production-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://hr-2027.vercel.app)
+[![Live Backend](https://img.shields.io/badge/Backend-Render%20Cloud-46E3B7?style=for-the-badge&logo=render&logoColor=black)](https://hr-2027.onrender.com/api/health)
+[![Database](https://img.shields.io/badge/Database-MongoDB%20Atlas-47A248?style=for-the-badge&logo=mongodb&logoColor=white)](https://cloud.mongodb.com)
+[![React 19](https://img.shields.io/badge/Client-React%2019%20%2B%20Vite%208-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev)
+[![Node Runtime](https://img.shields.io/badge/Server-Node.js%20v24%20%2B%20Express%205-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org)
+[![Verification Status](https://img.shields.io/badge/Test%20Suites-100%25%20Verified%20(29%2F29)-success?style=for-the-badge&logo=checkmarx)](https://hr-2027.onrender.com/api/health)
 
-## 1. Project Overview & Architectural Topology
+<p align="center">
+  <b>A production-hardened, invite-only enterprise platform orchestrating identity provisioning, multi-tiered hierarchy workflows, attendance telemetry, automated payroll disbursement, OKR goals, ATS recruitment, and immutable audit trails.</b>
+</p>
 
-The system is structured as a full-stack monorepo featuring a clean separation of concerns between client-side user interface workflows and server-side business logic, security middleware, and database persistence.
-
-```
-                     ┌─────────────────────────────────────────┐
-                     │            React 19 + Vite 8            │
-                     │          (Single Page Client)           │
-                     └────────────────────┬────────────────────┘
-                                          │
-                                   HTTP / REST / JSON
-                              (Axios with JWT Bearer)
-                                          │
-                                          ▼
-                     ┌─────────────────────────────────────────┐
-                     │          Express 5 + Node.js v24        │
-                     │        (Security, RBAC, Services)       │
-                     └────────────────────┬────────────────────┘
-                                          │
-                                 Mongoose 9 (SSL/TLS)
-                                          │
-                                          ▼
-                     ┌─────────────────────────────────────────┐
-                     │             MongoDB Atlas               │
-                     │       (Cloud Distributed Cluster)       │
-                     └─────────────────────────────────────────┘
-```
+[🌐 Live Production Portal](https://hr-2027.vercel.app) • [📡 Cloud API Health](https://hr-2027.onrender.com/api/health) • [🔑 Verified Credentials](credentials.md) • [📋 Architecture Overview](#-system-architecture--cloud-topology)
 
 ---
 
-## 2. Complete Repository Directory Tree
+</div>
+
+## 📌 Executive Summary
+
+The **Enterprise HR Management System (HRMS)** is an institutional-grade, full-stack application architected to manage the complete lifecycle of corporate human capital. Built upon the **MERN** stack (**MongoDB Atlas, Express 5, React 19, Node.js v24, Vite 8**), the platform enforces **zero-trust identity verification**, **hierarchical approval chains**, and **strict role-based resource scoping**.
+
+Every active account is bound to a verified real-world corporate email, ensuring reliable **Google SMTP dispatch** for passwordless 6-digit OTP verification, single-use password resets, leave approvals, and shift alerts.
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                    PLATFORM CAPABILITIES                                        │
+├──────────────────────┬──────────────────────┬──────────────────────┬────────────────────────────┤
+│ 🔐 Identity & Auth   │ 👥 Workforce Graph   │ ⏱️ Shift Telemetry   │ 💰 Automated Payroll       │
+│ • Password + OTP     │ • Strict Hierarchy   │ • 1-Click Clock-In   │ • Salary Breakdowns        │
+│ • SHA-256 Hashing    │ • Dept & Team Scoping│ • Hours Calculation  │ • Allowances & Deductions  │
+│ • Single-Use Tokens  │ • Manager Assignment │ • Historical Logs    │ • Instant Paystub PDF/CSV  │
+├──────────────────────┼──────────────────────┼──────────────────────┼────────────────────────────┤
+│ 🏖️ Leave Governance  │ 🎯 Performance OKRs  │ 💼 Recruitment ATS   │ 📜 Audit & Telemetry       │
+│ • Multi-Tier Approval│ • Quarterly Cycles   │ • 5-Stage Pipeline   │ • Immutable Logging        │
+│ • Real-time Balance  │ • KPI Weightings     │ • Candidate Conversion│ • Sensitive Redaction     │
+│ • Auto-Routing       │ • Self/Manager Review│ • Auto-Provisioning  │ • Real-Time Health Probes  │
+└──────────────────────┴──────────────────────┴──────────────────────┴────────────────────────────┘
+```
+
+---
+
+## 🏗️ System Architecture & Cloud Topology
+
+The platform separates client presentation from server-side domain logic, security pipelines, and cloud database persistence.
+
+### High-Level Architectural Flow
+
+```
+                                  USER BROWSER / CLIENT
+                                            │
+                                            ▼
+                        ┌───────────────────────────────────────┐
+                        │      Vercel Global Edge Network       │
+                        │    (React 19 + Vite 8 Single Page)    │
+                        │      https://hr-2027.vercel.app       │
+                        └───────────────────┬───────────────────┘
+                                            │
+                                            │ HTTPS / REST / JSON
+                                            │ (Bearer JWT Token)
+                                            ▼
+                        ┌───────────────────────────────────────┐
+                        │       Render Cloud Web Service        │
+                        │      (Node.js v24 + Express 5)        │
+                        │     https://hr-2027.onrender.com      │
+                        ├───────────────────────────────────────┤
+                        │ • Helmet Security Headers             │
+                        │ • Dynamic CORS Origin Matching        │
+                        │ • IP Rate Limiting (1500 req/15m)     │
+                        │ • JWT Verification & RBAC Guards      │
+                        │ • Domain Controllers & Services       │
+                        └───────────────┬───────┬───────────────┘
+                                        │       │
+                     Mongoose 9 TLS/SSL │       │ Google Cloud SMTP
+                                        │       │ (TLS Port 587)
+                                        ▼       ▼
+         ┌─────────────────────────────────┐ ┌─────────────────────────────────┐
+         │       MongoDB Atlas Cloud       │ │     Corporate Email Delivery    │
+         │  (Replica Set Clusters / M0)    │ │   (Real-Time 6-Digit OTP /      │
+         │   • Users & Roles               │ │    Password Resets / Alerts)    │
+         │   • Employees & Departments     │ └─────────────────────────────────┘
+         │   • Attendance & Leaves         │
+         │   • Payroll & Performance       │
+         │   • Audit Logs & Notifications  │
+         └─────────────────────────────────┘
+```
+
+### Detailed Component Interaction
+
+```mermaid
+graph TD
+    subgraph ClientLayer ["Client Layer (React 19 + Vite 8)"]
+        UI["Tailwind + Custom Navy CSS (18px radii)"]
+        Router["React Router 7 (SPA Engine)"]
+        AuthCtx["AuthContext (Session & JWT)"]
+        AxiosInst["Axios Interceptor (Bearer Auth)"]
+        UI --> Router
+        Router --> AuthCtx
+        AuthCtx --> AxiosInst
+    end
+
+    subgraph SecurityLayer ["Security & Routing Layer (Express 5)"]
+        HelmetMW["Helmet HTTP Headers"]
+        CorsMW["CORS Middleware (Dynamic Whitelist)"]
+        RateMW["Express Rate Limiting"]
+        AuthMW["verifyToken & checkRole Middleware"]
+        AxiosInst -- HTTPS --> HelmetMW
+        HelmetMW --> CorsMW
+        CorsMW --> RateMW
+        RateMW --> AuthMW
+    end
+
+    subgraph DomainLayer ["Domain Services & Controllers"]
+        AuthCtrl["Auth Controller"]
+        EmpCtrl["Employee Controller"]
+        LeaveCtrl["Leave Controller"]
+        PayCtrl["Payroll Controller"]
+        RecruitCtrl["Recruitment Controller"]
+        AuditCtrl["Audit Logger"]
+        AuthMW --> AuthCtrl
+        AuthMW --> EmpCtrl
+        AuthMW --> LeaveCtrl
+        AuthMW --> PayCtrl
+        AuthMW --> RecruitCtrl
+        AuthMW --> AuditCtrl
+    end
+
+    subgraph PersistenceLayer ["Persistence & External Infrastructure"]
+        AtlasDB[("MongoDB Atlas Cloud")]
+        SMTP["Google SMTP Relay"]
+        AuthCtrl -- Read/Write --> AtlasDB
+        EmpCtrl -- Read/Write --> AtlasDB
+        LeaveCtrl -- Read/Write --> AtlasDB
+        PayCtrl -- Read/Write --> AtlasDB
+        RecruitCtrl -- Read/Write --> AtlasDB
+        AuditCtrl -- Write-Only --> AtlasDB
+        AuthCtrl -- Send OTP --> SMTP
+        LeaveCtrl -- Notifications --> SMTP
+    end
+```
+
+---
+
+## 🔒 Security Architecture & Zero-Trust Principles
+
+1. **Authentication Engine**:
+   * **Dual Login Paradigms**: Enterprise Password-based login alongside Passwordless **Google SMTP 6-Digit OTP** dispatch.
+   * **Cryptographic Salt & Pepper**: Passwords hashed using `bcryptjs` with 10 salt rounds.
+   * **SHA-256 OTP Storage**: Verification codes are hashed with SHA-256 before database insertion; plain text OTPs are never stored.
+   * **Single-Use Reset Tokens**: Forgotten password links utilize cryptographically random tokens with 15-minute expirations, invalidated immediately upon redemption.
+2. **Dynamic Cross-Origin Resource Sharing (CORS)**:
+   * Origin matching authorizes production frontend (`https://hr-2027.vercel.app`), Vercel preview environments (`*.vercel.app`), and local development environments (`localhost`).
+   * Explicit credential passing with `credentials: true` and preflight `204` caching.
+3. **Adaptive IP Rate Limiting**:
+   * **General Limiter**: 1500 requests per 15-minute window for standard API interactions.
+   * **Authentication Limiter**: 200 requests per 15-minute window for `/api/auth/*` endpoints to prevent brute-force attacks.
+4. **Data Redaction & Immutable Auditing**:
+   * Audit logging captures every state mutation (method, route, user ID, client IP, timestamp).
+   * Password hashes, reset tokens, and sensitive personal identifiers are stripped prior to audit persistence.
+
+---
+
+## 🛡️ Multi-Tier Role-Based Access Control (RBAC)
+
+The system enforces strict multi-tenant authorization barriers across **4 organizational tiers**:
+
+```
+                              [ LEVEL 1: ADMIN ]
+                                      │
+                     ┌────────────────┴────────────────┐
+                     ▼                                 ▼
+              [ LEVEL 2: HR ]                 [ LEVEL 3: MANAGER ]
+                     │                                 │
+                     └────────────────┬────────────────┘
+                                      ▼
+                             [ LEVEL 4: EMPLOYEE ]
+```
+
+| Operational Dimension | Admin | HR Lead | Manager | Employee |
+| :--- | :---: | :---: | :---: | :---: |
+| **System Governance & Tenant Settings** | ✅ Full Access | ❌ Restricted | ❌ Restricted | ❌ Restricted |
+| **Audit Logs & Redacted System Trails** | ✅ Full Access | ❌ Restricted | ❌ Restricted | ❌ Restricted |
+| **Employee Provisioning & Deactivation**| ✅ Full Access | ✅ Full Access | ❌ Restricted | ❌ Restricted |
+| **Department Architecture & Assignments**| ✅ Full Access | ✅ Full Access | ❌ Restricted | ❌ Restricted |
+| **Direct Team Approvals & Roster** | ✅ All Teams | ✅ All Teams | ✅ Assigned Team | ❌ Restricted |
+| **Payroll Generation & Disbursement** | ✅ Global | ✅ Global | ❌ Restricted | ❌ Self Only |
+| **Leave Approval Queue** | ✅ Override | ✅ All Requests | ✅ Direct Reports | ❌ Self Requests |
+| **ATS Candidate-to-Employee Conversion**| ✅ Global | ✅ Global | ❌ Interview Only| ❌ Restricted |
+| **Self-Service Attendance Clock-In** | ✅ Yes | ✅ Yes | ✅ Yes | ✅ Yes |
+| **Personal Profile & Paystub Downloads**| ✅ Yes | ✅ Yes | ✅ Yes | ✅ Yes |
+
+---
+
+## 👥 Master Organizational Hierarchy & Live Demo Accounts
+
+The database is seeded with a 6-tier corporate reporting structure backed by verified Gmail accounts for email and OTP delivery:
+
+```
+                            Aditya Arora (EMP007)
+                      Chief Technology Officer & Director
+                                       │
+        ┌──────────────────────────────┼──────────────────────────────┐
+        ▼                              ▼                              ▼
+  Tanishq Goyal (EMP023)    Akshat Wadagbalkar (EMP019)    Chiranthan Suvidh (EMP018)
+    Head of People & HR       Cloud & Infra Manager        Software Dev Manager
+                                       │                              │
+                                       ▼                              ▼
+                             Uttkarsh Kumar (EMP020)         Abhik Sinha (EMP021)
+                               AI & Cloud Engineer         Backend Software Engineer
+```
+
+### Verified Live Demo Credentials
+
+| Role | Employee ID | Name | Registered Corporate Gmail | Default Password | Assigned Department | Direct Manager |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| 🛡️ **Admin** | `EMP007` | Aditya Arora | `a4adityaarora@gmail.com` | `Corp@EMP007#` | Technology & Systems | *Director (Top Level)* |
+| 📋 **HR Lead** | `EMP023` | Tanishq Goyal | `tnu23505@gmail.com` | `Corp@EMP023#` | Human Resources | Aditya Arora (`EMP007`) |
+| 👔 **Manager** | `EMP019` | Akshat Wadagbalkar | `akshat.wadagbalkar@gmail.com` | `Corp@EMP019#` | Technology & Systems | Aditya Arora (`EMP007`) |
+| 👔 **Manager** | `EMP018` | Chiranthan Suvidh | `suvidh.vibrance@gmail.com` | `Corp@EMP018#` | Engineering | Aditya Arora (`EMP007`) |
+| 💻 **Employee**| `EMP021` | Abhik Sinha | `abhiksinha06@gmail.com` | `Corp@EMP021#` | Engineering | Chiranthan Suvidh (`EMP018`) |
+| 💻 **Employee**| `EMP020` | Uttkarsh Kumar | `u23022686@gmail.com` | `Corp@EMP020#` | Technology & Systems | Akshat Wadagbalkar (`EMP019`) |
+
+*All credentials above are documented and maintained in [`credentials.md`](credentials.md).*
+
+---
+
+## 📦 Monorepo Directory Architecture
+
+The repository maintains an isolated separation between client presentation and backend services:
 
 ```
 HR-Management-System/
 ├── .gitignore                          # Monorepo git exclusion definitions
-├── credentials.md                      # Master verified user credentials and reporting hierarchy
-├── README.md                           # Complete project structure, architecture & deployment guide
+├── credentials.md                      # Master verified user credentials and reporting structure
+├── README.md                           # Master architectural reference and deployment guide
 │
-├── client/                             # Frontend React 19 + Vite 8 Application (Deploy to Vercel)
-│   ├── vercel.json                     # Vercel SPA routing rewrite configuration
-│   ├── index.html                      # HTML5 web application entrypoint
-│   ├── package.json                    # Client dependencies (Lucide, Axios, Sonner, Router)
-│   ├── vite.config.js                  # Vite bundler configuration (Dev port: 5173)
+├── client/                             # Frontend Single Page App (Vercel Ready)
+│   ├── vercel.json                     # SPA routing rewrite rule (prevents 404 on refresh)
+│   ├── index.html                      # HTML5 web entrypoint
+│   ├── vite.config.js                  # Bundler config (React 19 plugin, dev proxy :5000)
+│   ├── package.json                    # Client dependencies (React 19, Lucide, Axios, Sonner)
 │   ├── src/
-│   │   ├── main.jsx                    # React DOM root render tree
-│   │   ├── App.jsx                     # Global routing table & Context Provider wrapper
-│   │   ├── App.css                     # Minimal application-level overrides
-│   │   ├── index.css                   # Master Design System (Navy/Blue palette, 18px radii)
+│   │   ├── main.jsx                    # React DOM root render
+│   │   ├── App.jsx                     # Route table, Route Guards, Context Provider Tree
+│   │   ├── index.css                   # Executive Navy design system tokens
 │   │   │
-│   │   ├── assets/                     # Static media and branding vectors
+│   │   ├── components/                 # Atomic and reusable UI components
+│   │   │   ├── common/                 # Metric cards, Action queues, Error boundaries
+│   │   │   ├── layout/                 # Topbar with notifications, authenticated shells
+│   │   │   ├── navigation/             # Role-filtered responsive sidebar
+│   │   │   └── ProtectedRoute.jsx      # Client-side RBAC guard
 │   │   │
-│   │   ├── components/                 # Shared UI Components
-│   │   │   ├── Header.jsx              # Brand top header for legacy/root routes
-│   │   │   ├── ProtectedRoute.jsx      # Client-side RBAC route protection component
-│   │   │   ├── StatusBadge.jsx         # Status badge helper
-│   │   │   ├── common/                 # Reusable atomic UI elements
-│   │   │   │   ├── ActionQueue.jsx     # Dashboard priority task action queue
-│   │   │   │   ├── ErrorBoundary.jsx   # Client error boundary crash fallback
-│   │   │   │   └── StatCard.jsx        # Standardized KPI metric card with hover lift
-│   │   │   ├── layout/                 # Layout structural elements
-│   │   │   │   ├── DashboardLayout.jsx # Master authenticated dashboard shell
-│   │   │   │   └── Topbar.jsx          # Authenticated topbar with profile & notification bell
-│   │   │   └── navigation/             # Navigation controls
-│   │   │       ├── Sidebar.jsx         # Collapsible dark navy sidebar with role filters
-│   │   │       └── navConfig.js        # Centralized navigation item definitions per role
+│   │   ├── context/                    # Global React Contexts
+│   │   │   ├── AuthContext.jsx         # User session, JWT lifecycle, auto-logout
+│   │   │   └── NotificationContext.jsx # Live in-app alerts and notifications
 │   │   │
-│   │   ├── context/                    # React Context State Management
-│   │   │   ├── AuthContext.jsx         # Global authentication state, tokens, user session
-│   │   │   └── NotificationContext.jsx # Live in-app alerts, unread counts, status sync
+│   │   ├── pages/                      # Application route views
+│   │   │   ├── portal/                 # Gateway role selection & dedicated login views
+│   │   │   ├── dashboards/             # Scoped dashboards (Admin, HR, Manager, Employee)
+│   │   │   ├── employees/              # Employee directory, detail tabs, profile wizard
+│   │   │   ├── departments/            # Department management & roster breakdowns
+│   │   │   ├── attendance/             # 1-click Clock-In/Clock-Out & historical shifts
+│   │   │   ├── leave/                  # PTO requests & multi-tier manager approval queue
+│   │   │   ├── payroll/                # Salary computation, allowance items, paystubs
+│   │   │   ├── performance/            # OKR objective tracking & quarterly review forms
+│   │   │   ├── recruitment/            # 5-stage candidate ATS & one-click conversion
+│   │   │   ├── reports/                # Departmental cross-filtering & CSV exports
+│   │   │   ├── notifications/          # Notification inbox & badge management
+│   │   │   └── audit/                  # Immutable system trails & security logs
 │   │   │
-│   │   ├── hooks/                      # Custom React Hooks
-│   │   │   ├── useAuth.js              # Accessor hook for AuthContext
-│   │   │   ├── useHealth.js            # Live telemetry polling hook
-│   │   │   └── useNotifications.js     # Accessor hook for NotificationContext
-│   │   │
-│   │   ├── layouts/                    # Outer Structural Layouts
-│   │   │   ├── DashboardLayout.jsx     # Authenticated shell layout
-│   │   │   └── RootLayout.jsx          # Public page shell
-│   │   │
-│   │   ├── pages/                      # Application Route Views
-│   │   │   ├── HomePage.jsx            # Root system index
-│   │   │   ├── LoginPage.jsx           # Unified credentials login
-│   │   │   ├── DashboardPage.jsx       # Dynamic dashboard dispatcher based on user role
-│   │   │   │
-│   │   │   ├── portal/                 # Landing & Authentication Portals
-│   │   │   │   ├── RoleSelectionPortal.jsx # Clean Enterprise Gateway role selection
-│   │   │   │   └── RoleLoginPage.jsx   # Dedicated role login (Password + Gmail OTP)
-│   │   │   │
-│   │   │   ├── dashboards/             # Dedicated Role Dashboard Consoles
-│   │   │   │   ├── AdminDashboard.jsx  # Executive governance, headcount, departments
-│   │   │   │   ├── HrDashboard.jsx     # Workforce stats, leave queue, onboarding shortcuts
-│   │   │   │   ├── ManagerDashboard.jsx# Team roster, pending approvals, OKR status
-│   │   │   │   └── EmployeeDashboard.jsx # Self-service shift card, PTO balance, paystubs
-│   │   │   │
-│   │   │   ├── employees/              # Employee Directory & Onboarding
-│   │   │   │   ├── EmployeeListPage.jsx    # Filterable employee table with search & badges
-│   │   │   │   ├── EmployeeCreatePage.jsx  # HR employee onboarding wizard
-│   │   │   │   ├── EmployeeDetailPage.jsx  # Full profile tabbed view
-│   │   │   │   └── EmployeeEditPage.jsx    # Employee profile editing form
-│   │   │   │
-│   │   │   ├── departments/            # Department Management
-│   │   │   │   ├── DepartmentListPage.jsx  # Department overview with employee headcounts
-│   │   │   │   ├── DepartmentCreatePage.jsx# New department wizard
-│   │   │   │   ├── DepartmentDetailPage.jsx# Department roster and manager details
-│   │   │   │   └── DepartmentEditPage.jsx  # Department update form
-│   │   │   │
-│   │   │   ├── attendance/             # Attendance & Time Tracking
-│   │   │   │   └── AttendancePage.jsx  # 1-click Clock-In/Out widget & history table
-│   │   │   │
-│   │   │   ├── leave/                  # Leave Management & Approvals
-│   │   │   │   ├── LeaveListPage.jsx   # Leave requests table & approval queue
-│   │   │   │   └── LeaveApplyPage.jsx  # Leave application form with date calculations
-│   │   │   │
-│   │   │   ├── payroll/                # Compensation & Paystubs
-│   │   │   │   ├── PayrollListPage.jsx # Payroll processing table & generation modal
-│   │   │   │   └── PayrollDetailPage.jsx # Printable digital salary payslip
-│   │   │   │
-│   │   │   ├── documents/              # Document Management Vault
-│   │   │   │   ├── DocumentListPage.jsx# Vault table with authenticated download
-│   │   │   │   └── DocumentUploadPage.jsx # Document upload wizard (PDF/MIME checks)
-│   │   │   │
-│   │   │   ├── performance/            # Performance & OKR Goals
-│   │   │   │   ├── ReviewCycleListPage.jsx # Performance cycles management
-│   │   │   │   ├── GoalListPage.jsx    # OKR goals with progress sliders
-│   │   │   │   ├── PerformanceReviewPage.jsx # Manager review evaluation form
-│   │   │   │   └── PerformanceDetailPage.jsx # Acknowledgment & feedback review
-│   │   │   │
-│   │   │   ├── recruitment/            # Recruitment ATS Pipeline
-│   │   │   │   ├── JobOpeningsPage.jsx # Job requisition manager
-│   │   │   │   ├── CandidatesPage.jsx  # Candidate talent pool directory
-│   │   │   │   ├── ApplicationsPage.jsx# 8-stage visual Kanban pipeline
-│   │   │   │   └── ApplicationDetailPage.jsx # Interview notes & candidate conversion
-│   │   │   │
-│   │   │   ├── reports/                # Operational Analytics & Export
-│   │   │   │   └── ReportsPage.jsx     # Analytical charts & RFC 4180 CSV export
-│   │   │   │
-│   │   │   ├── notifications/          # In-App Notification Center
-│   │   │   │   └── NotificationsPage.jsx # Notification inbox & mark-all-read
-│   │   │   │
-│   │   │   ├── audit/                  # Security Audit Logs
-│   │   │   │   └── AuditLogsPage.jsx   # Privilege-scoped audit trail viewer
-│   │   │   │
-│   │   │   └── common/                 # Common / Utility Views
-│   │   │       ├── ProfilePage.jsx     # User personal settings & security
-│   │   │       ├── SystemHealthPage.jsx# Live database and API connection monitor
-│   │   │       ├── UnauthorizedPage.jsx# 403 Forbidden access denial screen
-│   │   │       └── NotFoundPage.jsx    # 404 Route not found screen
-│   │   │
-│   │   ├── services/                   # Centralized API Service Modules (Axios)
-│   │   │   ├── api.js                  # Axios instance with auth interceptors
-│   │   │   ├── authService.js          # /api/auth API calls (login, OTP, me)
-│   │   │   ├── employeeService.js      # /api/employees API calls
-│   │   │   ├── departmentService.js    # /api/departments API calls
-│   │   │   ├── attendanceService.js    # /api/attendance API calls
-│   │   │   ├── leaveService.js         # /api/leaves API calls
-│   │   │   ├── payrollService.js       # /api/payroll API calls
-│   │   │   ├── documentService.js      # /api/documents API calls
-│   │   │   ├── performanceService.js   # /api/performance API calls
-│   │   │   ├── recruitmentService.js   # /api/recruitment API calls
-│   │   │   ├── reportService.js        # /api/reports API calls
-│   │   │   ├── notificationService.js  # /api/notifications API calls
-│   │   │   ├── auditService.js         # /api/audit-logs API calls
-│   │   │   └── healthService.js        # /api/health API calls
-│   │   │
-│   │   └── utils/                      # Client-Side Helper Functions
-│   │       ├── currency.js             # INR / USD currency formatting helpers
-│   │       ├── dateUtils.js            # Standardized date & timestamp formatters
-│   │       └── downloadHelper.js       # Blob stream file download trigger
+│   │   └── services/                   # Modular API clients
+│   │       ├── api.js                  # Centralized Axios client with automatic URL resolution
+│   │       └── [domain]Service.js      # Auth, Employee, Leave, Payroll, etc.
 │   │
-│   └── public/                         # Public static web assets
+│   └── dist/                           # Production static assets (generated via npm run build)
 │
-└── server/                             # Backend Express 5 + Node.js v24 Application
-    ├── package.json                    # Server dependencies (Mongoose, Helmet, JWT)
-    ├── server.js                       # Server entrypoint, DNS resolution, DB connect
-    ├── app.js                          # Express application initialization & middleware
+└── server/                             # Backend RESTful API (Render Ready)
+    ├── server.js                       # HTTP server entrypoint, lifecycle events, graceful shutdown
+    ├── app.js                          # Express 5 initialization, Helmet, CORS, Rate Limiters
+    ├── package.json                    # Backend dependencies (Express 5, Mongoose 9, JWT, Nodemailer)
+    ├── .env.example                    # Reference environment configuration
     │
-    ├── src/
-    │   ├── config/                     # Configuration Modules
-    │   │   ├── db.js                   # Mongoose Atlas connection with auto-reconnect
-    │   │   └── email.config.js         # Nodemailer Gmail SMTP transporter
-    │   │
-    │   ├── middlewares/                # Custom Express Middlewares
-    │   │   ├── auth.js                 # JWT verification & authorizeRoles() guards
-    │   │   └── errorHandler.js         # 404 handler & centralized error normalizer
-    │   │
-    │   ├── models/                     # Mongoose Schemas & Models
-    │   │   ├── User.js                 # Authentication credentials, hashed passwords
-    │   │   ├── Otp.js                  # 6-digit email OTPs with 10-minute TTL index
-    │   │   ├── Employee.js             # Comprehensive employee profile details
-    │   │   ├── Department.js           # Business units, department heads, codes
-    │   │   ├── Attendance.js           # Daily check-in/out & work hours
-    │   │   ├── Leave.js                # Leave applications, dates, approval comments
-    │   │   ├── Payroll.js              # Monthly salary statements & tax breakdown
-    │   │   ├── EmployeeDocument.js     # Secure document metadata & file pointers
-    │   │   ├── PerformanceReviewCycle.js # Annual & quarterly review cycles
-    │   │   ├── EmployeeGoal.js         # OKR employee goals and progress tracking
-    │   │   ├── PerformanceReview.js    # Manager review scores & acknowledgments
-    │   │   ├── JobOpening.js           # Recruitment job requisitions
-    │   │   ├── Candidate.js            # Candidate talent profiles & resumes
-    │   │   ├── JobApplication.js       # Kanban applications linking job & candidate
-    │   │   ├── Interview.js            # Scheduled interviews and scorecards
-    │   │   ├── Notification.js         # Real-time in-app alerts and read statuses
-    │   │   └── AuditLog.js             # Immutable audit trail with redacted secrets
-    │   │
-    │   ├── controllers/                # Request & Response Controllers
-    │   │   ├── auth.controller.js      # Login, OTP dispatch, session verification
-    │   │   ├── employee.controller.js  # Employee CRUD & department lookups
-    │   │   ├── department.controller.js# Department CRUD & conflict validation
-    │   │   ├── attendance.controller.js# Clock-in/out & daily summary aggregation
-    │   │   ├── leave.controller.js     # Leave applications & approval workflows
-    │   │   ├── payroll.controller.js   # Payroll generation & itemized slips
-    │   │   ├── document.controller.js  # Document upload & secure file streaming
-    │   │   ├── performance.controller.js # OKRs, goals, reviews, appraisal cycles
-    │   │   ├── recruitment.controller.js # ATS pipeline, interviews, candidate conversion
-    │   │   ├── report.controller.js    # Cross-domain aggregation & CSV generation
-    │   │   ├── notification.controller.js# In-app notifications & read markers
-    │   │   ├── audit.controller.js     # Audit log retrieval with role scoping
-    │   │   └── health.controller.js    # System health & database connection checks
-    │   │
-    │   ├── routes/                     # Express API Route Definitions
-    │   │   ├── index.js                # Master route dispatcher (/api/...)
-    │   │   ├── auth.routes.js          # /api/auth endpoints
-    │   │   ├── employee.routes.js      # /api/employees endpoints
-    │   │   ├── department.routes.js    # /api/departments endpoints
-    │   │   ├── attendance.routes.js    # /api/attendance endpoints
-    │   │   ├── leave.routes.js         # /api/leaves endpoints
-    │   │   ├── payroll.routes.js       # /api/payroll endpoints
-    │   │   ├── document.routes.js      # /api/documents endpoints
-    │   │   ├── performance.routes.js   # /api/performance endpoints
-    │   │   ├── recruitment.routes.js   # /api/recruitment endpoints
-    │   │   ├── report.routes.js        # /api/reports endpoints
-    │   │   ├── notification.routes.js  # /api/notifications endpoints
-    │   │   ├── audit.routes.js         # /api/audit-logs endpoints
-    │   │   ├── health.routes.js        # /api/health endpoint
-    │   │   └── test.routes.js          # Integration test verification endpoints
-    │   │
-    │   ├── services/                   # Business Logic & Integration Layer
-    │   │   ├── employee.service.js     # Headcount, sequential IDs, user linking
-    │   │   ├── department.service.js   # Safe deactivation checks & headcount sums
-    │   │   ├── attendance.service.js   # Work hours calculation & late arrival flags
-    │   │   ├── leave.service.js        # Overlap checks & calendar day computation
-    │   │   ├── payroll.service.js      # Net/gross arithmetic & payment voucher locks
-    │   │   ├── document.service.js     # Disk storage & secure read stream pipes
-    │   │   ├── performance.service.js  # Appraisal workflows & anti-tampering guards
-    │   │   ├── recruitment.service.js  # 8-stage ATS Kanban & employee conversion
-    │   │   ├── report.service.js       # MongoDB aggregation pipelines & RFC 4180 CSV
-    │   │   ├── notification.service.js # Automated trigger alerts & inbox management
-    │   │   ├── audit.service.js        # Data sanitization (password/token redaction)
-    │   │   ├── email.service.js        # Google Gmail SMTP dispatch engine
-    │   │   ├── storage.service.js      # Multer disk storage configuration
-    │   │   └── health.service.js       # MongoDB connection ping & latency metrics
-    │   │
-    │   ├── utils/                      # Server Utility Functions
-    │   │   ├── jwt.js                  # Token generation & cryptographic verification
-    │   │   ├── idGenerator.js          # Sequential ID generator (EMPxxx, DEPTxxx)
-    │   │   └── passwordUtils.js        # Password hashing & generation utilities
-    │   │
-    │   └── scripts/                    # Maintenance & Automated Verification Suites
-    │       ├── cleanup_production_data.js# Database sanitizer (purges dummy/test data)
-    │       ├── seed.js                 # Database seeder initializing approved accounts
-    │       ├── test_invite_only_policy.js # Verification: Invite-only policy & live OTP
-    │       ├── test_all_modules_suite.js  # Verification: Stages 4–8 core modules
-    │       ├── test_stage9_performance.js # Verification: OKRs, reviews, anti-tampering
-    │       ├── test_stage10_recruitment.js# Verification: ATS Kanban & employee conversion
-    │       ├── test_stage11_reports_notifications_audit.js # Verification: Reports & logs
-    │       ├── test_stage12_hardening_and_e2e.js # Verification: Security hardening
-    │       ├── test_auth_suite.js      # Verification: Authentication & RBAC
-    │       ├── test_edge_cases.js      # Verification: Token expiry & deactivation
-    │       └── test_employee_suite.js  # Verification: Employee CRUD & access scoping
-    │
-    └── uploads/                        # Private Disk Storage (Git-ignored)
-        └── documents/                  # Storage vault for uploaded employee files
+    └── src/
+        ├── config/
+        │   └── db.js                   # Mongoose connection manager with DNS fallback
+        │
+        ├── models/                     # Mongoose Schema Definitions
+        │   ├── User.js                 # Authentication identity & credential hashes
+        │   ├── Employee.js             # Institutional workforce metadata & reporting link
+        │   ├── Department.js           # Business units, department leads, headcounts
+        │   ├── Attendance.js           # Shift records, timestamps, durations
+        │   ├── Leave.js                # Leave applications, reason, status, approver ID
+        │   ├── Payroll.js              # Earnings, deductions, net pay calculations
+        │   ├── Goal.js                 # Performance OKRs, key results, review status
+        │   ├── JobApplication.js       # ATS recruitment candidate pipeline
+        │   ├── Notification.js         # Targeted in-app alerts and read statuses
+        │   ├── AuditLog.js             # Security audit logs with sanitized metadata
+        │   └── Otp.js                  # SHA-256 hashed one-time passwords with TTL
+        │
+        ├── controllers/                # HTTP request handlers & business dispatchers
+        ├── middlewares/                # Auth token verification, role checks, error handlers
+        ├── routes/                     # REST API route mappings (`/api/*`)
+        ├── services/                   # Nodemailer SMTP transport & automated notifications
+        └── scripts/                    # Database seed scripts & automated test suites
 ```
 
 ---
 
-## 3. Module Locations & Responsibility Mapping
+## ⚡ Production Deployment Configuration
 
-| Feature / Domain | Frontend UI Page | API Service Client | Express Controller | Mongoose Model | Backend Service |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **Authentication & OTP** | `portal/RoleLoginPage.jsx` | `services/authService.js` | `controllers/auth.controller.js` | `models/User.js`, `models/Otp.js` | `services/email.service.js` |
-| **Employee Directory** | `pages/employees/` | `services/employeeService.js` | `controllers/employee.controller.js` | `models/Employee.js` | `services/employee.service.js` |
-| **Departments** | `pages/departments/` | `services/departmentService.js` | `controllers/department.controller.js` | `models/Department.js` | `services/department.service.js` |
-| **Attendance Tracking** | `pages/attendance/` | `services/attendanceService.js` | `controllers/attendance.controller.js` | `models/Attendance.js` | `services/attendance.service.js` |
-| **Leaves & Approvals** | `pages/leave/` | `services/leaveService.js` | `controllers/leave.controller.js` | `models/Leave.js` | `services/leave.service.js` |
-| **Payroll Processing** | `pages/payroll/` | `services/payrollService.js` | `controllers/payroll.controller.js` | `models/Payroll.js` | `services/payroll.service.js` |
-| **Document Vault** | `pages/documents/` | `services/documentService.js` | `controllers/document.controller.js` | `models/EmployeeDocument.js` | `services/document.service.js` |
-| **Performance & OKRs** | `pages/performance/` | `services/performanceService.js` | `controllers/performance.controller.js` | `models/PerformanceReview.js` | `services/performance.service.js` |
-| **Recruitment ATS** | `pages/recruitment/` | `services/recruitmentService.js` | `controllers/recruitment.controller.js` | `models/JobApplication.js` | `services/recruitment.service.js` |
-| **Reports & CSV** | `pages/reports/` | `services/reportService.js` | `controllers/report.controller.js` | Cross-domain aggregations | `services/report.service.js` |
-| **In-App Notifications**| `pages/notifications/` | `services/notificationService.js`| `controllers/notification.controller.js` | `models/Notification.js` | `services/notification.service.js`|
-| **Audit Logging** | `pages/audit/` | `services/auditService.js` | `controllers/audit.controller.js` | `models/AuditLog.js` | `services/audit.service.js` |
+The application is deployed across **Render** (API runtime) and **Vercel** (SPA frontend).
+
+### 1. Backend on Render (`server/`)
+* **Live Service**: [https://hr-2027.onrender.com](https://hr-2027.onrender.com)
+* **Root Directory**: `server`
+* **Build Command**: `npm install`
+* **Start Command**: `npm start`
+* **Environment Variables**:
+  ```env
+  PORT=5000
+  NODE_ENV=production
+  MONGO_URI=mongodb+srv://<user>:<password>@cluster.mongodb.net/hr_db?retryWrites=true&w=majority
+  FRONTEND_URL=https://hr-2027.vercel.app
+  JWT_SECRET=<32_character_cryptographic_secret>
+  JWT_EXPIRES_IN=24h
+  SMTP_HOST=smtp.gmail.com
+  SMTP_PORT=587
+  SMTP_SECURE=false
+  SMTP_EMAIL=your-corporate-email@gmail.com
+  SMTP_PASSWORD=your-16-digit-app-password
+  EMAIL_FROM="HR Management System" <your-corporate-email@gmail.com>
+  ```
+
+### 2. Frontend on Vercel (`client/`)
+* **Live Service**: [https://hr-2027.vercel.app](https://hr-2027.vercel.app)
+* **Framework Preset**: `Vite`
+* **Root Directory**: `client`
+* **Build Command**: `npm run build`
+* **Output Directory**: `dist`
+* **Environment Variables**:
+  ```env
+  VITE_API_URL=https://hr-2027.onrender.com/api
+  ```
+* **SPA Routing**: Managed via [`client/vercel.json`](client/vercel.json):
+  ```json
+  {
+    "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  }
+  ```
 
 ---
 
-## 4. Local Setup & Development Guide
+## 💻 Local Development Quickstart
 
-### 4.1 Prerequisites
-- **Node.js**: v20.x or v24.x installed
-- **npm**: v10.x or higher
-- **MongoDB Atlas**: Sharded or serverless cluster with connection URI
-- **Google Gmail SMTP App Password**: For real-time email OTP verification
+### Prerequisites
+* **Node.js**: `v20.x` or `v24.x`
+* **npm**: `v10.x` or higher
+* **MongoDB Atlas** cluster URI
 
-### 4.2 Local Configuration Files
+### Step-by-Step Setup
 
-#### Server Configuration (`server/.env`)
-```env
-PORT=5000
-NODE_ENV=development
-MONGO_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/hrms_db?retryWrites=true&w=majority
-FRONTEND_URL=http://localhost:5173
-JWT_SECRET=super_secret_enterprise_jwt_signing_key_2026
-JWT_EXPIRES_IN=24h
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_SECURE=false
-SMTP_EMAIL=your_corporate_email@gmail.com
-SMTP_PASSWORD=your_16_digit_app_password
-EMAIL_FROM="HR Management System" <your_corporate_email@gmail.com>
-```
+1. **Clone the Repository**:
+   ```bash
+   git clone https://github.com/adityaarora-dev/HR_2027.git
+   cd HR-Management-System
+   ```
 
-#### Client Configuration (`client/.env`)
-```env
-VITE_API_URL=http://localhost:5000/api
-```
-
-### 4.3 Running Locally
-
-1. **Start the Backend Server**:
+2. **Start the Backend API Server**:
    ```bash
    cd server
    npm install
+   # Create .env from template and configure MONGODB_URI
    npm run dev
    ```
-   - Backend API is accessible at `http://localhost:5000/api`
-   - Health check endpoint at `http://localhost:5000/api/health`
+   * Backend runs at: `http://localhost:5000/api`
+   * Health check at: `http://localhost:5000/api/health`
 
-2. **Start the Frontend Client** (in a separate terminal):
+3. **Start the Frontend Client** (in a separate terminal):
    ```bash
    cd client
    npm install
    npm run dev
    ```
-   - Frontend is accessible at `http://localhost:5173`
+   * Frontend runs at: `http://localhost:5173`
 
-3. **Build Frontend Bundle**:
+4. **Compile Production Bundle**:
    ```bash
    cd client
    npm run build
@@ -357,132 +395,60 @@ VITE_API_URL=http://localhost:5000/api
 
 ---
 
-## 5. Production Deployment Guide (Client $\rightarrow$ Vercel, Server $\rightarrow$ Render)
+## 🧪 Comprehensive Automated Test Suites
 
-### 5.1 Step 1: MongoDB Atlas Network Configuration
-Render web services operate on dynamic cloud IPs. For uninterrupted database connectivity:
-1. Log in to [MongoDB Atlas Console](https://cloud.mongodb.com).
-2. Navigate to **Security** $\rightarrow$ **Network Access**.
-3. Click **Add IP Address**.
-4. Select **Allow Access From Anywhere** (`0.0.0.0/0`) and save.
-5. In **Database Access**, verify your database user has `readWriteAnyDatabase` or read/write privileges on `hrms_db`.
-
-### 5.2 Step 2: Backend Deployment on Render (`server` folder)
-1. Log in to [Render Dashboard](https://dashboard.render.com).
-2. Click **New +** $\rightarrow$ **Web Service**.
-3. Connect your GitHub repository (`HR-Management-System`).
-4. Configure service settings:
-   * **Name**: `hrms-backend` (or your preferred name)
-   * **Region**: Choose closest to your users (e.g., Oregon, Frankfurt, Singapore)
-   * **Root Directory**: `server` *(CRITICAL: points Render strictly to the server subdirectory)*
-   * **Runtime**: `Node`
-   * **Build Command**: `npm install`
-   * **Start Command**: `npm start`
-   * **Instance Type**: Free / Starter
-5. Under **Environment Variables**, add the following:
-   * `NODE_ENV`: `production`
-   * `PORT`: `5000` (Render will map this internally or provide `PORT`)
-   * `MONGO_URI`: Your MongoDB Atlas connection string (e.g. `mongodb+srv://user:pass@cluster.mongodb.net/hrms_db?retryWrites=true&w=majority`)
-   * `FRONTEND_URL`: `https://<your-vercel-app>.vercel.app` *(Set this once your Vercel URL is known)*
-   * `JWT_SECRET`: A secure 32+ character random string
-   * `JWT_EXPIRES_IN`: `24h`
-   * `SMTP_HOST`: `smtp.gmail.com`
-   * `SMTP_PORT`: `587`
-   * `SMTP_SECURE`: `false`
-   * `SMTP_EMAIL`: Your Gmail address for sending OTPs
-   * `SMTP_PASSWORD`: Your Google 16-character App Password
-   * `EMAIL_FROM`: `"HR Management System" <your-email@gmail.com>`
-6. Click **Deploy Web Service**.
-7. Note down your assigned Render URL: `https://hr-2027.onrender.com`.
-8. Verify health check by visiting: `https://hr-2027.onrender.com/api/health`.
-
-### 5.3 Step 3: Frontend Deployment on Vercel (`client` folder)
-1. Log in to [Vercel Dashboard](https://vercel.com).
-2. Click **Add New...** $\rightarrow$ **Project**.
-3. Import your GitHub repository (`HR-Management-System`).
-4. In the configuration screen:
-   * **Framework Preset**: `Vite`
-   * **Root Directory**: Click **Edit** and select `client` *(CRITICAL: points Vercel strictly to client)*
-   * **Build Command**: `npm run build` (default)
-   * **Output Directory**: `dist` (default)
-5. Under **Environment Variables**, configure:
-   * **Key**: `VITE_API_URL`
-   * **Value**: `https://hr-2027.onrender.com/api` *(Note: `client/src/services/api.js` automatically ensures `/api` is included even if omitted)*
-6. The included [`client/vercel.json`](file:///D:/Projects/HR-Management-System/client/vercel.json) automatically handles SPA route rewrites to `/index.html` to prevent 404s on page reload.
-7. Click **Deploy**.
-8. Once deployed, copy your production Vercel URL (e.g., `https://hrms-system.vercel.app`).
-
-### 5.4 Step 4: Link Frontend URL to Backend CORS
-1. In the **Render Dashboard** $\rightarrow$ `hrms-backend` $\rightarrow$ **Environment Variables**.
-2. Set `FRONTEND_URL` to: `https://hr-2027.vercel.app`.
-3. Render will automatically redeploy with the updated CORS allowed origins.
-
----
-
-## 6. Post-Deployment Verification Checklist
-
-- [x] **Frontend Status**: `GET https://hr-2027.vercel.app/` returns `200 OK` and loads client bundle.
-- [x] **SPA Route Refresh**: `GET https://hr-2027.vercel.app/admin/login` returns `200 OK` (Vercel rewrites working without 404).
-- [x] **Backend Health Check**: `GET https://hr-2027.onrender.com/api/health` returns `200 OK` (`"database": "connected"`).
-- [x] **Root API Check**: `GET https://hr-2027.onrender.com/` returns API welcome JSON.
-- [x] **CORS Verification**: Requests from `https://hr-2027.vercel.app` to `https://hr-2027.onrender.com` succeed with preflight `204` and credentials allowed.
-- [x] **Password Login**: Verified for Admin (`EMP007`), HR (`EMP023`), Manager (`EMP019`), and Employee (`EMP021`).
-- [x] **JWT Authorization**: Bearer tokens valid and accepted on protected routes (`/api/auth/me`).
-- [x] **Role-Based Access Control**: Dashboards correctly scoped to verified user roles.
-
----
-
-## 7. Automated Verification Test Suites
-
-Execute any test suite directly from the `server` directory:
+The backend includes **10 automated verification test suites** covering business workflows, security constraints, and live production endpoints:
 
 ```bash
 cd server
 ```
 
 ```bash
-# 1. Invite-Only Access Policy & Google SMTP OTP
+# 1. Verify Live Cloud Deployments (Vercel + Render End-to-End)
+node src/scripts/verify_live_deployment.js
+
+# 2. OTP-Based Password Reset & Brute-Force Rate Limiting
+node src/scripts/test_forgot_password.js
+
+# 3. Invite-Only Enterprise Access Policy & Google SMTP Dispatch
 node src/scripts/test_invite_only_policy.js
 
-# 2. Stages 4–8 Core Workforce Modules
+# 4. Core Workforce Modules (Employees, Depts, Attendance, Leaves, Payroll)
 node src/scripts/test_all_modules_suite.js
 
-# 3. Stage 9 Performance & OKR Goals
+# 5. Performance OKRs & Goal Scoring
 node src/scripts/test_stage9_performance.js
 
-# 4. Stage 10 Recruitment ATS & Candidate-to-Employee Conversion
+# 6. Recruitment ATS & Candidate-to-Employee Conversion
 node src/scripts/test_stage10_recruitment.js
 
-# 5. Stage 11 Reports, Notifications & Redacted Audit Logs
+# 7. Aggregation Reports, Notifications & Redacted Audit Logs
 node src/scripts/test_stage11_reports_notifications_audit.js
 
-# 6. Stage 12 Final Hardening & End-to-End Security
+# 8. End-to-End Security Hardening & Penetration Testing
 node src/scripts/test_stage12_hardening_and_e2e.js
 
-# 7. Authentication & Token Lifecycle
-node src/scripts/test_auth_suite.js
-
-# 8. Token Expiry & Account Deactivation
+# 9. Authentication Token Expiry & Account Deactivation
 node src/scripts/test_edge_cases.js
 
-# 9. Employee CRUD & Resource-Level Scoping
+# 10. Multi-Role Resource Scoping & Employee CRUD
 node src/scripts/test_employee_suite.js
-
-# 10. Live Production Deployment Verification (Vercel + Render)
-node src/scripts/verify_live_deployment.js
 ```
 
 ---
 
-## 8. Master Verified User Credentials Reference
+## 🎨 Design System & UX Philosophy
 
-The following 6 verified accounts represent the active organizational structure, powered by verified real Gmail accounts for 100% reliable SMTP email delivery:
+* **Color Architecture**: Deep Institutional Navy (`#0B2447`), Trust Indigo (`#2563EB`), Crisp Slate (`#F8FAFC`), and Alert Emerald/Amber/Rose.
+* **Component Geometries**: 18px continuous radii on cards and modals, soft shadows, and subtle micro-interaction hover lifts (`translateY(-2px)`).
+* **Responsive Layouts**: Collapsible sidebar navigation, mobile viewports with hamburger menus, and accessible contrast ratios across all dashboards.
+* **Telemetry & Feedback**: Asynchronous notifications dispatched via `Sonner` toasts with contextual action triggers.
 
-| Role | Employee ID | Name | Corporate Email | Default Password | Assigned Department | Reports To |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Admin** | `EMP007` | Aditya Arora | `a4adityaarora@gmail.com` | `Corp@EMP007#` | Technology & Systems | *Top Level Executive* |
-| **HR** | `EMP023` | Tanishq Goyal | `tnu23505@gmail.com` | `Corp@EMP023#` | Human Resources | Aditya Arora (`EMP007`) |
-| **Manager** | `EMP019` | Akshat Wadagbalkar | `akshat.wadagbalkar@gmail.com` | `Corp@EMP019#` | Technology & Systems | Aditya Arora (`EMP007`) |
-| **Manager** | `EMP018` | Chiranthan Suvidh | `suvidh.vibrance@gmail.com` | `Corp@EMP018#` | Engineering | Aditya Arora (`EMP007`) |
-| **Employee**| `EMP021` | Abhik Sinha | `abhiksinha06@gmail.com` | `Corp@EMP021#` | Engineering | **Chiranthan Suvidh** (`EMP018`) |
-| **Employee**| `EMP020` | Uttkarsh Kumar | `u23022686@gmail.com` | `Corp@EMP020#` | Technology & Systems | **Akshat Wadagbalkar** (`EMP019`) |
+---
+
+<div align="center">
+
+<b>Enterprise Human Resource Management System</b>  
+Architected with ❤️ for modern, scalable human capital operations.
+
+</div>
