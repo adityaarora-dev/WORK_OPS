@@ -86,7 +86,10 @@ async function sendOtpEmail({ to, otp, purpose = 'registration', name = '' }) {
   const mailer = await getTransporter();
 
   const isRegistration = purpose === 'registration';
-  const subject = isRegistration
+  const isPasswordReset = purpose === 'password_reset';
+  const subject = isPasswordReset
+    ? `Your HRMS Password Reset Code: ${otp}`
+    : isRegistration
     ? `Your HRMS Registration Verification Code: ${otp}`
     : `Your HRMS Login Verification Code: ${otp}`;
 
@@ -208,7 +211,9 @@ async function sendOtpEmail({ to, otp, purpose = 'registration', name = '' }) {
       <div class="greeting">${greeting}</div>
       <p class="message">
         ${
-          isRegistration
+          isPasswordReset
+            ? 'You requested to reset your HRMS corporate account password. Please use the following 6-digit one-time password (OTP) to verify your identity:'
+            : isRegistration
             ? 'Thank you for initiating your corporate account creation. To verify your email address and activate your employee workspace, please use the following one-time password (OTP):'
             : 'You requested a secure passwordless login to your HRMS workspace. Please use the following one-time password (OTP) to complete sign-in:'
         }
@@ -437,8 +442,79 @@ async function sendPasswordResetEmail({ to, resetUrl, name = '' }) {
   return info;
 }
 
+/**
+ * Sends a notification email to the user's registered Gmail address.
+ *
+ * @param {Object} options
+ * @param {string} options.to - Recipient email
+ * @param {string} options.subject - Email subject
+ * @param {string} options.title - Notification title
+ * @param {string} options.message - Notification message
+ * @param {string} [options.name] - User full name
+ * @param {string} [options.type] - Notification type
+ * @returns {Promise<{ messageId: string }>}
+ */
+async function sendNotificationEmail({ to, subject, title, message, name = '', type = 'system' }) {
+  const mailer = await getTransporter();
+
+  const greeting = name ? `Hello ${name},` : 'Hello,';
+  const fromAddress = process.env.EMAIL_FROM || '"HR Management System" <no-reply@hrms.internal>';
+  const portalUrl = process.env.CLIENT_URL ? process.env.CLIENT_URL.split(',')[0].trim().replace(/\/$/, '') : 'http://localhost:5173';
+
+  const htmlContent = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; margin: 0; padding: 24px; color: #0f172a; }
+    .container { max-width: 540px; margin: 0 auto; background: #ffffff; border-radius: 14px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05); }
+    .header { background-color: #0B2447; color: #ffffff; padding: 22px 28px; text-align: left; }
+    .header h1 { margin: 0; font-size: 18px; font-weight: 700; }
+    .header p { margin: 4px 0 0; font-size: 12px; color: #b1c7dc; }
+    .body { padding: 28px; font-size: 14px; line-height: 1.6; color: #334155; }
+    .card { background-color: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid #2563EB; border-radius: 8px; padding: 16px; margin: 18px 0; }
+    .btn { display: inline-block; background-color: #2563EB; color: #ffffff !important; padding: 10px 22px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 13px; margin-top: 14px; }
+    .footer { background-color: #f8fafc; padding: 14px 28px; font-size: 11px; color: #94a3b8; text-align: center; border-top: 1px solid #e2e8f0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Enterprise HRMS</h1>
+      <p>Corporate Notification & Workflow Update</p>
+    </div>
+    <div class="body">
+      <p style="margin-top: 0; font-weight: 600; font-size: 15px; color: #0f172a;">${greeting}</p>
+      <div class="card">
+        <strong style="font-size: 14px; color: #0f172a; display: block; margin-bottom: 6px;">${title}</strong>
+        <p style="margin: 0; font-size: 13.5px; color: #475569;">${message}</p>
+      </div>
+      <a href="${portalUrl}/dashboard" class="btn" target="_blank">Open Corporate Workspace</a>
+    </div>
+    <div class="footer">
+      Enterprise HR Management System • Confidential Notification
+    </div>
+  </div>
+</body>
+</html>
+  `;
+
+  const info = await mailer.sendMail({
+    from: fromAddress,
+    to,
+    subject: subject || title || 'Enterprise HRMS Notification',
+    text: `${greeting}\n\n${title}\n\n${message}\n\nWorkspace Link: ${portalUrl}/dashboard`,
+    html: htmlContent,
+  });
+
+  console.log(`✉️  [NOTIFICATION EMAIL DISPATCHED] To: ${to} | ${title}`);
+  return info;
+}
+
 module.exports = {
   sendOtpEmail,
   sendWelcomeEmail,
   sendPasswordResetEmail,
+  sendNotificationEmail,
 };

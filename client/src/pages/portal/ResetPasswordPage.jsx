@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, useSearchParams, Link, useNavigate } from 'react-router-dom';
 import {
   Lock,
   CheckCircle2,
@@ -15,7 +15,9 @@ import { toast } from 'sonner';
 import { verifyResetToken, resetPassword } from '../../services/authService';
 
 export const ResetPasswordPage = () => {
-  const { token } = useParams();
+  const { token: pathToken } = useParams();
+  const [searchParams] = useSearchParams();
+  const token = (pathToken || searchParams.get('token') || '').trim();
   const navigate = useNavigate();
 
   // Verification state: 'checking' | 'valid' | 'invalid'
@@ -30,6 +32,7 @@ export const ResetPasswordPage = () => {
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [redirectCount, setRedirectCount] = useState(3);
 
   // Validate token on mount
   useEffect(() => {
@@ -65,6 +68,25 @@ export const ResetPasswordPage = () => {
       isMounted = false;
     };
   }, [token]);
+
+  // Automatic redirect timer after successful password reset
+  useEffect(() => {
+    let interval = null;
+    if (success) {
+      interval = setInterval(() => {
+        setRedirectCount((prev) => {
+          if (prev <= 1) {
+            navigate('/login');
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [success, navigate]);
 
   // Submit new password
   const handleResetSubmit = async (e) => {
@@ -271,25 +293,58 @@ export const ResetPasswordPage = () => {
             <h2 style={{ fontSize: '19px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '8px' }}>
               Password Updated Successfully
             </h2>
-            <p style={{ fontSize: '13px', color: 'var(--text-muted)', lineHeight: 1.5, marginBottom: '24px' }}>
+            <p style={{ fontSize: '13px', color: 'var(--text-muted)', lineHeight: 1.5, marginBottom: '14px' }}>
               Your account password has been reset. You can now sign in using your new credentials.
             </p>
 
-            <Link
-              to="/"
-              className="btn btn-primary"
+            <div
               style={{
-                width: '100%',
-                padding: '10px 16px',
-                fontSize: '13.5px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '6px 14px',
+                backgroundColor: '#f0fdf4',
+                border: '1px solid #bbf7d0',
+                borderRadius: '999px',
+                fontSize: '12px',
                 fontWeight: 600,
-                textDecoration: 'none',
-                textAlign: 'center',
+                color: '#166534',
+                marginBottom: '20px',
               }}
             >
-              <span>Sign In to Your Account</span>
-              <ArrowRight size={14} />
-            </Link>
+              <span>Redirecting to sign in within {redirectCount}s...</span>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <Link
+                to="/login"
+                className="btn btn-primary"
+                style={{
+                  width: '100%',
+                  padding: '10px 16px',
+                  fontSize: '13.5px',
+                  fontWeight: 600,
+                  textDecoration: 'none',
+                  textAlign: 'center',
+                }}
+              >
+                <span>Sign In Now</span>
+                <ArrowRight size={14} />
+              </Link>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => window.close()}
+                style={{
+                  width: '100%',
+                  padding: '9px 16px',
+                  fontSize: '12.5px',
+                  color: 'var(--text-secondary)',
+                }}
+              >
+                Close This Tab
+              </button>
+            </div>
           </div>
         )}
 

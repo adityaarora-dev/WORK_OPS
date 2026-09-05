@@ -1,4 +1,5 @@
 const crypto = require('crypto');
+const jwt = require('jsonwebtoken');
 const { User } = require('../models/User');
 const { Employee } = require('../models/Employee');
 const { Department } = require('../models/Department');
@@ -29,10 +30,10 @@ const login = async (req, res, next) => {
     let normalizedTarget = loginTarget.toLowerCase();
 
     const ALIAS_MAP = {
-      'admin@hrms.local': 'aarav.sharma@company.com',
-      'hr@hrms.local': 'priya.patel@company.com',
-      'manager@hrms.local': 'rajesh.iyer@company.com',
-      'employee@hrms.local': 'akshat.wadagbalkar@gmail.com',
+      'admin@hrms.local': 'a4adityaarora@gmail.com',
+      'hr@hrms.local': 'tnu23505@gmail.com',
+      'manager@hrms.local': 'akshat.wadagbalkar@gmail.com',
+      'employee@hrms.local': 'abhiksinha06@gmail.com',
     };
 
     if (ALIAS_MAP[normalizedTarget]) {
@@ -485,10 +486,10 @@ const register = async (req, res, next) => {
 };
 
 /**
- * Initiates the Forgot Password workflow.
- * Generates a cryptographically random, time-limited reset token,
- * hashes the token with SHA-256 for database storage, and dispatches
- * the password reset email via SMTP.
+ * Initiates the Forgot Password workflow via OTP.
+ * Generates a cryptographically secure 6-digit OTP,
+ * hashes the OTP with SHA-256 for secure database storage,
+ * and sends the 6-digit code to the user's email via SMTP.
  *
  * @route POST /api/auth/forgot-password
  */
@@ -499,17 +500,17 @@ const forgotPassword = async (req, res, next) => {
     if (!email || typeof email !== 'string' || !email.trim()) {
       return res.status(400).json({
         success: false,
-        message: 'Please provide a valid corporate email address.',
+        message: 'Please provide a valid corporate email address or Employee ID.',
       });
     }
 
     let normalizedEmail = email.trim().toLowerCase();
 
     const ALIAS_MAP = {
-      'admin@hrms.local': 'aarav.sharma@company.com',
-      'hr@hrms.local': 'priya.patel@company.com',
-      'manager@hrms.local': 'rajesh.iyer@company.com',
-      'employee@hrms.local': 'akshat.wadagbalkar@gmail.com',
+      'admin@hrms.local': 'a4adityaarora@gmail.com',
+      'hr@hrms.local': 'tnu23505@gmail.com',
+      'manager@hrms.local': 'akshat.wadagbalkar@gmail.com',
+      'employee@hrms.local': 'abhiksinha06@gmail.com',
     };
 
     if (ALIAS_MAP[normalizedEmail]) {
@@ -524,49 +525,49 @@ const forgotPassword = async (req, res, next) => {
     });
 
     // Security requirement: Do NOT expose whether an email exists in the system through error messages
-    const genericSuccessMessage = 'If an account with that email exists, a password reset link has been sent to your email address.';
+    const genericSuccessMessage = 'If an account with that email exists, a 6-digit verification code has been dispatched to your email address.';
 
     if (!user || !user.isActive) {
       return res.status(200).json({
         success: true,
         message: genericSuccessMessage,
+        email: normalizedEmail,
       });
     }
 
-    // Generate 32-byte cryptographically secure random token
-    const rawToken = crypto.randomBytes(32).toString('hex');
+    // Generate secure 6-digit numeric OTP code
+    const otpCode = crypto.randomInt(100000, 1000000).toString();
 
-    // Hash token with SHA-256 for secure database storage
-    const hashedToken = crypto.createHash('sha256').update(rawToken).digest('hex');
+    // Hash the OTP with SHA-256 for secure database storage (never store plain text)
+    const hashedOtp = crypto.createHash('sha256').update(otpCode).digest('hex');
 
-    // Token expires in 15 minutes
-    user.resetToken = hashedToken;
-    user.resetTokenExpiry = new Date(Date.now() + 15 * 60 * 1000);
-    await user.save({ validateBeforeSave: false });
+    // Remove any previous active password_reset OTPs for this email
+    await Otp.deleteMany({ email: user.email, purpose: 'password_reset' });
 
-    // Determine client frontend URL
-    const clientUrl = process.env.CLIENT_URL
-      ? process.env.CLIENT_URL.split(',')[0].trim().replace(/\/$/, '')
-      : 'http://localhost:5173';
+    // Store hashed OTP with 10-minute TTL and attempt tracking
+    await Otp.create({
+      email: user.email,
+      otp: hashedOtp,
+      purpose: 'password_reset',
+      attempts: 0,
+      verified: false,
+    });
 
-    const resetUrl = `${clientUrl}/reset-password/${rawToken}`;
-
-    // Send reset email via SMTP transporter
+    // Dispatch OTP email via existing SMTP transporter
     try {
-      await sendPasswordResetEmail({
+      await sendOtpEmail({
         to: user.email,
-        resetUrl,
+        otp: otpCode,
+        purpose: 'password_reset',
         name: `${user.firstName} ${user.lastName}`,
       });
     } catch (mailErr) {
-      console.error('❌ [AUTH] Failed to send password reset email:', mailErr.message);
-      user.resetToken = undefined;
-      user.resetTokenExpiry = undefined;
-      await user.save({ validateBeforeSave: false });
+      console.error('❌ [AUTH] Failed to send password reset OTP email:', mailErr.message);
+      await Otp.deleteMany({ email: user.email, purpose: 'password_reset' });
 
       return res.status(500).json({
         success: false,
-        message: 'Unable to send password reset email at this time. Please try again later or contact support.',
+        message: 'Unable to send verification code at this time. Please try again later or contact support.',
       });
     }
 
@@ -577,7 +578,7 @@ const forgotPassword = async (req, res, next) => {
       action: 'FORGOT_PASSWORD_REQUEST',
       entityType: 'User',
       entityId: user._id,
-      description: `Password reset request initiated for ${user.email}`,
+      description: `Password reset OTP initiated for ${user.email}`,
       metadata: { role: user.role, employeeId: user.employeeId },
       req,
     });
@@ -585,6 +586,156 @@ const forgotPassword = async (req, res, next) => {
     return res.status(200).json({
       success: true,
       message: genericSuccessMessage,
+      email: user.email,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Verifies 6-digit OTP for password reset.
+ * Limits failed attempts (max 5), deletes OTP immediately upon successful verification,
+ * generates a short-lived reset token (10 min) tied to user ID and email,
+ * and returns dynamic resetUrl pointing to the Reset Password page.
+ *
+ * @route POST /api/auth/verify-otp
+ * @route POST /api/auth/verify-reset-otp
+ */
+const verifyResetOtp = async (req, res, next) => {
+  try {
+    const { email, otp } = req.body;
+
+    if (!email || !otp) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email and OTP are required.',
+      });
+    }
+
+    const cleanOtp = otp.toString().trim();
+    if (!/^\d{6}$/.test(cleanOtp)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide a valid 6-digit verification code.',
+      });
+    }
+
+    let normalizedEmail = email.trim().toLowerCase();
+    const ALIAS_MAP = {
+      'admin@hrms.local': 'a4adityaarora@gmail.com',
+      'hr@hrms.local': 'tnu23505@gmail.com',
+      'manager@hrms.local': 'akshat.wadagbalkar@gmail.com',
+      'employee@hrms.local': 'abhiksinha06@gmail.com',
+    };
+    if (ALIAS_MAP[normalizedEmail]) {
+      normalizedEmail = ALIAS_MAP[normalizedEmail];
+    }
+
+    const user = await User.findOne({
+      $or: [
+        { email: normalizedEmail },
+        { employeeId: email.trim().toUpperCase() },
+      ],
+    });
+
+    const targetEmail = user ? user.email : normalizedEmail;
+
+    const otpDoc = await Otp.findOne({
+      email: targetEmail,
+      purpose: 'password_reset',
+    });
+
+    if (!otpDoc) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid or expired OTP code. Please request a new code.',
+      });
+    }
+
+    // Limit failed attempts to max 5
+    if (otpDoc.attempts >= 5) {
+      await Otp.deleteOne({ _id: otpDoc._id });
+      return res.status(429).json({
+        success: false,
+        message: 'Maximum verification attempts exceeded. Please request a new OTP code.',
+      });
+    }
+
+    // Hash the entered OTP using SHA-256 to compare with stored hash
+    const hashedInput = crypto.createHash('sha256').update(cleanOtp).digest('hex');
+
+    if (hashedInput !== otpDoc.otp) {
+      otpDoc.attempts = (otpDoc.attempts || 0) + 1;
+      await otpDoc.save();
+      const remainingAttempts = 5 - otpDoc.attempts;
+
+      if (remainingAttempts <= 0) {
+        await Otp.deleteOne({ _id: otpDoc._id });
+        return res.status(429).json({
+          success: false,
+          message: 'Maximum verification attempts exceeded. Please request a new OTP code.',
+        });
+      }
+
+      return res.status(400).json({
+        success: false,
+        message: `Invalid OTP code. ${remainingAttempts} attempt${remainingAttempts === 1 ? '' : 's'} remaining.`,
+      });
+    }
+
+    // Invalidate / delete OTP immediately after successful verification
+    await Otp.deleteOne({ _id: otpDoc._id });
+
+    if (!user || !user.isActive) {
+      return res.status(400).json({
+        success: false,
+        message: 'Account not found or deactivated.',
+      });
+    }
+
+    // Generate short-lived reset token (10 minutes) tied to user ID and email
+    const secret = process.env.JWT_SECRET || 'jwt_secret_hrms_fallback';
+    const resetToken = jwt.sign(
+      {
+        id: user._id.toString(),
+        email: user.email,
+        employeeId: user.employeeId,
+        purpose: 'password_reset',
+      },
+      secret,
+      { expiresIn: '10m' }
+    );
+
+    // Hash token with SHA-256 for secure database storage and replay prevention
+    const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+    user.resetToken = hashedToken;
+    user.resetTokenExpiry = new Date(Date.now() + 10 * 60 * 1000);
+    await user.save({ validateBeforeSave: false });
+
+    // Determine client frontend URL dynamically
+    const clientUrl = process.env.FRONTEND_URL || (process.env.CLIENT_URL ? process.env.CLIENT_URL.split(',')[0].trim() : 'http://localhost:5173');
+    const cleanClientUrl = clientUrl.replace(/\/$/, '');
+    const resetUrl = `${cleanClientUrl}/reset-password?token=${resetToken}`;
+
+    logAuditEvent({
+      actor: user._id,
+      actorEmail: user.email,
+      actorRole: user.role,
+      action: 'OTP_VERIFICATION_SUCCESS',
+      entityType: 'User',
+      entityId: user._id,
+      description: `Password reset OTP successfully verified for ${user.email}`,
+      metadata: { role: user.role, employeeId: user.employeeId },
+      req,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: 'OTP verified successfully.',
+      token: resetToken,
+      resetUrl,
+      email: user.email,
     });
   } catch (error) {
     next(error);
@@ -593,12 +744,14 @@ const forgotPassword = async (req, res, next) => {
 
 /**
  * Validates whether a given reset token is valid and has not expired.
+ * Supports token in URL params (:token) or query params (?token=).
  *
  * @route GET /api/auth/reset-password/:token
+ * @route GET /api/auth/reset-password
  */
 const validateResetToken = async (req, res, next) => {
   try {
-    const { token } = req.params;
+    const token = req.params.token || req.query.token;
 
     if (!token || typeof token !== 'string') {
       return res.status(400).json({
@@ -636,12 +789,14 @@ const validateResetToken = async (req, res, next) => {
  * Resets user password using a valid token.
  * Validates new password, hashes with bcrypt via Mongoose pre-save,
  * and invalidates the reset token immediately.
+ * Supports token in URL params (:token), query params (?token=), or body ({ token }).
  *
  * @route POST /api/auth/reset-password/:token
+ * @route POST /api/auth/reset-password
  */
 const resetPassword = async (req, res, next) => {
   try {
-    const { token } = req.params;
+    const token = req.params.token || req.body.token || req.query.token;
     const { password, confirmPassword } = req.body;
 
     if (!token) {
@@ -685,6 +840,9 @@ const resetPassword = async (req, res, next) => {
     user.resetTokenExpiry = undefined;
     await user.save();
 
+    // Clean up any remaining reset OTPs
+    await Otp.deleteMany({ email: user.email, purpose: 'password_reset' });
+
     logAuditEvent({
       actor: user._id,
       actorEmail: user.email,
@@ -716,6 +874,7 @@ module.exports = {
   logout,
   register,
   forgotPassword,
+  verifyResetOtp,
   validateResetToken,
   resetPassword,
 };

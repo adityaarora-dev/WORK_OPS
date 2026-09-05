@@ -21,7 +21,7 @@ const { Otp } = require('../models/Otp');
 
 async function seedDatabase() {
   console.log('================================================================');
-  console.log('🌱 HRMS MASTER PURGE & SEED — 6 REALISTIC INDIAN EMPLOYEE PROFILES');
+  console.log('🌱 HRMS MASTER PURGE & SEED — 6 VERIFIED REAL GMAIL CORPORATE ACCOUNTS');
   console.log('================================================================');
 
   const mongoURI = process.env.MONGODB_URI;
@@ -36,7 +36,7 @@ async function seedDatabase() {
   // ------------------------------------------------------------------
   // 1. PURGE ALL OLD DUMMY DATA FROM THE ENTIRE DATABASE
   // ------------------------------------------------------------------
-  console.log('\n🧹 Purging all legacy dummy records across all collections...');
+  console.log('\n🧹 Purging all legacy records across all collections...');
   await Promise.all([
     User.deleteMany({}),
     Employee.deleteMany({}),
@@ -47,7 +47,7 @@ async function seedDatabase() {
     EmployeeDocument.deleteMany({}),
     Otp.deleteMany({}),
   ]);
-  console.log('✅ Database completely wiped clean of dummy data.');
+  console.log('✅ Database completely wiped clean.');
 
   // ------------------------------------------------------------------
   // 2. SEED REALISTIC ORGANIZATIONAL DEPARTMENTS
@@ -96,18 +96,18 @@ async function seedDatabase() {
   }
 
   // ------------------------------------------------------------------
-  // 3. SEED EXACTLY 6 REALISTIC INDIAN EMPLOYEES WITH DISTINCT CREDENTIALS
+  // 3. SEED EXACTLY 6 REAL GMAIL ACCOUNTS WITH VERIFIED PASSWORDS
   // ------------------------------------------------------------------
-  console.log('\n👥 Seeding 6 verified Indian employee profiles with distinct credentials...');
+  console.log('\n👥 Seeding exactly 6 verified accounts with real Gmail addresses...');
 
-  const indianProfiles = [
+  const realProfiles = [
     {
-      employeeId: 'EMP001',
-      firstName: 'Aarav',
-      lastName: 'Sharma',
-      email: 'aarav.sharma@company.com',
+      employeeId: 'EMP007',
+      firstName: 'Aditya',
+      lastName: 'Arora',
+      email: 'a4adityaarora@gmail.com',
       phone: '+91 98765 43210',
-      password: process.env.ADMIN_PASSWORD || 'Admin@123456',
+      password: 'Corp@EMP007#',
       role: 'admin',
       designation: 'Chief Technology Officer & Director',
       deptName: 'Technology & Systems',
@@ -121,12 +121,12 @@ async function seedDatabase() {
       },
     },
     {
-      employeeId: 'EMP002',
-      firstName: 'Priya',
-      lastName: 'Patel',
-      email: 'priya.patel@company.com',
+      employeeId: 'EMP023',
+      firstName: 'Tanishq',
+      lastName: 'Goyal',
+      email: 'tnu23505@gmail.com',
       phone: '+91 98234 56781',
-      password: process.env.HR_PASSWORD || 'HrAdmin@1810#',
+      password: 'Corp@EMP023#',
       role: 'hr',
       designation: 'Head of People Operations & HR Lead',
       deptName: 'Human Resources',
@@ -140,15 +140,15 @@ async function seedDatabase() {
       },
     },
     {
-      employeeId: 'EMP003',
-      firstName: 'Rajesh',
-      lastName: 'Iyer',
-      email: 'rajesh.iyer@company.com',
+      employeeId: 'EMP019',
+      firstName: 'Akshat',
+      lastName: 'Wadagbalkar',
+      email: 'akshat.wadagbalkar@gmail.com',
       phone: '+91 97123 45672',
-      password: process.env.MANAGER_PASSWORD || 'Manager@123456',
+      password: 'Corp@EMP019#',
       role: 'manager',
-      designation: 'Engineering Director & Team Lead',
-      deptName: 'Engineering',
+      designation: 'Cloud & Infrastructure Engineering Manager',
+      deptName: 'Technology & Systems',
       joiningDate: new Date('2023-02-01'),
       address: {
         street: '88 Whitefield Main Road',
@@ -159,16 +159,16 @@ async function seedDatabase() {
       },
     },
     {
-      employeeId: 'EMP004',
-      firstName: 'Rohan',
-      lastName: 'Gupta',
-      email: 'rohan.gupta@company.com',
+      employeeId: 'EMP018',
+      firstName: 'Chiranthan',
+      lastName: 'Suvidh',
+      email: 'suvidh.vibrance@gmail.com',
       phone: '+91 95456 78904',
-      password: process.env.EMPLOYEE_PASSWORD || 'Employee@123456',
-      role: 'employee',
-      designation: 'Senior Full-Stack Engineer',
+      password: 'Corp@EMP018#',
+      role: 'manager',
+      designation: 'Software Development Engineering Manager',
       deptName: 'Engineering',
-      joiningDate: new Date('2023-08-15'),
+      joiningDate: new Date('2023-03-15'),
       address: {
         street: '22 Koramangala 4th Block',
         city: 'Bengaluru',
@@ -178,15 +178,15 @@ async function seedDatabase() {
       },
     },
     {
-      employeeId: 'EMP005',
-      firstName: 'Ananya',
-      lastName: 'Verma',
-      email: 'ananya.verma@company.com',
+      employeeId: 'EMP021',
+      firstName: 'Abhik',
+      lastName: 'Sinha',
+      email: 'abhiksinha06@gmail.com',
       phone: '+91 96345 67893',
-      password: 'Ananya@123456',
+      password: 'Corp@EMP021#',
       role: 'employee',
-      designation: 'Lead UI/UX Product Designer',
-      deptName: 'Product & Design',
+      designation: 'Backend Software Engineer',
+      deptName: 'Engineering',
       joiningDate: new Date('2024-01-10'),
       address: {
         street: '15 Koregaon Park Road',
@@ -197,15 +197,15 @@ async function seedDatabase() {
       },
     },
     {
-      employeeId: 'EMP006',
-      firstName: 'Sneha',
-      lastName: 'Kulkarni',
-      email: 'sneha.kulkarni@company.com',
+      employeeId: 'EMP020',
+      firstName: 'Uttkarsh',
+      lastName: 'Kumar',
+      email: 'u23022686@gmail.com',
       phone: '+91 94567 89015',
-      password: 'Sneha@123456',
+      password: 'Corp@EMP020#',
       role: 'employee',
-      designation: 'QA Automation & Security Specialist',
-      deptName: 'Engineering',
+      designation: 'AI & Cloud Engineer',
+      deptName: 'Technology & Systems',
       joiningDate: new Date('2024-04-01'),
       address: {
         street: '72 HITEC City Phase 2',
@@ -220,7 +220,7 @@ async function seedDatabase() {
   const userDocs = {};
   const empDocs = {};
 
-  for (const p of indianProfiles) {
+  for (const p of realProfiles) {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(p.password, salt);
 
@@ -259,25 +259,37 @@ async function seedDatabase() {
     );
   }
 
-  // Set Manager relations (Rohan, Ananya, Sneha report to Rajesh Iyer - EMP003)
-  const managerEmp = empDocs['EMP003'];
-  await Employee.findByIdAndUpdate(empDocs['EMP004']._id, { manager: managerEmp._id });
-  await Employee.findByIdAndUpdate(empDocs['EMP005']._id, { manager: managerEmp._id });
-  await Employee.findByIdAndUpdate(empDocs['EMP006']._id, { manager: managerEmp._id });
+  // ------------------------------------------------------------------
+  // 4. ESTABLISH EXACT REPORTING HIERARCHY
+  // ------------------------------------------------------------------
+  // Required:
+  // - Abhik Sinha (EMP021) reports to Chiranthan Suvidh (EMP018)
+  // - Uttkarsh Kumar (EMP020) reports to Akshat Wadagbalkar (EMP019)
+  // - Managers and HR report to Admin Aditya Arora (EMP007)
+  console.log('\n🔗 Configuring strict employee reporting hierarchy...');
+  await Employee.findByIdAndUpdate(empDocs['EMP021']._id, { manager: empDocs['EMP018']._id });
+  await Employee.findByIdAndUpdate(empDocs['EMP020']._id, { manager: empDocs['EMP019']._id });
+  await Employee.findByIdAndUpdate(empDocs['EMP018']._id, { manager: empDocs['EMP007']._id });
+  await Employee.findByIdAndUpdate(empDocs['EMP019']._id, { manager: empDocs['EMP007']._id });
+  await Employee.findByIdAndUpdate(empDocs['EMP023']._id, { manager: empDocs['EMP007']._id });
+
+  console.log('  ✅ Abhik Sinha (EMP021) -> Reports to Chiranthan Suvidh (EMP018)');
+  console.log('  ✅ Uttkarsh Kumar (EMP020) -> Reports to Akshat Wadagbalkar (EMP019)');
+  console.log('  ✅ Managers & HR -> Report to Aditya Arora (EMP007)');
 
   // Assign Department Heads
-  await Department.findByIdAndUpdate(deptMap['Technology & Systems']._id, { departmentHead: empDocs['EMP001']._id });
-  await Department.findByIdAndUpdate(deptMap['Engineering']._id, { departmentHead: empDocs['EMP003']._id });
-  await Department.findByIdAndUpdate(deptMap['Human Resources']._id, { departmentHead: empDocs['EMP002']._id });
-  await Department.findByIdAndUpdate(deptMap['Product & Design']._id, { departmentHead: empDocs['EMP005']._id });
+  await Department.findByIdAndUpdate(deptMap['Technology & Systems']._id, { departmentHead: empDocs['EMP007']._id });
+  await Department.findByIdAndUpdate(deptMap['Engineering']._id, { departmentHead: empDocs['EMP018']._id });
+  await Department.findByIdAndUpdate(deptMap['Human Resources']._id, { departmentHead: empDocs['EMP023']._id });
+  await Department.findByIdAndUpdate(deptMap['Product & Design']._id, { departmentHead: empDocs['EMP019']._id });
 
   // ------------------------------------------------------------------
-  // 4. SEED REALISTIC ATTENDANCE RECORDS (STAGE 5)
+  // 5. SEED REALISTIC ATTENDANCE RECORDS
   // ------------------------------------------------------------------
   console.log('\n⏱️ Seeding realistic attendance records for today...');
   const today = new Date().toISOString().split('T')[0];
 
-  for (const empId of ['EMP001', 'EMP002', 'EMP003', 'EMP004', 'EMP005', 'EMP006']) {
+  for (const empId of ['EMP007', 'EMP023', 'EMP019', 'EMP018', 'EMP021', 'EMP020']) {
     const checkInTime = new Date(`${today}T09:05:00.000Z`);
     const checkOutTime = new Date(`${today}T18:15:00.000Z`);
 
@@ -291,27 +303,29 @@ async function seedDatabase() {
       remarks: 'Standard shift logged on-time',
     });
   }
-  console.log('✅ Daily attendance logged for all 6 employees.');
+  console.log('✅ Daily attendance logged for all 6 verified users.');
 
   // ------------------------------------------------------------------
-  // 5. SEED REALISTIC LEAVE REQUESTS (STAGE 6)
+  // 6. SEED REALISTIC LEAVE REQUESTS WITH CORRECT REPORTING CHAINS
   // ------------------------------------------------------------------
-  console.log('\n📅 Seeding realistic leave applications...');
+  console.log('\n📅 Seeding realistic leave applications matching reporting structure...');
+  // Uttkarsh Kumar (EMP020) leave reviewed by his manager Akshat Wadagbalkar (EMP019)
   await Leave.create({
-    employee: empDocs['EMP004']._id, // Rohan Gupta
+    employee: empDocs['EMP020']._id,
     leaveType: 'casual',
     startDate: new Date('2026-09-10'),
     endDate: new Date('2026-09-12'),
     numberOfDays: 3,
-    reason: 'Family wedding ceremony in Jaipur',
+    reason: 'Family wedding ceremony',
     status: 'approved',
-    reviewedBy: userDocs['EMP003']._id, // Rajesh Iyer
+    reviewedBy: userDocs['EMP019']._id,
     reviewedAt: new Date(),
-    reviewComment: 'Approved. Please hand over active sprint tickets before leave.',
+    reviewComment: 'Approved. Please coordinate active deliverables with team before leave.',
   });
 
+  // Abhik Sinha (EMP021) leave pending review by his manager Chiranthan Suvidh (EMP018)
   await Leave.create({
-    employee: empDocs['EMP005']._id, // Ananya Verma
+    employee: empDocs['EMP021']._id,
     leaveType: 'sick',
     startDate: new Date('2026-09-18'),
     endDate: new Date('2026-09-19'),
@@ -319,28 +333,28 @@ async function seedDatabase() {
     reason: 'Medical recovery and dental procedure',
     status: 'pending',
   });
-  console.log('✅ 2 verified leave applications recorded.');
+  console.log('✅ Leave applications recorded with exact manager reporting chains.');
 
   // ------------------------------------------------------------------
-  // 6. SEED REALISTIC PAYROLL STATEMENTS (STAGE 7)
+  // 7. SEED REALISTIC PAYROLL STATEMENTS
   // ------------------------------------------------------------------
   console.log('\n💵 Seeding digital payroll vouchers (INR)...');
-  for (const empId of ['EMP001', 'EMP002', 'EMP003', 'EMP004', 'EMP005', 'EMP006']) {
-    const baseSalaries = {
-      EMP001: 220000, // Aarav Sharma (CTO)
-      EMP002: 150000, // Priya Patel (HR Head)
-      EMP003: 180000, // Rajesh Iyer (Eng Director)
-      EMP004: 125000, // Rohan Gupta (Sr Dev)
-      EMP005: 115000, // Ananya Verma (Lead Designer)
-      EMP006: 100000, // Sneha Kulkarni (QA Specialist)
-    };
+  const baseSalaries = {
+    EMP007: 240000, // Aditya Arora (Admin)
+    EMP023: 160000, // Tanishq Goyal (HR)
+    EMP019: 190000, // Akshat Wadagbalkar (Manager)
+    EMP018: 185000, // Chiranthan Suvidh (Manager)
+    EMP021: 130000, // Abhik Sinha (Employee)
+    EMP020: 125000, // Uttkarsh Kumar (Employee)
+  };
 
+  for (const empId of ['EMP007', 'EMP023', 'EMP019', 'EMP018', 'EMP021', 'EMP020']) {
     const basic = baseSalaries[empId];
     const allowances = Math.round(basic * 0.2);
     const bonus = 15000;
     const gross = basic + allowances + bonus;
     const tax = Math.round(gross * 0.15);
-    const deductions = 3600; // PF + Professional Tax
+    const deductions = 3600;
     const net = gross - tax - deductions;
 
     await Payroll.create({
@@ -359,51 +373,51 @@ async function seedDatabase() {
       paymentDate: new Date('2026-08-31'),
     });
   }
-  console.log('✅ Disbursed digital salary statements created for August 2026.');
+  console.log('✅ Disbursed digital salary statements created.');
 
   // ------------------------------------------------------------------
-  // 7. SEED REALISTIC EMPLOYEE DOCUMENTS (STAGE 8)
+  // 8. SEED VERIFIED EMPLOYEE DOCUMENTS
   // ------------------------------------------------------------------
   console.log('\n📁 Seeding verified employee documents...');
   await EmployeeDocument.create({
-    employee: empDocs['EMP004']._id, // Rohan Gupta
+    employee: empDocs['EMP021']._id,
     documentType: 'offer-letter',
-    title: 'Employment Offer Letter - Rohan Gupta',
+    title: 'Employment Offer Letter - Abhik Sinha',
     description: 'Signed corporate offer agreement and compensation plan',
-    fileName: 'Offer_Letter_Rohan_Gupta.pdf',
-    storedFileName: '1725000000000_offer_rohan.pdf',
+    fileName: 'Offer_Letter_Abhik_Sinha.pdf',
+    storedFileName: '1725000000000_offer_abhik.pdf',
     filePath: 'server/uploads/documents/sample_offer.pdf',
     fileSize: 245760,
     mimeType: 'application/pdf',
-    uploadedBy: userDocs['EMP002']._id, // Priya Patel (HR)
+    uploadedBy: userDocs['EMP023']._id, // Tanishq Goyal (HR)
     status: 'active',
   });
 
   await EmployeeDocument.create({
-    employee: empDocs['EMP005']._id, // Ananya Verma
+    employee: empDocs['EMP020']._id,
     documentType: 'contract',
-    title: 'Design Lead Master Services Contract',
+    title: 'AI Engineer Services Contract - Uttkarsh Kumar',
     description: 'Intellectual property assignment and NDA',
-    fileName: 'Contract_Ananya_Verma.pdf',
-    storedFileName: '1725000000001_contract_ananya.pdf',
+    fileName: 'Contract_Uttkarsh_Kumar.pdf',
+    storedFileName: '1725000000001_contract_uttkarsh.pdf',
     filePath: 'server/uploads/documents/sample_contract.pdf',
     fileSize: 312500,
     mimeType: 'application/pdf',
-    uploadedBy: userDocs['EMP002']._id,
+    uploadedBy: userDocs['EMP023']._id, // Tanishq Goyal (HR)
     status: 'active',
   });
   console.log('✅ Official documents indexed.');
 
   console.log('\n================================================================');
-  console.log('✨ SEEDING COMPLETE: DATABASE INITIALIZED WITH 6 INDIAN EMPLOYEES');
+  console.log('✨ SEEDING COMPLETE: DATABASE INITIALIZED WITH 6 REAL GMAIL ACCOUNTS');
   console.log('================================================================');
   console.log('Credentials Summary:');
-  console.log('  1. Aarav Sharma   (Admin):   aarav.sharma@company.com   | Admin@123456');
-  console.log('  2. Priya Patel    (HR):      priya.patel@company.com    | HrAdmin@1810#');
-  console.log('  3. Rajesh Iyer    (Manager): rajesh.iyer@company.com    | Manager@123456');
-  console.log('  4. Rohan Gupta    (Dev):     rohan.gupta@company.com    | Employee@123456');
-  console.log('  5. Ananya Verma   (Design):  ananya.verma@company.com   | Ananya@123456');
-  console.log('  6. Sneha Kulkarni (QA):      sneha.kulkarni@company.com | Sneha@123456');
+  console.log('  1. ADMIN:    Aditya Arora        | a4adityaarora@gmail.com      | Corp@EMP007#');
+  console.log('  2. HR:       Tanishq Goyal       | tnu23505@gmail.com           | Corp@EMP023#');
+  console.log('  3. MANAGER:  Akshat Wadagbalkar  | akshat.wadagbalkar@gmail.com | Corp@EMP019#');
+  console.log('  4. MANAGER:  Chiranthan Suvidh   | suvidh.vibrance@gmail.com    | Corp@EMP018#');
+  console.log('  5. EMPLOYEE: Abhik Sinha         | abhiksinha06@gmail.com       | Corp@EMP021# (Reports to Chiranthan)');
+  console.log('  6. EMPLOYEE: Uttkarsh Kumar      | u23022686@gmail.com          | Corp@EMP020# (Reports to Akshat)');
   console.log('================================================================\n');
 
   await mongoose.disconnect();

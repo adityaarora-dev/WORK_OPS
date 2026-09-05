@@ -185,7 +185,7 @@ export const EmployeeCreatePage = () => {
             <input
               id="email"
               type="email"
-              placeholder="e.g. eleanor.vance@company.com"
+              placeholder="e.g. employee@gmail.com"
               value={formData.email}
               onChange={(e) => handleChange('email', e.target.value)}
               required

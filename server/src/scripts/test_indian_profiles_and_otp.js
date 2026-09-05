@@ -52,12 +52,12 @@ async function runTests() {
   console.log('✅ Connected to MongoDB Atlas to observe database state.');
 
   const profiles = [
-    { name: 'Aarav Sharma (Admin)', email: 'aarav.sharma@company.com', pass: 'Admin@123456', role: 'admin' },
-    { name: 'Priya Patel (HR)', email: 'priya.patel@company.com', pass: 'HrAdmin@1810#', role: 'hr' },
-    { name: 'Rajesh Iyer (Manager)', email: 'rajesh.iyer@company.com', pass: 'Manager@123456', role: 'manager' },
-    { name: 'Rohan Gupta (Sr Dev)', email: 'rohan.gupta@company.com', pass: 'Employee@123456', role: 'employee' },
-    { name: 'Ananya Verma (Designer)', email: 'ananya.verma@company.com', pass: 'Ananya@123456', role: 'employee' },
-    { name: 'Sneha Kulkarni (QA)', email: 'sneha.kulkarni@company.com', pass: 'Sneha@123456', role: 'employee' },
+    { name: 'Aditya Arora (Admin)', email: 'a4adityaarora@gmail.com', pass: 'Corp@EMP007#', role: 'admin' },
+    { name: 'Tanishq Goyal (HR)', email: 'tnu23505@gmail.com', pass: 'Corp@EMP023#', role: 'hr' },
+    { name: 'Akshat Wadagbalkar (Manager)', email: 'akshat.wadagbalkar@gmail.com', pass: 'Corp@EMP019#', role: 'manager' },
+    { name: 'Chiranthan Suvidh (Manager)', email: 'suvidh.vibrance@gmail.com', pass: 'Corp@EMP018#', role: 'manager' },
+    { name: 'Abhik Sinha (Employee)', email: 'abhiksinha06@gmail.com', pass: 'Corp@EMP021#', role: 'employee' },
+    { name: 'Uttkarsh Kumar (Employee)', email: 'u23022686@gmail.com', pass: 'Corp@EMP020#', role: 'employee' },
   ];
 
   // 1. Verify Distinct Logins for all 6 Indian Profiles
@@ -78,7 +78,7 @@ async function runTests() {
 
   // 2. Test Realistic Email OTP Registration Flow (No autofill, No devOtp leak)
   console.log('\n--- TESTING REALISTIC EMAIL OTP REGISTRATION FLOW ---');
-  const candidateEmail = `kavita.reddy.${Date.now()}@company.com`;
+  const candidateEmail = `kavita.reddy.${Date.now()}@gmail.com`;
 
   // Step 2A: Send OTP to Candidate Email
   const sendRes = await request({
@@ -125,25 +125,25 @@ async function runTests() {
   const loginOtpSend = await request({
     method: 'POST',
     path: '/api/auth/send-login-otp',
-    body: { email: 'priya.patel@company.com' },
+    body: { email: 'tnu23505@gmail.com' },
   });
 
   const loginOtpSentOk = loginOtpSend.status === 200 && !loginOtpSend.data?.devOtp;
-  console.log(`${loginOtpSentOk ? '✅ PASS' : '❌ FAIL'}: Login OTP dispatched for Priya Patel (devOtp excluded from payload)`);
+  console.log(`${loginOtpSentOk ? '✅ PASS' : '❌ FAIL'}: Login OTP dispatched for Tanishq Goyal (devOtp excluded from payload)`);
 
-  const loginOtpRecord = await Otp.findOne({ email: 'priya.patel@company.com', purpose: 'login' }).sort({ createdAt: -1 });
+  const loginOtpRecord = await Otp.findOne({ email: 'tnu23505@gmail.com', purpose: 'login' }).sort({ createdAt: -1 });
 
   const loginVerify = await request({
     method: 'POST',
     path: '/api/auth/verify-login-otp',
     body: {
-      email: 'priya.patel@company.com',
+      email: 'tnu23505@gmail.com',
       otp: loginOtpRecord.otp,
     },
   });
 
   const loginVerifyOk = loginVerify.status === 200 && loginVerify.data?.data?.token;
-  console.log(`${loginVerifyOk ? '✅ PASS' : '❌ FAIL'}: Login OTP verified & JWT issued for Priya Patel!`);
+  console.log(`${loginVerifyOk ? '✅ PASS' : '❌ FAIL'}: Login OTP verified & JWT issued for Tanishq Goyal!`);
 
   console.log('\n===============================================================');
   console.log('STATUS: ALL REALISTIC EMAIL OTP FLOWS TESTED & VERIFIED 100% ✅');

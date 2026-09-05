@@ -81,32 +81,32 @@ async function runPolicyTests() {
   console.log(`${strangerOtpBlocked ? '✅ PASS' : '❌ FAIL'}: OTP refused for unregistered email (404 Access Denied)`);
 
   // 4. Consequence for Authorized Employee logging in via Password
-  console.log('\n--- 4. AUTHORIZED EMPLOYEE SIGN IN (AKSHAT WADAGBALKAR) ---');
+  console.log('\n--- 4. AUTHORIZED EMPLOYEE SIGN IN (ABHIK SINHA) ---');
   const empLogin = await request({
     method: 'POST',
     path: '/api/auth/login',
-    body: { email: 'akshat.wadagbalkar@gmail.com', password: 'Corp@EMP019#' },
+    body: { email: 'abhiksinha06@gmail.com', password: 'Corp@EMP021#' },
   });
   const empOk = empLogin.status === 200 && empLogin.data?.data?.user?.role === 'employee';
   console.log(`${empOk ? '✅ PASS' : '❌ FAIL'}: Authorized Employee signs into workspace with scoped access`);
 
-  // 5. Consequence for Authorized Indian Employee logging in via Email OTP
-  console.log('\n--- 5. AUTHORIZED EMPLOYEE EMAIL OTP LOGIN (PRIYA PATEL) ---');
-  const priyaOtpSend = await request({
+  // 5. Consequence for Authorized Employee logging in via Email OTP
+  console.log('\n--- 5. AUTHORIZED EMPLOYEE EMAIL OTP LOGIN (TANISHQ GOYAL) ---');
+  const tanishqOtpSend = await request({
     method: 'POST',
     path: '/api/auth/send-login-otp',
-    body: { email: 'priya.patel@company.com' },
+    body: { email: 'tnu23505@gmail.com' },
   });
-  console.log(`${priyaOtpSend.status === 200 ? '✅ PASS' : '❌ FAIL'}: Real OTP dispatched to Priya's corporate email`);
+  console.log(`${tanishqOtpSend.status === 200 ? '✅ PASS' : '❌ FAIL'}: Real OTP dispatched to Tanishq's corporate email`);
 
-  const otpDoc = await Otp.findOne({ email: 'priya.patel@company.com', purpose: 'login' }).sort({ createdAt: -1 });
-  const priyaVerify = await request({
+  const otpDoc = await Otp.findOne({ email: 'tnu23505@gmail.com', purpose: 'login' }).sort({ createdAt: -1 });
+  const tanishqVerify = await request({
     method: 'POST',
     path: '/api/auth/verify-login-otp',
-    body: { email: 'priya.patel@company.com', otp: otpDoc.otp },
+    body: { email: 'tnu23505@gmail.com', otp: otpDoc.otp },
   });
-  const priyaOk = priyaVerify.status === 200 && priyaVerify.data?.data?.user?.role === 'hr';
-  console.log(`${priyaOk ? '✅ PASS' : '❌ FAIL'}: Email OTP verified & Priya authenticated into HR Console`);
+  const tanishqOk = tanishqVerify.status === 200 && tanishqVerify.data?.data?.user?.role === 'hr';
+  console.log(`${tanishqOk ? '✅ PASS' : '❌ FAIL'}: Email OTP verified & Tanishq authenticated into HR Console`);
 
   console.log('\n===============================================================');
   console.log('STATUS: INVITE-ONLY ACCESS CONTROL POLICY VERIFIED 100% 🛡️');

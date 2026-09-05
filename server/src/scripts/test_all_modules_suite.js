@@ -48,28 +48,28 @@ async function runAllModulesTests() {
   const adminLogin = await request({
     method: 'POST',
     path: '/api/auth/login',
-    body: { email: 'aarav.sharma@company.com', password: 'Admin@123456' },
+    body: { email: 'a4adityaarora@gmail.com', password: 'Corp@EMP007#' },
   });
   const adminToken = adminLogin.data?.data?.token;
 
   const hrLogin = await request({
     method: 'POST',
     path: '/api/auth/login',
-    body: { email: 'priya.patel@company.com', password: 'HrAdmin@1810#' },
+    body: { email: 'tnu23505@gmail.com', password: 'Corp@EMP023#' },
   });
   const hrToken = hrLogin.data?.data?.token;
 
   const mgrLogin = await request({
     method: 'POST',
     path: '/api/auth/login',
-    body: { email: 'rajesh.iyer@company.com', password: 'Manager@123456' },
+    body: { email: 'akshat.wadagbalkar@gmail.com', password: 'Corp@EMP019#' },
   });
   const mgrToken = mgrLogin.data?.data?.token;
 
   const empLogin = await request({
     method: 'POST',
     path: '/api/auth/login',
-    body: { email: 'akshat.wadagbalkar@gmail.com', password: 'Corp@EMP019#' },
+    body: { email: 'u23022686@gmail.com', password: 'Corp@EMP020#' },
   });
   const empToken = empLogin.data?.data?.token;
 
@@ -263,7 +263,7 @@ async function runAllModulesTests() {
     path: '/api/payroll',
     headers: { Authorization: `Bearer ${adminToken}` },
     body: {
-      employee: 'EMP001',
+      employee: 'EMP007',
       month: testMonth,
       year: testYear,
       basicSalary: 7000,

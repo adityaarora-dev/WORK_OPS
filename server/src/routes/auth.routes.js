@@ -62,23 +62,36 @@ router.post('/register', authController.register);
 
 /**
  * @route   POST /api/auth/forgot-password
- * @desc    Generate password reset token and dispatch email
+ * @desc    Generate 6-digit OTP and dispatch password reset email
  * @access  Public
  */
 router.post('/forgot-password', authController.forgotPassword);
 
 /**
+ * @route   POST /api/auth/verify-otp
+ * @route   POST /api/auth/verify-reset-otp
+ * @desc    Verify 6-digit OTP code and return short-lived reset token
+ * @access  Public
+ */
+router.post('/verify-otp', authController.verifyResetOtp);
+router.post('/verify-reset-otp', authController.verifyResetOtp);
+
+/**
  * @route   GET /api/auth/reset-password/:token
+ * @route   GET /api/auth/reset-password
  * @desc    Validate password reset token
  * @access  Public
  */
 router.get('/reset-password/:token', authController.validateResetToken);
+router.get('/reset-password', authController.validateResetToken);
 
 /**
  * @route   POST /api/auth/reset-password/:token
+ * @route   POST /api/auth/reset-password
  * @desc    Save new password with token and invalidate token
  * @access  Public
  */
 router.post('/reset-password/:token', authController.resetPassword);
+router.post('/reset-password', authController.resetPassword);
 
 module.exports = router;

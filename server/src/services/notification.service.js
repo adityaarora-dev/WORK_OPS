@@ -1,4 +1,6 @@
 const Notification = require('../models/Notification');
+const { User } = require('../models/User');
+const { sendNotificationEmail } = require('./email.service');
 
 /**
  * Creates and persists a notification for a user.
@@ -22,6 +24,25 @@ const createNotification = async ({
       relatedEntity,
       relatedEntityId,
     });
+
+    // Asynchronously dispatch email notification to user's verified Gmail
+    User.findById(recipient)
+      .select('email firstName lastName')
+      .then((user) => {
+        if (user && user.email) {
+          sendNotificationEmail({
+            to: user.email,
+            subject: title,
+            title,
+            message,
+            name: `${user.firstName || ''} ${user.lastName || ''}`.trim(),
+            type,
+          }).catch((err) =>
+            console.warn(`[Notification Email Warning] Could not deliver to ${user.email}: ${err.message}`)
+          );
+        }
+      })
+      .catch(() => {});
 
     return notification;
   } catch (err) {

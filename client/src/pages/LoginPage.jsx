@@ -20,6 +20,7 @@ import {
 import { toast } from 'sonner';
 import { useAuth } from '../hooks/useAuth';
 import { sendLoginOtp, verifyLoginOtp } from '../services/authService';
+import ForgotPasswordModal from '../components/auth/ForgotPasswordModal';
 
 export const LoginPage = () => {
   const [activeTab, setActiveTab] = useState('password'); // 'password' | 'otp'
@@ -29,6 +30,7 @@ export const LoginPage = () => {
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
+  const [isForgotModalOpen, setIsForgotModalOpen] = useState(false);
 
   // OTP Login State (Passwordless via Corporate Email)
   const [otpLoginEmail, setOtpLoginEmail] = useState('');
@@ -242,7 +244,7 @@ export const LoginPage = () => {
               <input
                 id="loginEmail"
                 type="text"
-                placeholder="e.g. rohan.gupta@company.com or EMP004"
+                placeholder="e.g. a4adityaarora@gmail.com or EMP007"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -253,9 +255,14 @@ export const LoginPage = () => {
             <div className="form-group">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                 <label htmlFor="loginPassword" style={{ margin: 0 }}>Confidential Password</label>
-                <Link
-                  to="/forgot-password"
+                <button
+                  type="button"
+                  onClick={() => setIsForgotModalOpen(true)}
                   style={{
+                    background: 'none',
+                    border: 'none',
+                    padding: 0,
+                    cursor: 'pointer',
                     fontSize: '11.5px',
                     color: 'var(--primary)',
                     textDecoration: 'none',
@@ -263,7 +270,7 @@ export const LoginPage = () => {
                   }}
                 >
                   Forgot Password?
-                </Link>
+                </button>
               </div>
               <input
                 id="loginPassword"
@@ -296,7 +303,7 @@ export const LoginPage = () => {
                   <input
                     id="otpLoginEmail"
                     type="email"
-                    placeholder="e.g. priya.patel@company.com"
+                    placeholder="e.g. tnu23505@gmail.com"
                     value={otpLoginEmail}
                     onChange={(e) => setOtpLoginEmail(e.target.value)}
                     required
@@ -435,72 +442,79 @@ export const LoginPage = () => {
           </div>
         )}
 
-        {/* Verified Corporate Accounts Quick Fill (Only fills credentials for the 6 Indian profiles) */}
+        {/* Verified Corporate Accounts Quick Fill (Only fills credentials for the 6 Real Accounts) */}
         <div className="quick-fill-section">
-          <div className="quick-fill-title">Authorized Corporate Accounts (6 Indian Profiles)</div>
+          <div className="quick-fill-title">Authorized Corporate Accounts (6 Verified Profiles)</div>
           <div className="quick-fill-grid">
             <button
               type="button"
               className="quick-btn"
-              onClick={() => handleQuickFill('aarav.sharma@company.com', 'Admin@123456')}
-              title="CTO & System Administrator"
+              onClick={() => handleQuickFill('a4adityaarora@gmail.com', 'Corp@EMP007#')}
+              title="Chief Technology Officer & Director"
             >
               <Shield size={13} style={{ color: '#7c3aed' }} />
-              <span>Aarav S. (Admin)</span>
+              <span>Aditya A. (Admin)</span>
             </button>
 
             <button
               type="button"
               className="quick-btn"
-              onClick={() => handleQuickFill('priya.patel@company.com', 'HrAdmin@1810#')}
+              onClick={() => handleQuickFill('tnu23505@gmail.com', 'Corp@EMP023#')}
               title="Head of People Operations"
             >
               <Briefcase size={13} style={{ color: '#2563eb' }} />
-              <span>Priya P. (HR Lead)</span>
+              <span>Tanishq G. (HR Lead)</span>
             </button>
 
             <button
               type="button"
               className="quick-btn"
-              onClick={() => handleQuickFill('rajesh.iyer@company.com', 'Manager@123456')}
-              title="Engineering Director"
+              onClick={() => handleQuickFill('akshat.wadagbalkar@gmail.com', 'Corp@EMP019#')}
+              title="Cloud & Infrastructure Engineering Manager"
             >
               <Users size={13} style={{ color: '#0d9488' }} />
-              <span>Rajesh I. (Manager)</span>
+              <span>Akshat W. (Manager 1)</span>
             </button>
 
             <button
               type="button"
               className="quick-btn"
-              onClick={() => handleQuickFill('rohan.gupta@company.com', 'Employee@123456')}
-              title="Senior Full-Stack Engineer"
+              onClick={() => handleQuickFill('suvidh.vibrance@gmail.com', 'Corp@EMP018#')}
+              title="Software Development Engineering Manager"
             >
-              <User size={13} style={{ color: '#475569' }} />
-              <span>Rohan G. (Sr Dev)</span>
+              <Users size={13} style={{ color: '#0d9488' }} />
+              <span>Chiranthan S. (Manager 2)</span>
             </button>
 
             <button
               type="button"
               className="quick-btn"
-              onClick={() => handleQuickFill('ananya.verma@company.com', 'Ananya@123456')}
-              title="Lead UI/UX Product Designer"
+              onClick={() => handleQuickFill('abhiksinha06@gmail.com', 'Corp@EMP021#')}
+              title="Backend Software Engineer (Reports to Chiranthan)"
             >
               <User size={13} style={{ color: '#475569' }} />
-              <span>Ananya V. (Designer)</span>
+              <span>Abhik S. (Dev)</span>
             </button>
 
             <button
               type="button"
               className="quick-btn"
-              onClick={() => handleQuickFill('sneha.kulkarni@company.com', 'Sneha@123456')}
-              title="QA Automation Specialist"
+              onClick={() => handleQuickFill('u23022686@gmail.com', 'Corp@EMP020#')}
+              title="AI & Cloud Engineer (Reports to Akshat)"
             >
               <User size={13} style={{ color: '#475569' }} />
-              <span>Sneha K. (QA Lead)</span>
+              <span>Uttkarsh K. (AI Eng)</span>
             </button>
           </div>
         </div>
       </div>
+
+      {/* Forgot Password OTP Reset Modal */}
+      <ForgotPasswordModal
+        isOpen={isForgotModalOpen}
+        onClose={() => setIsForgotModalOpen(false)}
+        initialEmail={email || otpLoginEmail}
+      />
     </div>
   );
 };

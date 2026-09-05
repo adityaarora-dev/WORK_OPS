@@ -1,4 +1,4 @@
-﻿const dotenv = require('dotenv');
+const dotenv = require('dotenv');
 const dns = require('dns');
 const path = require('path');
 const http = require('http');
@@ -74,7 +74,7 @@ async function testEdgeCases() {
   const inactiveLogin = await request({
     method: 'POST',
     path: '/api/auth/login',
-    body: { email: 'hr@hrms.local', password: 'HrAdmin@1810#' },
+    body: { email: 'tnu23505@gmail.com', password: 'Corp@EMP023#' },
   });
   console.log('Inactive user login status:', inactiveLogin.status, inactiveLogin.data.message);
   if (inactiveLogin.status !== 401) throw new Error('Inactive user was allowed to log in!');

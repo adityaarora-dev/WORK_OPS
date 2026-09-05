@@ -32,6 +32,10 @@ const otpSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    attempts: {
+      type: Number,
+      default: 0,
+    },
     // Document expires automatically in 10 minutes (600 seconds)
     createdAt: {
       type: Date,

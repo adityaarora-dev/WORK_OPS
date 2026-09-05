@@ -387,17 +387,13 @@ node server/src/scripts/test_employee_suite.js
 
 ## 6. Master Verified User Credentials Reference
 
-The following verified accounts represent the active organizational structure:
+The following 6 verified accounts represent the active organizational structure, powered by verified real Gmail accounts for 100% reliable SMTP email delivery:
 
-| Role | Employee ID | Name | Corporate Email | Default Password | Assigned Department |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **Admin** | `EMP001` | Aarav Sharma | `aarav.sharma@company.com` | `Admin@123456` | Technology & Systems |
-| **HR** | `EMP002` | Priya Patel | `priya.patel@company.com` | `HrAdmin@1810#` | Human Resources |
-| **Manager** | `EMP003` | Rajesh Iyer | `rajesh.iyer@company.com` | `Manager@123456` | Engineering |
-| **Employee** | `EMP007` | Aditya Arora | `a4adityaarora@gmail.com` | `Corp@EMP007#` | Technology & Systems |
-| **Employee** | `EMP017` | Chiranthan Suvidh | `chiranthansuvidh.s2024@vitstudent.ac.in` | `Corp@EMP017#` | Engineering |
-| **Employee** | `EMP018` | Chiranthan Suvidh | `suvidh.vibrance@gmail.com` | `Corp@EMP018#` | Engineering |
-| **Employee** | `EMP019` | Akshat Wadagbalkar | `akshat.wadagbalkar@gmail.com` | `Corp@EMP019#` | Technology & Systems |
-| **Employee** | `EMP020` | Uttkarsh Kumar | `u23022686@gmail.com` | `Corp@EMP020#` | Engineering |
-| **Employee** | `EMP021` | Abhik Sinha | `abhiksinha06@gmail.com` | `Corp@EMP021#` | Engineering |
-| **Employee** | `EMP023` | Tanishq Goyal | `tnu23505@gmail.com` | `Corp@EMP023#` | Engineering |
+| Role | Employee ID | Name | Corporate Email | Default Password | Assigned Department | Reports To |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Admin** | `EMP007` | Aditya Arora | `a4adityaarora@gmail.com` | `Corp@EMP007#` | Technology & Systems | *Top Level Executive* |
+| **HR** | `EMP023` | Tanishq Goyal | `tnu23505@gmail.com` | `Corp@EMP023#` | Human Resources | Aditya Arora (`EMP007`) |
+| **Manager** | `EMP019` | Akshat Wadagbalkar | `akshat.wadagbalkar@gmail.com` | `Corp@EMP019#` | Technology & Systems | Aditya Arora (`EMP007`) |
+| **Manager** | `EMP018` | Chiranthan Suvidh | `suvidh.vibrance@gmail.com` | `Corp@EMP018#` | Engineering | Aditya Arora (`EMP007`) |
+| **Employee**| `EMP021` | Abhik Sinha | `abhiksinha06@gmail.com` | `Corp@EMP021#` | Engineering | **Chiranthan Suvidh** (`EMP018`) |
+| **Employee**| `EMP020` | Uttkarsh Kumar | `u23022686@gmail.com` | `Corp@EMP020#` | Technology & Systems | **Akshat Wadagbalkar** (`EMP019`) |

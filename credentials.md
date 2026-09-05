@@ -1,47 +1,57 @@
 # Enterprise HRMS — Master Verified User Credentials
 
-This document contains the verified credentials for all active accounts in the **Enterprise Human Resource Management System**.
+This document contains the verified credentials and reporting structure for all active accounts in the **Enterprise Human Resource Management System**. Every account is backed by a verified real Gmail address, ensuring 100% reliable SMTP email delivery for OTP logins, password resets, leave approvals, and system notifications.
 
 ---
 
-## 1. Executive, HR & Management Accounts
+## 1. Verified Corporate User Accounts (Exactly 6 Users)
 
-| Role | Employee ID | Name | Corporate Email | Password | Primary Console |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **Admin (CTO)** | `EMP001` | Aarav Sharma | `aarav.sharma@company.com` | `Admin@123456` | `/admin/dashboard` |
-| **HR Lead** | `EMP002` | Priya Patel | `priya.patel@company.com` | `HrAdmin@1810#` | `/hr/dashboard` |
-| **Team Manager** | `EMP003` | Rajesh Iyer | `rajesh.iyer@company.com` | `Manager@123456` | `/manager/dashboard` |
+| Role | Employee ID | Name | Registered Gmail | Password | Designation | Department | Primary Console |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Admin** | `EMP007` | Aditya Arora | `a4adityaarora@gmail.com` | `Corp@EMP007#` | Chief Technology Officer & Director | Technology & Systems | `/admin/dashboard` |
+| **HR** | `EMP023` | Tanishq Goyal | `tnu23505@gmail.com` | `Corp@EMP023#` | Head of People Operations & HR Lead | Human Resources | `/hr/dashboard` |
+| **Manager** | `EMP019` | Akshat Wadagbalkar | `akshat.wadagbalkar@gmail.com` | `Corp@EMP019#` | Cloud & Infrastructure Manager | Technology & Systems | `/manager/dashboard` |
+| **Manager** | `EMP018` | Chiranthan Suvidh | `suvidh.vibrance@gmail.com` | `Corp@EMP018#` | Software Development Manager | Engineering | `/manager/dashboard` |
+| **Employee**| `EMP021` | Abhik Sinha | `abhiksinha06@gmail.com` | `Corp@EMP021#` | Backend Software Engineer | Engineering | `/employee/dashboard` |
+| **Employee**| `EMP020` | Uttkarsh Kumar | `u23022686@gmail.com` | `Corp@EMP020#` | AI & Cloud Engineer | Technology & Systems | `/employee/dashboard` |
 
 ---
 
-## 2. Approved Employee Accounts (Self-Service)
+## 2. Strict Employee Reporting Structure
 
-All employee accounts are active direct reports under Manager **Rajesh Iyer** (`EMP003`):
+The reporting hierarchy is enforced consistently across profiles, manager dashboards, leave approvals, task ownership, and notification routing:
 
-| Employee ID | Name | Email Address | Password | Designation | Department |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| `EMP007` | Aditya Arora | `a4adityaarora@gmail.com` | `Corp@EMP007#` | Senior Systems Engineer | Technology & Systems |
-| `EMP017` | Chiranthan Suvidh | `chiranthansuvidh.s2024@vitstudent.ac.in` | `Corp@EMP017#` | Senior Software Developer | Engineering |
-| `EMP018` | Chiranthan Suvidh | `suvidh.vibrance@gmail.com` | `Corp@EMP018#` | Senior Software Developer | Engineering |
-| `EMP019` | Akshat Wadagbalkar | `akshat.wadagbalkar@gmail.com` | `Corp@EMP019#` | Cloud Architect | Technology & Systems |
-| `EMP020` | Uttkarsh Kumar | `u23022686@gmail.com` | `Corp@EMP020#` | AI Engineer | Engineering |
-| `EMP021` | Abhik Sinha | `abhiksinha06@gmail.com` | `Corp@EMP021#` | Backend Engineer | Engineering |
-| `EMP023` | Tanishq Goyal | `tnu23505@gmail.com` | `Corp@EMP023#` | SDE | Engineering |
+| Employee | Employee ID | Reports To (Manager) | Manager ID | Manager Email |
+| :--- | :--- | :--- | :--- | :--- |
+| **Abhik Sinha** | `EMP021` | **Chiranthan Suvidh** | `EMP018` | `suvidh.vibrance@gmail.com` |
+| **Uttkarsh Kumar** | `EMP020` | **Akshat Wadagbalkar** | `EMP019` | `akshat.wadagbalkar@gmail.com` |
+| **Akshat Wadagbalkar** | `EMP019` | **Aditya Arora** | `EMP007` | `a4adityaarora@gmail.com` |
+| **Chiranthan Suvidh** | `EMP018` | **Aditya Arora** | `EMP007` | `a4adityaarora@gmail.com` |
+| **Tanishq Goyal** | `EMP023` | **Aditya Arora** | `EMP007` | `a4adityaarora@gmail.com` |
+| **Aditya Arora** | `EMP007` | *None (Top Level Executive)* | — | — |
 
 ---
 
 ## 3. Login Modes & Access Instructions
 
 ### A. Password-Based Login
-- Portal URL: `http://localhost:5173/` or direct role pages:
-  - Admin: `http://localhost:5173/admin/login`
-  - HR: `http://localhost:5173/hr/login`
-  - Manager: `http://localhost:5173/manager/login`
-  - Employee: `http://localhost:5173/employee/login`
-- Enter the Email Address or Employee ID, provide the Password, and click **Sign In**.
+* Unified Portal URL: `http://localhost:5173/`
+* Role-Specific Direct Portals:
+  * **Admin**: `http://localhost:5173/admin/login`
+  * **HR**: `http://localhost:5173/hr/login`
+  * **Manager**: `http://localhost:5173/manager/login`
+  * **Employee**: `http://localhost:5173/employee/login`
+* Enter either the **Registered Gmail Address** or **Employee ID**, provide the Password, and click **Sign In**.
 
 ### B. Passwordless Email OTP Login
-- Select **Login with Email OTP** on any role login screen.
-- Enter any registered corporate email (e.g. `a4adityaarora@gmail.com` or `priya.patel@company.com`).
-- Click **Send Verification Code**.
-- Retrieve the 6-digit verification code from your Gmail inbox and enter it to authenticate immediately without a password.
+* Click **Login with Email OTP** on any login portal.
+* Enter your registered Gmail address (e.g. `a4adityaarora@gmail.com`, `tnu23505@gmail.com`, etc.).
+* Click **Send Verification Code**.
+* A 6-digit OTP code is dispatched directly to your real Gmail inbox via Google SMTP.
+* Enter the OTP code to authenticate immediately.
+
+### C. Forgot Password & Self-Service Password Reset
+* Click **Forgot Password?** above the password field on any login portal.
+* Enter your registered Gmail address or Employee ID.
+* Check your Gmail inbox for the email: *Reset Your Enterprise HRMS Password*.
+* Click the secure time-limited link (valid for 15 minutes) to set a new password.

@@ -39,9 +39,9 @@ export const RoleSelectionPortal = () => {
         'Executive Workforce Intelligence',
       ],
       demoAccount: {
-        name: 'Aarav Sharma',
-        email: 'aarav.sharma@company.com',
-        empId: 'EMP001',
+        name: 'Aditya Arora',
+        email: 'a4adityaarora@gmail.com',
+        empId: 'EMP007',
       },
     },
     {
@@ -61,9 +61,9 @@ export const RoleSelectionPortal = () => {
         'Payroll Processing & Vouchers',
       ],
       demoAccount: {
-        name: 'Priya Patel',
-        email: 'priya.patel@company.com',
-        empId: 'EMP002',
+        name: 'Tanishq Goyal',
+        email: 'tnu23505@gmail.com',
+        empId: 'EMP023',
       },
     },
     {
@@ -83,9 +83,9 @@ export const RoleSelectionPortal = () => {
         'Performance Appraisals & OKRs',
       ],
       demoAccount: {
-        name: 'Rajesh Iyer',
-        email: 'rajesh.iyer@company.com',
-        empId: 'EMP003',
+        name: 'Akshat Wadagbalkar',
+        email: 'akshat.wadagbalkar@gmail.com',
+        empId: 'EMP019',
       },
     },
     {
@@ -105,9 +105,9 @@ export const RoleSelectionPortal = () => {
         'Personal Document Vault',
       ],
       demoAccount: {
-        name: 'Akshat Wadagbalkar',
-        email: 'akshat.wadagbalkar@gmail.com',
-        empId: 'EMP019',
+        name: 'Abhik Sinha',
+        email: 'abhiksinha06@gmail.com',
+        empId: 'EMP021',
       },
     },
   ];
@@ -296,10 +296,10 @@ export const RoleSelectionPortal = () => {
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
                   <strong style={{ fontSize: '12px', color: 'var(--primary)' }}>Admin (Executive)</strong>
-                  <code style={{ fontSize: '11px' }}>EMP001</code>
+                  <code style={{ fontSize: '11px' }}>EMP007</code>
                 </div>
-                <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>aarav.sharma@company.com</div>
-                <div style={{ fontSize: '11.5px', color: 'var(--text-muted)', marginTop: '2px' }}>Pass: <code>Admin@123456</code></div>
+                <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>a4adityaarora@gmail.com</div>
+                <div style={{ fontSize: '11.5px', color: 'var(--text-muted)', marginTop: '2px' }}>Pass: <code>Corp@EMP007#</code></div>
                 <Link to="/admin/login" style={{ fontSize: '11.5px', color: 'var(--primary)', display: 'inline-block', marginTop: '6px', fontWeight: 600 }}>
                   Admin Login →
                 </Link>
@@ -314,11 +314,11 @@ export const RoleSelectionPortal = () => {
                 }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                  <strong style={{ fontSize: '12px', color: 'var(--brown)' }}>HR Administrator</strong>
-                  <code style={{ fontSize: '11px' }}>EMP002</code>
+                  <strong style={{ fontSize: '12px', color: 'var(--brown)' }}>HR Lead</strong>
+                  <code style={{ fontSize: '11px' }}>EMP023</code>
                 </div>
-                <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>priya.patel@company.com</div>
-                <div style={{ fontSize: '11.5px', color: 'var(--text-muted)', marginTop: '2px' }}>Pass: <code>HrAdmin@1810#</code></div>
+                <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>tnu23505@gmail.com</div>
+                <div style={{ fontSize: '11.5px', color: 'var(--text-muted)', marginTop: '2px' }}>Pass: <code>Corp@EMP023#</code></div>
                 <Link to="/hr/login" style={{ fontSize: '11.5px', color: 'var(--brown)', display: 'inline-block', marginTop: '6px', fontWeight: 600 }}>
                   HR Login →
                 </Link>
@@ -333,11 +333,11 @@ export const RoleSelectionPortal = () => {
                 }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                  <strong style={{ fontSize: '12px', color: '#3b4e1e' }}>Team Manager</strong>
-                  <code style={{ fontSize: '11px' }}>EMP003</code>
+                  <strong style={{ fontSize: '12px', color: '#3b4e1e' }}>Manager 1</strong>
+                  <code style={{ fontSize: '11px' }}>EMP019</code>
                 </div>
-                <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>rajesh.iyer@company.com</div>
-                <div style={{ fontSize: '11.5px', color: 'var(--text-muted)', marginTop: '2px' }}>Pass: <code>Manager@123456</code></div>
+                <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>akshat.wadagbalkar@gmail.com</div>
+                <div style={{ fontSize: '11.5px', color: 'var(--text-muted)', marginTop: '2px' }}>Pass: <code>Corp@EMP019#</code></div>
                 <Link to="/manager/login" style={{ fontSize: '11.5px', color: '#3b4e1e', display: 'inline-block', marginTop: '6px', fontWeight: 600 }}>
                   Manager Login →
                 </Link>
@@ -352,11 +352,49 @@ export const RoleSelectionPortal = () => {
                 }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                  <strong style={{ fontSize: '12px', color: '#1d4ed8' }}>Employee</strong>
-                  <code style={{ fontSize: '11px' }}>EMP019</code>
+                  <strong style={{ fontSize: '12px', color: '#3b4e1e' }}>Manager 2</strong>
+                  <code style={{ fontSize: '11px' }}>EMP018</code>
                 </div>
-                <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>akshat.wadagbalkar@gmail.com</div>
-                <div style={{ fontSize: '11.5px', color: 'var(--text-muted)', marginTop: '2px' }}>Pass: <code>Corp@EMP019#</code></div>
+                <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>suvidh.vibrance@gmail.com</div>
+                <div style={{ fontSize: '11.5px', color: 'var(--text-muted)', marginTop: '2px' }}>Pass: <code>Corp@EMP018#</code></div>
+                <Link to="/manager/login" style={{ fontSize: '11.5px', color: '#3b4e1e', display: 'inline-block', marginTop: '6px', fontWeight: 600 }}>
+                  Manager Login →
+                </Link>
+              </div>
+
+              <div
+                style={{
+                  padding: '12px 14px',
+                  backgroundColor: 'var(--bg-surface-subtle)',
+                  borderRadius: '10px',
+                  border: '1px solid var(--border-default)',
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                  <strong style={{ fontSize: '12px', color: '#1d4ed8' }}>Employee 1 (Reports to Chiranthan)</strong>
+                  <code style={{ fontSize: '11px' }}>EMP021</code>
+                </div>
+                <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>abhiksinha06@gmail.com</div>
+                <div style={{ fontSize: '11.5px', color: 'var(--text-muted)', marginTop: '2px' }}>Pass: <code>Corp@EMP021#</code></div>
+                <Link to="/employee/login" style={{ fontSize: '11.5px', color: '#1d4ed8', display: 'inline-block', marginTop: '6px', fontWeight: 600 }}>
+                  Employee Login →
+                </Link>
+              </div>
+
+              <div
+                style={{
+                  padding: '12px 14px',
+                  backgroundColor: 'var(--bg-surface-subtle)',
+                  borderRadius: '10px',
+                  border: '1px solid var(--border-default)',
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                  <strong style={{ fontSize: '12px', color: '#1d4ed8' }}>Employee 2 (Reports to Akshat)</strong>
+                  <code style={{ fontSize: '11px' }}>EMP020</code>
+                </div>
+                <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>u23022686@gmail.com</div>
+                <div style={{ fontSize: '11.5px', color: 'var(--text-muted)', marginTop: '2px' }}>Pass: <code>Corp@EMP020#</code></div>
                 <Link to="/employee/login" style={{ fontSize: '11.5px', color: '#1d4ed8', display: 'inline-block', marginTop: '6px', fontWeight: 600 }}>
                   Employee Login →
                 </Link>

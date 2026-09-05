@@ -56,7 +56,7 @@ async function runStage9Tests() {
   const adminLogin = await request({
     method: 'POST',
     path: '/api/auth/login',
-    body: { email: 'aarav.sharma@company.com', password: 'Admin@123456' },
+    body: { email: 'a4adityaarora@gmail.com', password: 'Corp@EMP007#' },
   });
   const adminToken = adminLogin.data?.data?.token;
   assert('Admin authenticated', adminLogin.status === 200 && Boolean(adminToken));
@@ -64,7 +64,7 @@ async function runStage9Tests() {
   const hrLogin = await request({
     method: 'POST',
     path: '/api/auth/login',
-    body: { email: 'priya.patel@company.com', password: 'HrAdmin@1810#' },
+    body: { email: 'tnu23505@gmail.com', password: 'Corp@EMP023#' },
   });
   const hrToken = hrLogin.data?.data?.token;
   assert('HR authenticated', hrLogin.status === 200 && Boolean(hrToken));
@@ -72,7 +72,7 @@ async function runStage9Tests() {
   const mgrLogin = await request({
     method: 'POST',
     path: '/api/auth/login',
-    body: { email: 'rajesh.iyer@company.com', password: 'Manager@123456' },
+    body: { email: 'akshat.wadagbalkar@gmail.com', password: 'Corp@EMP019#' },
   });
   const mgrToken = mgrLogin.data?.data?.token;
   assert('Manager authenticated', mgrLogin.status === 200 && Boolean(mgrToken));
@@ -80,10 +80,10 @@ async function runStage9Tests() {
   const empLogin = await request({
     method: 'POST',
     path: '/api/auth/login',
-    body: { email: 'akshat.wadagbalkar@gmail.com', password: 'Corp@EMP019#' },
+    body: { email: 'u23022686@gmail.com', password: 'Corp@EMP020#' },
   });
   const empToken = empLogin.data?.data?.token;
-  assert('Employee (Akshat Wadagbalkar) authenticated', empLogin.status === 200 && Boolean(empToken));
+  assert('Employee (Uttkarsh Kumar) authenticated', empLogin.status === 200 && Boolean(empToken));
 
   // Retrieve employee records to have target IDs
   const employeesRes = await request({
@@ -92,10 +92,10 @@ async function runStage9Tests() {
     headers: { Authorization: `Bearer ${adminToken}` },
   });
   const allEmployees = employeesRes.data?.data || [];
-  const targetEmp = allEmployees.find((e) => e.email === 'akshat.wadagbalkar@gmail.com');
-  const aaravEmp = allEmployees.find((e) => e.email === 'aarav.sharma@company.com');
+  const targetEmp = allEmployees.find((e) => e.email === 'u23022686@gmail.com');
+  const adminEmp = allEmployees.find((e) => e.email === 'a4adityaarora@gmail.com');
 
-  assert('Target test employees resolved', Boolean(targetEmp && aaravEmp));
+  assert('Target test employees resolved', Boolean(targetEmp && adminEmp));
 
   // 2. Performance Review Cycle Tests
   console.log('\n--- 2. PERFORMANCE REVIEW CYCLES ---');
@@ -171,13 +171,13 @@ async function runStage9Tests() {
   assert('Manager assigns goal to direct report (201)', mgrGoalRes.status === 201);
   const goalId = mgrGoalRes.data?.data?._id;
 
-  // Manager CANNOT assign goal to unrelated employee (Aarav Sharma - Admin/CTO)
+  // Manager CANNOT assign goal to unrelated employee (Aditya Arora - Admin/CTO)
   const mgrUnrelatedGoal = await request({
     method: 'POST',
     path: '/api/performance/goals',
     headers: { Authorization: `Bearer ${mgrToken}` },
     body: {
-      employee: aaravEmp._id,
+      employee: adminEmp._id,
       title: 'Unauthorized Goal for CTO',
       dueDate: '2026-12-31',
     },
@@ -226,13 +226,13 @@ async function runStage9Tests() {
   });
   assert('Employee cannot create review evaluation (403 Forbidden)', empReviewAttempt.status === 403);
 
-  // Manager CANNOT review unrelated employee (Aarav Sharma)
+  // Manager CANNOT review unrelated employee (Aditya Arora)
   const mgrUnrelatedReview = await request({
     method: 'POST',
     path: '/api/performance/reviews',
     headers: { Authorization: `Bearer ${mgrToken}` },
     body: {
-      employee: aaravEmp._id,
+      employee: adminEmp._id,
       reviewCycle: cycleId,
       overallRating: 4,
       strengths: 'Good leadership',

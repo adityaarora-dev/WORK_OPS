@@ -102,8 +102,11 @@ export const testRoleEndpoint = async (targetRole) => {
 /**
  * Requests a password reset link for the provided corporate email.
  *
+/**
+ * Requests a 6-digit password reset OTP for the provided corporate email.
+ *
  * @param {string} email
- * @returns {Promise<{ success: boolean, message: string }>}
+ * @returns {Promise<{ success: boolean, message: string, email?: string }>}
  */
 export const forgotPassword = async (email) => {
   const response = await api.post('/auth/forgot-password', { email });
@@ -111,13 +114,26 @@ export const forgotPassword = async (email) => {
 };
 
 /**
- * Validates a password reset token.
+ * Verifies 6-digit password reset OTP and receives short-lived reset token & resetUrl.
+ *
+ * @param {string} email
+ * @param {string} otp
+ * @returns {Promise<{ success: boolean, message: string, token: string, resetUrl: string, email?: string }>}
+ */
+export const verifyResetOtp = async (email, otp) => {
+  const response = await api.post('/auth/verify-otp', { email, otp });
+  return response.data;
+};
+
+/**
+ * Validates a password reset token. Supports path and query parameter formats.
  *
  * @param {string} token
  * @returns {Promise<{ success: boolean, message: string, email?: string }>}
  */
 export const verifyResetToken = async (token) => {
-  const response = await api.get(`/auth/reset-password/${token}`);
+  const cleanToken = (token || '').trim();
+  const response = await api.get(`/auth/reset-password/${encodeURIComponent(cleanToken)}`);
   return response.data;
 };
 
@@ -130,7 +146,9 @@ export const verifyResetToken = async (token) => {
  * @returns {Promise<{ success: boolean, message: string }>}
  */
 export const resetPassword = async (token, password, confirmPassword) => {
-  const response = await api.post(`/auth/reset-password/${token}`, {
+  const cleanToken = (token || '').trim();
+  const response = await api.post(`/auth/reset-password/${encodeURIComponent(cleanToken)}`, {
+    token: cleanToken,
     password,
     confirmPassword,
   });

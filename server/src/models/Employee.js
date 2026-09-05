@@ -143,6 +143,15 @@ employeeSchema.virtual('fullName').get(function () {
   return `${this.firstName} ${this.lastName}`.trim();
 });
 
+// Virtuals for managerId and reportingManager
+employeeSchema.virtual('managerId').get(function () {
+  return this.manager;
+});
+
+employeeSchema.virtual('reportingManager').get(function () {
+  return this.manager;
+});
+
 const Employee = mongoose.model('Employee', employeeSchema);
 
 module.exports = {

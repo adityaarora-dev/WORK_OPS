@@ -59,7 +59,7 @@ async function runTestSuite() {
   const hrLogin = await request({
     method: 'POST',
     path: '/api/auth/login',
-    body: { email: 'hr@hrms.local', password: 'HrAdmin@1810#' },
+    body: { email: 'tnu23505@gmail.com', password: 'Corp@EMP023#' },
   });
   assert('HR login succeeds with correct password', hrLogin.status === 200 && hrLogin.data.data.token);
   const hrToken = hrLogin.data?.data?.token;
@@ -71,7 +71,7 @@ async function runTestSuite() {
   const adminLogin = await request({
     method: 'POST',
     path: '/api/auth/login',
-    body: { email: 'admin@hrms.local', password: 'Admin@123456' },
+    body: { email: 'a4adityaarora@gmail.com', password: 'Corp@EMP007#' },
   });
   assert('Admin login succeeds', adminLogin.status === 200 && adminLogin.data.data.token);
   const adminToken = adminLogin.data?.data?.token;
@@ -80,7 +80,7 @@ async function runTestSuite() {
   const mgrLogin = await request({
     method: 'POST',
     path: '/api/auth/login',
-    body: { email: 'manager@hrms.local', password: 'Manager@123456' },
+    body: { email: 'akshat.wadagbalkar@gmail.com', password: 'Corp@EMP019#' },
   });
   assert('Manager login succeeds', mgrLogin.status === 200 && mgrLogin.data.data.token);
   const mgrToken = mgrLogin.data?.data?.token;
@@ -89,7 +89,7 @@ async function runTestSuite() {
   const empLogin = await request({
     method: 'POST',
     path: '/api/auth/login',
-    body: { email: 'akshat.wadagbalkar@gmail.com', password: 'Corp@EMP019#' },
+    body: { email: 'abhiksinha06@gmail.com', password: 'Corp@EMP021#' },
   });
   assert('Employee login succeeds', empLogin.status === 200 && empLogin.data.data.token);
   const empToken = empLogin.data?.data?.token;
@@ -98,7 +98,7 @@ async function runTestSuite() {
   const badPass = await request({
     method: 'POST',
     path: '/api/auth/login',
-    body: { email: 'admin@hrms.local', password: 'WrongPassword123' },
+    body: { email: 'a4adityaarora@gmail.com', password: 'WrongPassword123' },
   });
   assert('Incorrect password returns 401 Invalid credentials', badPass.status === 401 && badPass.data.message === 'Invalid credentials');
 
@@ -106,7 +106,7 @@ async function runTestSuite() {
   const noUser = await request({
     method: 'POST',
     path: '/api/auth/login',
-    body: { email: 'nonexistent@hrms.local', password: 'Password123' },
+    body: { email: 'nonexistent.user.test@gmail.com', password: 'Password123' },
   });
   assert('Nonexistent email returns 401 Invalid credentials', noUser.status === 401 && noUser.data.message === 'Invalid credentials');
 
@@ -122,7 +122,7 @@ async function runTestSuite() {
   const noPw = await request({
     method: 'POST',
     path: '/api/auth/login',
-    body: { email: 'admin@hrms.local' },
+    body: { email: 'a4adityaarora@gmail.com' },
   });
   assert('Missing password returns 400', noPw.status === 400);
 
@@ -234,7 +234,7 @@ async function runTestSuite() {
       employeeId: 'TEST999',
       firstName: 'Hacker',
       lastName: 'Attempt',
-      email: 'hacker@hrms.local',
+      email: 'hacker.attempt.test@gmail.com',
       password: 'HackerPassword123',
       role: 'admin', // Malicious attempt to claim admin!
     },

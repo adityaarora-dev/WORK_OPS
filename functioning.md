@@ -136,7 +136,7 @@ Public self-registration (`POST /api/auth/register`) is permanently disabled wit
 ```
 
 1. **Standard Password Authentication**:
-   - Accepts either corporate email (`aarav.sharma@company.com`) or Employee ID (`EMP001`).
+   - Accepts either corporate email (`a4adityaarora@gmail.com`) or Employee ID (`EMP007`).
    - Normalizes identifiers to prevent case-sensitivity bypasses.
    - Evaluates password using `bcrypt.compare`.
    - Generates a stateless JWT token encoding `{ id, email, role, employeeId }`.
@@ -174,17 +174,17 @@ Public self-registration (`POST /api/auth/register`) is permanently disabled wit
 ## 5. Detailed Operational User Journeys (Chronological Order)
 
 ### Journey 1: Admin System Initialization & Governance
-1. **Login**: Admin logs in via `/admin/login` using `aarav.sharma@company.com` / `Admin@123456`.
+1. **Login**: Admin logs in via `/admin/login` using `a4adityaarora@gmail.com` / `Corp@EMP007#`.
 2. **Dashboard Overview**: Admin views organizational headcount, active departments, user provisioned stats, and real-time attendance rate.
 3. **Department Hierarchy**: Navigates to `/departments`, creates new organizational business units (`Engineering`, `Human Resources`, `Technology & Systems`). The system automatically assigns sequential `DEPT001`, `DEPT002`, etc.
 4. **Security & Audit Logs**: Navigates to `/audit-logs` to inspect recent system interactions, authentication attempts, and data modifications with full IP and user-agent metadata.
 
 ### Journey 2: HR Recruitment ATS & Candidate-to-Employee Conversion
-1. **Requisition Publishing**: HR logs in (`priya.patel@company.com` / `HrAdmin@1810#`) and opens `/recruitment/jobs/new`. Creates a job posting (e.g., `Senior Systems Engineer`). The system assigns sequential ID `JOB001`.
+1. **Requisition Publishing**: HR logs in (`tnu23505@gmail.com` / `Corp@EMP023#`) and opens `/recruitment/jobs/new`. Creates a job posting (e.g., `Senior Systems Engineer`). The system assigns sequential ID `JOB001`.
 2. **Candidate Registration**: Candidate applies or is entered at `/recruitment/candidates`. Duplicate email validation prevents multiple candidate records.
 3. **Application Pipeline**: Application is submitted and placed in the **Applied** column of the 8-stage Kanban board (`/recruitment/applications`).
 4. **Stage Transitions**: HR moves candidate: `Applied` $\rightarrow$ `Screening` $\rightarrow$ `Shortlisted`.
-5. **Interview Scheduling**: HR schedules an interview with Manager `Rajesh Iyer`. The system automatically moves the application to `Interview` stage. Interviewer leaves score and feedback.
+5. **Interview Scheduling**: HR schedules an interview with Manager `Chiranthan Suvidh`. The system automatically moves the application to `Interview` stage. Interviewer leaves score and feedback.
 6. **Conversion to Employee**: Once the candidate reaches `Selected` / `Offer`, HR clicks **Convert to Employee**. The system:
    - Validates that the application has not already been converted.
    - Automatically provisions an `Employee` document with sequential ID (e.g. `EMP024`).
@@ -193,17 +193,17 @@ Public self-registration (`POST /api/auth/register`) is permanently disabled wit
    - Transitions application stage to `Hired`.
 
 ### Journey 3: Employee Shift Check-In & Attendance Management
-1. **Daily Check-In**: Employee logs in via `/employee/login` using `akshat.wadagbalkar@gmail.com` / `Corp@EMP019#`.
+1. **Daily Check-In**: Employee logs in via `/employee/login` using `abhiksinha06@gmail.com` / `Corp@EMP021#`.
 2. **Clock-In**: Navigates to `/attendance`. Today's status indicates "Not Clocked In". Employee clicks **Clock In**. Check-in timestamp is recorded with status `present`.
 3. **Clock-Out**: At shift end, employee clicks **Clock Out**. The server calculates total work hours (e.g. `8.5h`) and flags if checkout was premature.
 4. **Compound Index Guard**: If an employee attempts to clock in twice on the same calendar day, the compound index `{ employee: 1, date: 1 }` rejects the duplicate with `409 Conflict`.
 
 ### Journey 4: Leave Application & Manager Approval Workflow
-1. **Application**: Employee opens `/leave/apply`. Selects `Casual Leave`, start date `2026-09-10`, end date `2026-09-12`. The UI dynamically calculates `3 Days`.
+1. **Application**: Employee `Abhik Sinha` opens `/leave/apply`. Selects `Casual Leave`, start date `2026-09-10`, end date `2026-09-12`. The UI dynamically calculates `3 Days`.
 2. **Submission**: The server checks for existing overlapping leave requests. If clean, status is set to `pending`.
 3. **Self-Approval Block**: If the employee attempts to send a `PATCH` request to approve their own leave, the server rejects it with `403 Forbidden: Employees cannot approve their own leave`.
-4. **Manager Review**: Manager `Rajesh Iyer` logs in (`rajesh.iyer@company.com` / `Manager@123456`). His dashboard displays `Pending Approvals`. He reviews the request, adds a review comment, and approves it.
-5. **Notification**: The employee receives an in-app notification confirming leave approval.
+4. **Manager Review**: Manager `Chiranthan Suvidh` logs in (`suvidh.vibrance@gmail.com` / `Corp@EMP018#`). His dashboard displays `Pending Approvals`. He reviews the request, adds a review comment, and approves it.
+5. **Notification**: The employee receives an in-app and email notification confirming leave approval.
 
 ### Journey 5: Payroll Processing & Digital Paystub Issuance
 1. **Payroll Generation**: HR navigates to `/payroll` and generates monthly payroll for an employee.
@@ -235,20 +235,16 @@ Public self-registration (`POST /api/auth/register`) is permanently disabled wit
 
 ## 6. Master Verified User Credentials Reference
 
-The database contains ONLY verified accounts linked to realistic departments under reporting manager **Rajesh Iyer** (`EMP003`):
+The database contains ONLY verified real Gmail accounts linked to realistic organizational departments with a strict reporting hierarchy:
 
-| Role | Employee ID | Name | Corporate Email | Password | Department |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **Admin** | `EMP001` | Aarav Sharma | `aarav.sharma@company.com` | `Admin@123456` | Technology & Systems |
-| **HR** | `EMP002` | Priya Patel | `priya.patel@company.com` | `HrAdmin@1810#` | Human Resources |
-| **Manager** | `EMP003` | Rajesh Iyer | `rajesh.iyer@company.com` | `Manager@123456` | Engineering |
-| **Employee** | `EMP007` | Aditya Arora | `a4adityaarora@gmail.com` | `Corp@EMP007#` | Technology & Systems |
-| **Employee** | `EMP017` | Chiranthan Suvidh | `chiranthansuvidh.s2024@vitstudent.ac.in` | `Corp@EMP017#` | Engineering |
-| **Employee** | `EMP018` | Chiranthan Suvidh | `suvidh.vibrance@gmail.com` | `Corp@EMP018#` | Engineering |
-| **Employee** | `EMP019` | Akshat Wadagbalkar | `akshat.wadagbalkar@gmail.com` | `Corp@EMP019#` | Technology & Systems |
-| **Employee** | `EMP020` | Uttkarsh Kumar | `u23022686@gmail.com` | `Corp@EMP020#` | Engineering |
-| **Employee** | `EMP021` | Abhik Sinha | `abhiksinha06@gmail.com` | `Corp@EMP021#` | Engineering |
-| **Employee** | `EMP023` | Tanishq Goyal | `tnu23505@gmail.com` | `Corp@EMP023#` | Engineering |
+| Role | Employee ID | Name | Corporate Email | Password | Department | Reports To |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Admin** | `EMP007` | Aditya Arora | `a4adityaarora@gmail.com` | `Corp@EMP007#` | Technology & Systems | *Top Level Executive* |
+| **HR** | `EMP023` | Tanishq Goyal | `tnu23505@gmail.com` | `Corp@EMP023#` | Human Resources | Aditya Arora (`EMP007`) |
+| **Manager** | `EMP019` | Akshat Wadagbalkar | `akshat.wadagbalkar@gmail.com` | `Corp@EMP019#` | Technology & Systems | Aditya Arora (`EMP007`) |
+| **Manager** | `EMP018` | Chiranthan Suvidh | `suvidh.vibrance@gmail.com` | `Corp@EMP018#` | Engineering | Aditya Arora (`EMP007`) |
+| **Employee**| `EMP021` | Abhik Sinha | `abhiksinha06@gmail.com` | `Corp@EMP021#` | Engineering | **Chiranthan Suvidh** (`EMP018`) |
+| **Employee**| `EMP020` | Uttkarsh Kumar | `u23022686@gmail.com` | `Corp@EMP020#` | Technology & Systems | **Akshat Wadagbalkar** (`EMP019`) |
 
 ---
 

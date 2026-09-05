@@ -1,41 +1,53 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
 import {
   KeyRound,
-  ArrowLeft,
-  ArrowRight,
   Mail,
+  ArrowRight,
+  RotateCcw,
   CheckCircle2,
   AlertCircle,
-  RotateCcw,
+  X,
   ExternalLink,
   Loader2,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { forgotPassword, verifyResetOtp } from '../../services/authService';
 
-export const ForgotPasswordPage = () => {
-  // Steps: 'email' | 'otp' | 'success'
+export const ForgotPasswordModal = ({ isOpen, onClose, initialEmail = '' }) => {
+  // Modal Steps: 'email' | 'otp' | 'success'
   const [step, setStep] = useState('email');
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [error, setError] = useState('');
 
-  // 6 OTP boxes state
+  // OTP 6-box state
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const otpInputsRef = useRef([]);
 
-  // 60-second countdown timer for resend
+  // Resend countdown timer (60s)
   const [timer, setTimer] = useState(60);
   const [canResend, setCanResend] = useState(false);
 
-  // Result URL from OTP verification
+  // Result from backend on OTP verification
   const [resetUrl, setResetUrl] = useState('');
 
-  // Timer countdown effect
+  // Synchronize initial email when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setEmail(initialEmail || '');
+      setStep('email');
+      setError('');
+      setOtp(['', '', '', '', '', '']);
+      setResetUrl('');
+      setTimer(60);
+      setCanResend(false);
+    }
+  }, [isOpen, initialEmail]);
+
+  // Handle countdown timer for OTP resend
   useEffect(() => {
     let interval = null;
-    if (step === 'otp' && timer > 0) {
+    if (isOpen && step === 'otp' && timer > 0) {
       interval = setInterval(() => {
         setTimer((prev) => {
           if (prev <= 1) {
@@ -49,9 +61,9 @@ export const ForgotPasswordPage = () => {
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [step, timer]);
+  }, [isOpen, step, timer]);
 
-  // Auto-focus first OTP input when entering OTP step
+  // Auto-focus first OTP box when entering OTP step
   useEffect(() => {
     if (step === 'otp') {
       setTimeout(() => {
@@ -60,14 +72,29 @@ export const ForgotPasswordPage = () => {
     }
   }, [step]);
 
-  // 1. Submit email request
-  const handleEmailSubmit = async (e) => {
-    e.preventDefault();
-    setErrorMessage('');
+  // Handle ESC key to close modal
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && isOpen) {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
+  if (!isOpen) return null;
+
+  // -------------------------------------------------------------
+  // 1. Dispatch OTP to corporate email
+  // -------------------------------------------------------------
+  const handleRequestOtp = async (e) => {
+    e?.preventDefault();
+    setError('');
 
     const targetEmail = email.trim();
     if (!targetEmail) {
-      setErrorMessage('Please enter your corporate email address or Employee ID.');
+      setError('Please provide your corporate email or Employee ID.');
       return;
     }
 
@@ -78,23 +105,25 @@ export const ForgotPasswordPage = () => {
       setTimer(60);
       setCanResend(false);
       setOtp(['', '', '', '', '', '']);
-      toast.success(res.message || '6-digit verification code sent to your email.');
+      toast.success(res.message || '6-digit verification code dispatched.');
     } catch (err) {
       const msg =
         err.response?.data?.message ||
         err.message ||
-        'Failed to submit reset request. Please try again.';
-      setErrorMessage(msg);
+        'Failed to dispatch reset code. Please try again.';
+      setError(msg);
       toast.error(msg);
     } finally {
       setLoading(false);
     }
   };
 
+  // -------------------------------------------------------------
   // 2. Resend OTP handler
-  const handleResend = async () => {
+  // -------------------------------------------------------------
+  const handleResendOtp = async () => {
     if (!canResend || loading) return;
-    setErrorMessage('');
+    setError('');
     setLoading(true);
 
     try {
@@ -103,20 +132,22 @@ export const ForgotPasswordPage = () => {
       setCanResend(false);
       setOtp(['', '', '', '', '', '']);
       otpInputsRef.current[0]?.focus();
-      toast.success(res.message || 'A new 6-digit code has been dispatched.');
+      toast.success(res.message || 'A fresh 6-digit code has been sent.');
     } catch (err) {
       const msg =
         err.response?.data?.message ||
         err.message ||
         'Failed to resend code. Please try again.';
-      setErrorMessage(msg);
+      setError(msg);
       toast.error(msg);
     } finally {
       setLoading(false);
     }
   };
 
-  // 3. OTP inputs & paste handler
+  // -------------------------------------------------------------
+  // 3. OTP individual box inputs & paste handling
+  // -------------------------------------------------------------
   const handleOtpChange = (index, value) => {
     const cleanVal = value.replace(/\D/g, '');
     if (!cleanVal) {
@@ -131,13 +162,15 @@ export const ForgotPasswordPage = () => {
     newOtp[index] = lastDigit;
     setOtp(newOtp);
 
+    // Auto-advance to next input
     if (index < 5) {
       otpInputsRef.current[index + 1]?.focus();
     }
 
+    // If all 6 boxes are filled, automatically trigger submission
     const currentCode = newOtp.join('');
     if (currentCode.length === 6 && !newOtp.includes('')) {
-      handleOtpSubmit(currentCode);
+      submitOtpVerification(currentCode);
     }
   };
 
@@ -175,19 +208,21 @@ export const ForgotPasswordPage = () => {
     otpInputsRef.current[focusIndex]?.focus();
 
     if (pasted.length === 6) {
-      handleOtpSubmit(pasted);
+      submitOtpVerification(pasted);
     }
   };
 
+  // -------------------------------------------------------------
   // 4. Verify OTP & Open New Tab
-  const handleOtpSubmit = async (codeToVerify) => {
+  // -------------------------------------------------------------
+  const submitOtpVerification = async (codeToVerify) => {
     const code = codeToVerify || otp.join('');
     if (code.length !== 6) {
-      setErrorMessage('Please enter all 6 digits of the verification code.');
+      setError('Please enter all 6 digits of your verification code.');
       return;
     }
 
-    setErrorMessage('');
+    setError('');
     setLoading(true);
 
     try {
@@ -199,22 +234,22 @@ export const ForgotPasswordPage = () => {
 
         // Automatically open new tab pointing to Reset Password page
         try {
-          const newTab = window.open(res.resetUrl, '_blank', 'noopener,noreferrer');
-          if (!newTab || newTab.closed || typeof newTab.closed === 'undefined') {
-            console.warn('[AUTH] Popup blocked by browser. User will use manual link.');
+          const openedTab = window.open(res.resetUrl, '_blank', 'noopener,noreferrer');
+          if (!openedTab || openedTab.closed || typeof openedTab.closed === 'undefined') {
+            console.warn('[AUTH] Popup blocked by browser policy. Providing manual button.');
           }
         } catch (popupErr) {
           console.warn('[AUTH] Error opening new tab:', popupErr.message);
         }
       } else {
-        setErrorMessage(res.message || 'OTP verification failed.');
+        setError(res.message || 'OTP verification failed. Please check the code.');
       }
     } catch (err) {
       const msg =
         err.response?.data?.message ||
         err.message ||
         'Verification failed. Code may be invalid or expired.';
-      setErrorMessage(msg);
+      setError(msg);
       toast.error(msg);
     } finally {
       setLoading(false);
@@ -229,205 +264,72 @@ export const ForgotPasswordPage = () => {
 
   return (
     <div
+      role="dialog"
+      aria-modal="true"
       style={{
-        minHeight: '100vh',
-        backgroundColor: '#F8FAFC',
-        backgroundImage: 'radial-gradient(rgba(15, 23, 42, 0.05) 1px, transparent 1px)',
-        backgroundSize: '24px 24px',
+        position: 'fixed',
+        inset: 0,
+        zIndex: 9999,
         display: 'flex',
-        flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '24px',
+        padding: '16px',
+        backgroundColor: 'rgba(15, 23, 42, 0.65)',
+        backdropFilter: 'blur(5px)',
+        animation: 'fadeIn 180ms ease-out',
+      }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
       }}
     >
-      {/* Top Header Navigation */}
-      <div
-        style={{
-          width: '100%',
-          maxWidth: '440px',
-          marginBottom: '16px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
-        <Link
-          to="/"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '6px',
-            fontSize: '13px',
-            color: 'var(--text-secondary)',
-            fontWeight: 500,
-            textDecoration: 'none',
-          }}
-        >
-          <ArrowLeft size={14} />
-          <span>Back to Portal</span>
-        </Link>
-        <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-          Identity & Security
-        </span>
-      </div>
-
-      {/* Forgot Password Card */}
       <div
         className="card"
         style={{
-          maxWidth: '440px',
           width: '100%',
+          maxWidth: '440px',
           backgroundColor: '#ffffff',
           borderRadius: '18px',
-          padding: '36px 32px',
-          boxShadow: '0 6px 24px rgba(15, 23, 42, 0.06)',
+          boxShadow: '0 20px 40px -15px rgba(15, 23, 42, 0.25)',
           border: '1px solid var(--border-default)',
           borderTop: '4px solid var(--primary, #0B2447)',
+          position: 'relative',
+          overflow: 'hidden',
+          padding: '28px 26px',
         }}
       >
-        {/* Error Notice */}
-        {errorMessage && (
-          <div
-            style={{
-              padding: '10px 14px',
-              backgroundColor: 'var(--danger-subtle, #fef2f2)',
-              border: '1px solid var(--danger-border, #fecaca)',
-              borderRadius: '10px',
-              color: 'var(--danger-text, #991b1b)',
-              fontSize: '12.5px',
-              display: 'flex',
-              alignItems: 'flex-start',
-              gap: '8px',
-              marginBottom: '18px',
-            }}
-          >
-            <AlertCircle size={15} style={{ flexShrink: 0, marginTop: '2px' }} />
-            <span>{errorMessage}</span>
-          </div>
-        )}
+        {/* Top Right Close Button */}
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Close dialog"
+          style={{
+            position: 'absolute',
+            top: '16px',
+            right: '16px',
+            border: 'none',
+            background: 'transparent',
+            cursor: 'pointer',
+            color: 'var(--text-muted)',
+            padding: '6px',
+            borderRadius: '8px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <X size={18} />
+        </button>
 
         {/* ========================================================= */}
-        {/* STEP 1: EMAIL ENTRY                                       */}
+        {/* STEP 1: EMAIL / ID ENTRY                                  */}
         {/* ========================================================= */}
         {step === 'email' && (
-          <div>
-            <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-              <div
-                style={{
-                  width: '48px',
-                  height: '48px',
-                  borderRadius: '12px',
-                  backgroundColor: 'var(--primary-subtle, #f0f4f8)',
-                  border: '1px solid var(--primary-border, #ccd8e4)',
-                  color: 'var(--primary, #0B2447)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  margin: '0 auto 14px',
-                }}
-              >
-                <KeyRound size={24} />
-              </div>
-
-              <h2 style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '8px' }}>
-                Reset Your Password
-              </h2>
-              <p style={{ fontSize: '13px', color: 'var(--text-muted)', lineHeight: 1.5, margin: 0 }}>
-                Enter your registered corporate email or Employee ID and we will dispatch a secure 6-digit OTP code.
-              </p>
-            </div>
-
-            <form onSubmit={handleEmailSubmit}>
-              <div className="form-group" style={{ marginBottom: '20px' }}>
-                <label
-                  htmlFor="forgotEmail"
-                  style={{
-                    fontSize: '12px',
-                    fontWeight: 600,
-                    color: 'var(--text-secondary)',
-                    display: 'block',
-                    marginBottom: '6px',
-                  }}
-                >
-                  Corporate Email or Employee ID
-                </label>
-                <div style={{ position: 'relative' }}>
-                  <input
-                    id="forgotEmail"
-                    type="text"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="e.g. a4adityaarora@gmail.com or EMP007"
-                    style={{
-                      width: '100%',
-                      padding: '10px 14px',
-                      fontSize: '13px',
-                      borderRadius: '12px',
-                      border: '1px solid var(--border-default)',
-                      backgroundColor: '#ffffff',
-                      outline: 'none',
-                      boxSizing: 'border-box',
-                    }}
-                    autoFocus
-                    required
-                  />
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                className="btn btn-primary"
-                disabled={loading}
-                style={{
-                  width: '100%',
-                  padding: '10px 16px',
-                  fontSize: '13.5px',
-                  fontWeight: 600,
-                  borderRadius: '12px',
-                  marginBottom: '16px',
-                }}
-              >
-                {loading ? (
-                  <>
-                    <Loader2 size={14} className="spin-animation" />
-                    <span>Dispatching OTP...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>Send 6-Digit OTP</span>
-                    <ArrowRight size={14} />
-                  </>
-                )}
-              </button>
-
-              <div style={{ textAlign: 'center' }}>
-                <Link
-                  to="/"
-                  style={{
-                    fontSize: '12.5px',
-                    color: 'var(--text-secondary)',
-                    textDecoration: 'none',
-                    fontWeight: 500,
-                  }}
-                >
-                  Remember your password? <span style={{ color: 'var(--primary)', fontWeight: 600 }}>Sign in</span>
-                </Link>
-              </div>
-            </form>
-          </div>
-        )}
-
-        {/* ========================================================= */}
-        {/* STEP 2: OTP VERIFICATION                                  */}
-        {/* ========================================================= */}
-        {step === 'otp' && (
           <div>
             <div style={{ textAlign: 'center', marginBottom: '20px' }}>
               <div
                 style={{
-                  width: '48px',
-                  height: '48px',
+                  width: '46px',
+                  height: '46px',
                   borderRadius: '12px',
                   backgroundColor: 'var(--primary-subtle, #f0f4f8)',
                   border: '1px solid var(--primary-border, #ccd8e4)',
@@ -438,23 +340,195 @@ export const ForgotPasswordPage = () => {
                   margin: '0 auto 12px',
                 }}
               >
-                <Mail size={24} />
+                <KeyRound size={22} />
               </div>
-              <h2 style={{ fontSize: '19px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '6px' }}>
-                Enter 6-Digit OTP
+              <h2
+                style={{
+                  fontSize: '18px',
+                  fontWeight: 700,
+                  color: 'var(--text-primary)',
+                  marginBottom: '6px',
+                }}
+              >
+                Forgot Your Password?
               </h2>
-              <p style={{ fontSize: '12.5px', color: 'var(--text-muted)', margin: 0, lineHeight: 1.4 }}>
-                We sent a 6-digit code to <strong style={{ color: 'var(--text-primary)' }}>{email}</strong>
+              <p
+                style={{
+                  fontSize: '12.5px',
+                  color: 'var(--text-muted)',
+                  lineHeight: 1.5,
+                  margin: 0,
+                }}
+              >
+                Enter your registered corporate email or Employee ID. We will dispatch a
+                secure 6-digit OTP for verification.
               </p>
             </div>
 
-            {/* 6 Individual OTP Boxes */}
+            {error && (
+              <div
+                style={{
+                  padding: '10px 12px',
+                  backgroundColor: 'var(--danger-subtle, #fef2f2)',
+                  border: '1px solid var(--danger-border, #fecaca)',
+                  borderRadius: '8px',
+                  color: 'var(--danger-text, #991b1b)',
+                  fontSize: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  marginBottom: '16px',
+                }}
+              >
+                <AlertCircle size={15} style={{ flexShrink: 0 }} />
+                <span>{error}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleRequestOtp}>
+              <div className="form-group" style={{ marginBottom: '18px' }}>
+                <label
+                  htmlFor="forgotModalEmail"
+                  style={{
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    color: 'var(--text-secondary)',
+                    display: 'block',
+                    marginBottom: '6px',
+                  }}
+                >
+                  Corporate Email or Employee ID
+                </label>
+                <input
+                  id="forgotModalEmail"
+                  type="text"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="e.g. a4adityaarora@gmail.com or EMP007"
+                  style={{
+                    width: '100%',
+                    padding: '9px 12px',
+                    fontSize: '13px',
+                    borderRadius: '8px',
+                    border: '1px solid var(--border-default)',
+                    backgroundColor: '#ffffff',
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                  }}
+                  autoFocus
+                  required
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={onClose}
+                  style={{ flex: 1, padding: '9px 14px', fontSize: '13px' }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={loading}
+                  style={{
+                    flex: 2,
+                    padding: '9px 14px',
+                    fontSize: '13px',
+                    fontWeight: 600,
+                  }}
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 size={14} className="spin-animation" />
+                      <span>Sending OTP...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Send 6-Digit OTP</span>
+                      <ArrowRight size={14} />
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+
+        {/* ========================================================= */}
+        {/* STEP 2: OTP VERIFICATION (6 INDIVIDUAL BOXES)             */}
+        {/* ========================================================= */}
+        {step === 'otp' && (
+          <div>
+            <div style={{ textAlign: 'center', marginBottom: '18px' }}>
+              <div
+                style={{
+                  width: '46px',
+                  height: '46px',
+                  borderRadius: '12px',
+                  backgroundColor: 'var(--primary-subtle, #f0f4f8)',
+                  border: '1px solid var(--primary-border, #ccd8e4)',
+                  color: 'var(--primary, #0B2447)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  margin: '0 auto 12px',
+                }}
+              >
+                <Mail size={22} />
+              </div>
+              <h2
+                style={{
+                  fontSize: '18px',
+                  fontWeight: 700,
+                  color: 'var(--text-primary)',
+                  marginBottom: '4px',
+                }}
+              >
+                Enter Verification Code
+              </h2>
+              <p
+                style={{
+                  fontSize: '12px',
+                  color: 'var(--text-muted)',
+                  lineHeight: 1.4,
+                  margin: 0,
+                }}
+              >
+                We sent a 6-digit code to{' '}
+                <strong style={{ color: 'var(--text-primary)' }}>{email}</strong>
+              </p>
+            </div>
+
+            {error && (
+              <div
+                style={{
+                  padding: '10px 12px',
+                  backgroundColor: 'var(--danger-subtle, #fef2f2)',
+                  border: '1px solid var(--danger-border, #fecaca)',
+                  borderRadius: '8px',
+                  color: 'var(--danger-text, #991b1b)',
+                  fontSize: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  marginBottom: '16px',
+                }}
+              >
+                <AlertCircle size={15} style={{ flexShrink: 0 }} />
+                <span>{error}</span>
+              </div>
+            )}
+
+            {/* 6 Individual Square OTP Inputs */}
             <div
               style={{
                 display: 'flex',
                 justifyContent: 'center',
                 gap: '8px',
-                marginBottom: '20px',
+                marginBottom: '18px',
               }}
               onPaste={handleOtpPaste}
             >
@@ -491,21 +565,22 @@ export const ForgotPasswordPage = () => {
               ))}
             </div>
 
-            {/* Timer & Change Email */}
+            {/* Resend Timer & Change Email Controls */}
             <div
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 fontSize: '12px',
-                marginBottom: '22px',
+                marginBottom: '20px',
+                padding: '0 4px',
               }}
             >
               <button
                 type="button"
                 onClick={() => {
                   setStep('email');
-                  setErrorMessage('');
+                  setError('');
                 }}
                 style={{
                   background: 'none',
@@ -524,7 +599,7 @@ export const ForgotPasswordPage = () => {
                 {canResend ? (
                   <button
                     type="button"
-                    onClick={handleResend}
+                    onClick={handleResendOtp}
                     disabled={loading}
                     style={{
                       background: 'none',
@@ -550,18 +625,18 @@ export const ForgotPasswordPage = () => {
               </div>
             </div>
 
+            {/* Verify Action Button */}
             <button
               type="button"
               className="btn btn-primary"
-              onClick={() => handleOtpSubmit()}
+              onClick={() => submitOtpVerification()}
               disabled={loading || otp.join('').length !== 6}
               style={{
                 width: '100%',
                 padding: '10px 16px',
                 fontSize: '13.5px',
                 fontWeight: 600,
-                borderRadius: '12px',
-                marginBottom: '12px',
+                borderRadius: '10px',
               }}
             >
               {loading ? (
@@ -580,7 +655,7 @@ export const ForgotPasswordPage = () => {
         )}
 
         {/* ========================================================= */}
-        {/* STEP 3: SUCCESS & NEW TAB NOTIFICATION                    */}
+        {/* STEP 3: SUCCESS & NEW TAB LAUNCHED                        */}
         {/* ========================================================= */}
         {step === 'success' && (
           <div style={{ textAlign: 'center' }}>
@@ -601,10 +676,24 @@ export const ForgotPasswordPage = () => {
               <CheckCircle2 size={28} />
             </div>
 
-            <h2 style={{ fontSize: '19px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '8px' }}>
-              OTP Verified Successfully
+            <h2
+              style={{
+                fontSize: '18px',
+                fontWeight: 700,
+                color: 'var(--text-primary)',
+                marginBottom: '6px',
+              }}
+            >
+              Security OTP Verified!
             </h2>
-            <p style={{ fontSize: '13px', color: 'var(--text-muted)', lineHeight: 1.5, marginBottom: '20px' }}>
+            <p
+              style={{
+                fontSize: '12.5px',
+                color: 'var(--text-muted)',
+                lineHeight: 1.5,
+                marginBottom: '20px',
+              }}
+            >
               A new browser tab has been launched pointing to your secure Reset Password page.
               Please complete setting your new password there.
             </p>
@@ -619,11 +708,29 @@ export const ForgotPasswordPage = () => {
                 textAlign: 'left',
               }}
             >
-              <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>
-                Didn't see the new tab open?
+              <div
+                style={{
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  color: 'var(--text-primary)',
+                  marginBottom: '4px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                }}
+              >
+                <span>Notice: Tab Blocked by Browser?</span>
               </div>
-              <p style={{ fontSize: '11.5px', color: 'var(--text-secondary)', margin: '0 0 10px 0', lineHeight: 1.4 }}>
-                If your browser blocked the popup, click the button below to open the Reset Password page manually:
+              <p
+                style={{
+                  fontSize: '11.5px',
+                  color: 'var(--text-secondary)',
+                  margin: '0 0 10px 0',
+                  lineHeight: 1.4,
+                }}
+              >
+                If your browser popup blocker prevented the tab from automatically opening,
+                use the link below to open it manually:
               </p>
               <button
                 type="button"
@@ -645,22 +752,15 @@ export const ForgotPasswordPage = () => {
               </button>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <Link
-                to="/"
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <button
+                type="button"
                 className="btn btn-primary"
-                style={{
-                  width: '100%',
-                  padding: '10px 16px',
-                  fontSize: '13.5px',
-                  fontWeight: 600,
-                  textDecoration: 'none',
-                  textAlign: 'center',
-                }}
+                onClick={onClose}
+                style={{ width: '100%', padding: '9px 14px', fontSize: '13px' }}
               >
-                <span>Return to Role Portal</span>
-                <ArrowRight size={14} />
-              </Link>
+                Back to Sign In Form
+              </button>
             </div>
           </div>
         )}
@@ -669,4 +769,4 @@ export const ForgotPasswordPage = () => {
   );
 };
 
-export default ForgotPasswordPage;
+export default ForgotPasswordModal;

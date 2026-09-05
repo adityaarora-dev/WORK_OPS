@@ -56,7 +56,7 @@ async function runStage10Tests() {
   const adminLogin = await request({
     method: 'POST',
     path: '/api/auth/login',
-    body: { email: 'aarav.sharma@company.com', password: 'Admin@123456' },
+    body: { email: 'a4adityaarora@gmail.com', password: 'Corp@EMP007#' },
   });
   const adminToken = adminLogin.data?.data?.token;
   assert('Admin authenticated', adminLogin.status === 200 && Boolean(adminToken));
@@ -64,7 +64,7 @@ async function runStage10Tests() {
   const hrLogin = await request({
     method: 'POST',
     path: '/api/auth/login',
-    body: { email: 'priya.patel@company.com', password: 'HrAdmin@1810#' },
+    body: { email: 'tnu23505@gmail.com', password: 'Corp@EMP023#' },
   });
   const hrToken = hrLogin.data?.data?.token;
   assert('HR authenticated', hrLogin.status === 200 && Boolean(hrToken));
@@ -72,7 +72,7 @@ async function runStage10Tests() {
   const mgrLogin = await request({
     method: 'POST',
     path: '/api/auth/login',
-    body: { email: 'rajesh.iyer@company.com', password: 'Manager@123456' },
+    body: { email: 'akshat.wadagbalkar@gmail.com', password: 'Corp@EMP019#' },
   });
   const mgrToken = mgrLogin.data?.data?.token;
   assert('Manager authenticated', mgrLogin.status === 200 && Boolean(mgrToken));
@@ -80,7 +80,7 @@ async function runStage10Tests() {
   const empLogin = await request({
     method: 'POST',
     path: '/api/auth/login',
-    body: { email: 'akshat.wadagbalkar@gmail.com', password: 'Corp@EMP019#' },
+    body: { email: 'abhiksinha06@gmail.com', password: 'Corp@EMP021#' },
   });
   const empToken = empLogin.data?.data?.token;
   assert('Employee authenticated', empLogin.status === 200 && Boolean(empToken));
@@ -238,7 +238,7 @@ async function runStage10Tests() {
 
   // 6. Interview Scheduling & Feedback
   console.log('\n--- 6. INTERVIEW COORDINATION & FEEDBACK ---');
-  // Resolve Rajesh Iyer's User ID
+  // Resolve Manager's User ID
   const usersRes = await request({
     method: 'GET',
     path: '/api/recruitment/summary',
@@ -246,7 +246,7 @@ async function runStage10Tests() {
   });
   assert('Recruitment dashboard summary retrieved', usersRes.status === 200);
 
-  // HR schedules interview with Rajesh Iyer (Manager)
+  // HR schedules interview with Akshat Wadagbalkar (Manager)
   const mgrUser = adminLogin.data?.data?.user; // Or manager user
   const interviewRes = await request({
     method: 'POST',

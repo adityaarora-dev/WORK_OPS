@@ -15,6 +15,7 @@ import {
 import { toast } from 'sonner';
 import { useAuth } from '../../hooks/useAuth';
 import { sendLoginOtp, verifyLoginOtp } from '../../services/authService';
+import ForgotPasswordModal from '../../components/auth/ForgotPasswordModal';
 
 const ROLE_CONFIGS = {
   admin: {
@@ -26,10 +27,10 @@ const ROLE_CONFIGS = {
     icon: ShieldCheck,
     topBorder: '4px solid #0A2947',
     dashboardPath: '/admin/dashboard',
-    defaultEmail: 'aarav.sharma@company.com',
-    defaultPass: 'Admin@123456',
-    empName: 'Aarav Sharma',
-    empId: 'EMP001',
+    defaultEmail: 'a4adityaarora@gmail.com',
+    defaultPass: 'Corp@EMP007#',
+    empName: 'Aditya Arora',
+    empId: 'EMP007',
     roleTag: 'ADMINISTRATOR',
   },
   hr: {
@@ -41,10 +42,10 @@ const ROLE_CONFIGS = {
     icon: Users,
     topBorder: '4px solid #8B5E3C',
     dashboardPath: '/hr/dashboard',
-    defaultEmail: 'priya.patel@company.com',
-    defaultPass: 'HrAdmin@1810#',
-    empName: 'Priya Patel',
-    empId: 'EMP002',
+    defaultEmail: 'tnu23505@gmail.com',
+    defaultPass: 'Corp@EMP023#',
+    empName: 'Tanishq Goyal',
+    empId: 'EMP023',
     roleTag: 'HR ADMIN',
   },
   manager: {
@@ -56,10 +57,10 @@ const ROLE_CONFIGS = {
     icon: Briefcase,
     topBorder: '4px solid #556B2F',
     dashboardPath: '/manager/dashboard',
-    defaultEmail: 'rajesh.iyer@company.com',
-    defaultPass: 'Manager@123456',
-    empName: 'Rajesh Iyer',
-    empId: 'EMP003',
+    defaultEmail: 'akshat.wadagbalkar@gmail.com',
+    defaultPass: 'Corp@EMP019#',
+    empName: 'Akshat Wadagbalkar',
+    empId: 'EMP019',
     roleTag: 'TEAM MANAGER',
   },
   employee: {
@@ -71,10 +72,10 @@ const ROLE_CONFIGS = {
     icon: User,
     topBorder: '4px solid #2563eb',
     dashboardPath: '/employee/dashboard',
-    defaultEmail: 'akshat.wadagbalkar@gmail.com',
-    defaultPass: 'Corp@EMP019#',
-    empName: 'Akshat Wadagbalkar',
-    empId: 'EMP019',
+    defaultEmail: 'abhiksinha06@gmail.com',
+    defaultPass: 'Corp@EMP021#',
+    empName: 'Abhik Sinha',
+    empId: 'EMP021',
     roleTag: 'EMPLOYEE',
   },
 };
@@ -105,6 +106,7 @@ export const RoleLoginPage = ({ role: propRole }) => {
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
+  const [isForgotModalOpen, setIsForgotModalOpen] = useState(false);
 
   // OTP Login State
   const [otpEmail, setOtpEmail] = useState('');
@@ -452,17 +454,22 @@ export const RoleLoginPage = ({ role: propRole }) => {
                 <label htmlFor="rolePassword" style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)' }}>
                   Account Password
                 </label>
-                <Link
-                  to="/forgot-password"
+                <button
+                  type="button"
+                  onClick={() => setIsForgotModalOpen(true)}
                   style={{
+                    background: 'none',
+                    border: 'none',
+                    padding: 0,
+                    cursor: 'pointer',
                     fontSize: '11.5px',
                     color: roleConfig.accentColor === '#0A2947' ? 'var(--primary)' : roleConfig.accentColor,
-                    textDecoration: 'none',
                     fontWeight: 600,
+                    textDecoration: 'none',
                   }}
                 >
                   Forgot Password?
-                </Link>
+                </button>
               </div>
               <div style={{ position: 'relative' }}>
                 <input
@@ -650,6 +657,13 @@ export const RoleLoginPage = ({ role: propRole }) => {
           </div>
         </div>
       </div>
+
+      {/* Forgot Password OTP Reset Modal */}
+      <ForgotPasswordModal
+        isOpen={isForgotModalOpen}
+        onClose={() => setIsForgotModalOpen(false)}
+        initialEmail={email || roleConfig.defaultEmail}
+      />
     </div>
   );
 };

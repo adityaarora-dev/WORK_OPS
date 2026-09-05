@@ -51,35 +51,35 @@ async function runEmployeeTestSuite() {
   const unauth = await request({ method: 'GET', path: '/api/employees' });
   assert('Unauthenticated access to /api/employees returns 401', unauth.status === 401);
 
-  // Authenticate Admin (Aarav Sharma)
+  // Authenticate Admin (Aditya Arora)
   const adminLogin = await request({
     method: 'POST',
     path: '/api/auth/login',
-    body: { email: 'aarav.sharma@company.com', password: 'Admin@123456' },
+    body: { email: 'a4adityaarora@gmail.com', password: 'Corp@EMP007#' },
   });
   const adminToken = adminLogin.data?.data?.token;
 
-  // Authenticate HR (Priya Patel)
+  // Authenticate HR (Tanishq Goyal)
   const hrLogin = await request({
     method: 'POST',
     path: '/api/auth/login',
-    body: { email: 'priya.patel@company.com', password: 'HrAdmin@1810#' },
+    body: { email: 'tnu23505@gmail.com', password: 'Corp@EMP023#' },
   });
   const hrToken = hrLogin.data?.data?.token;
 
-  // Authenticate Manager (Rajesh Iyer)
+  // Authenticate Manager (Akshat Wadagbalkar)
   const mgrLogin = await request({
     method: 'POST',
     path: '/api/auth/login',
-    body: { email: 'rajesh.iyer@company.com', password: 'Manager@123456' },
+    body: { email: 'akshat.wadagbalkar@gmail.com', password: 'Corp@EMP019#' },
   });
   const mgrToken = mgrLogin.data?.data?.token;
 
-  // Authenticate Employee (Akshat Wadagbalkar)
+  // Authenticate Employee (Abhik Sinha)
   const empLogin = await request({
     method: 'POST',
     path: '/api/auth/login',
-    body: { email: 'akshat.wadagbalkar@gmail.com', password: 'Corp@EMP019#' },
+    body: { email: 'abhiksinha06@gmail.com', password: 'Corp@EMP021#' },
   });
   const empToken = empLogin.data?.data?.token;
 
@@ -99,27 +99,27 @@ async function runEmployeeTestSuite() {
   });
   assert('HR can view all employees', hrList.status === 200 && hrList.data.data.length >= 6);
 
-  // 4. Manager gets only team members + self (Rajesh Iyer - EMP003 manages approved employees)
+  // 4. Manager gets only team members + self (Akshat Wadagbalkar - EMP019 manages Uttkarsh Kumar - EMP020)
   const mgrList = await request({
     method: 'GET',
     path: '/api/employees',
     headers: { Authorization: `Bearer ${mgrToken}` },
   });
   const mgrEmpIds = (mgrList.data?.data || []).map((e) => e.employeeId);
-  const onlyTeam = mgrEmpIds.includes('EMP019') && mgrEmpIds.includes('EMP003') && !mgrEmpIds.includes('EMP001');
+  const onlyTeam = mgrEmpIds.includes('EMP020') && mgrEmpIds.includes('EMP019') && !mgrEmpIds.includes('EMP021');
   assert('Manager scoped to team members and self', mgrList.status === 200 && onlyTeam, `IDs: ${mgrEmpIds.join(', ')}`);
 
-  // 5. Employee scoped only to self (Akshat Wadagbalkar - EMP019)
+  // 5. Employee scoped only to self (Abhik Sinha - EMP021)
   const empList = await request({
     method: 'GET',
     path: '/api/employees',
     headers: { Authorization: `Bearer ${empToken}` },
   });
   const empIds = (empList.data?.data || []).map((e) => e.employeeId);
-  assert('Employee scoped only to self', empList.status === 200 && empIds.length === 1 && empIds[0] === 'EMP019');
+  assert('Employee scoped only to self', empList.status === 200 && empIds.length === 1 && empIds[0] === 'EMP021');
 
   // 6. Resource-level auth: Employee attempts to view Admin details -> 403
-  const adminEmpRecord = adminList.data.data.find((e) => e.employeeId === 'EMP001');
+  const adminEmpRecord = adminList.data.data.find((e) => e.employeeId === 'EMP007');
   const empOnAdmin = await request({
     method: 'GET',
     path: `/api/employees/${adminEmpRecord._id}`,
@@ -128,24 +128,25 @@ async function runEmployeeTestSuite() {
   assert('Employee viewing another employee returns 403 Forbidden', empOnAdmin.status === 403);
 
   // 7. Employee viewing own profile -> 200
-  const ownEmpRecord = adminList.data.data.find((e) => e.employeeId === 'EMP019');
+  const ownEmpRecord = adminList.data.data.find((e) => e.employeeId === 'EMP021');
   const empOnSelf = await request({
     method: 'GET',
     path: `/api/employees/${ownEmpRecord._id}`,
     headers: { Authorization: `Bearer ${empToken}` },
   });
-  assert('Employee viewing own profile succeeds (200 OK)', empOnSelf.status === 200 && empOnSelf.data.data.employeeId === 'EMP019');
+  assert('Employee viewing own profile succeeds (200 OK)', empOnSelf.status === 200 && empOnSelf.data.data.employeeId === 'EMP021');
 
-  // 8. Manager viewing non-team employee -> 403
-  const mgrOnAdmin = await request({
+  // 8. Manager viewing non-team employee -> 403 (Abhik Sinha reports to Chiranthan, not Akshat)
+  const nonTeamRecord = adminList.data.data.find((e) => e.employeeId === 'EMP021');
+  const mgrOnNonTeam = await request({
     method: 'GET',
-    path: `/api/employees/${adminEmpRecord._id}`,
+    path: `/api/employees/${nonTeamRecord._id}`,
     headers: { Authorization: `Bearer ${mgrToken}` },
   });
-  assert('Manager viewing non-team employee returns 403 Forbidden', mgrOnAdmin.status === 403);
+  assert('Manager viewing non-team employee returns 403 Forbidden', mgrOnNonTeam.status === 403);
 
-  // 9. Manager viewing assigned team member -> 200
-  const teamMemberRecord = adminList.data.data.find((e) => e.employeeId === 'EMP019');
+  // 9. Manager viewing assigned team member -> 200 (Uttkarsh reports to Akshat)
+  const teamMemberRecord = adminList.data.data.find((e) => e.employeeId === 'EMP020');
   const mgrOnTeam = await request({
     method: 'GET',
     path: `/api/employees/${teamMemberRecord._id}`,
@@ -162,7 +163,7 @@ async function runEmployeeTestSuite() {
     body: {
       firstName: 'Alok',
       lastName: 'Mishra',
-      email: `alok.mishra.${Date.now()}@company.com`,
+      email: `alok.mishra.${Date.now()}@gmail.com`,
       department: adminEmpRecord.department?._id || adminEmpRecord.department,
       designation: 'Staff Security Engineer',
       employeeId: testNewEmpId,
@@ -176,7 +177,7 @@ async function runEmployeeTestSuite() {
     method: 'POST',
     path: '/api/employees',
     headers: { Authorization: `Bearer ${empToken}` },
-    body: { firstName: 'Hacker', lastName: 'Test', email: 'hacker@test.com', department: 'Engineering', designation: 'Dev' },
+    body: { firstName: 'Hacker', lastName: 'Test', email: 'hacker.test@gmail.com', department: 'Engineering', designation: 'Dev' },
   });
   assert('Employee attempting to create employee returns 403 Forbidden', empCreate.status === 403);
 
