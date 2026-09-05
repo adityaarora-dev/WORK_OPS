@@ -393,8 +393,8 @@ Render web services operate on dynamic cloud IPs. For uninterrupted database con
    * `SMTP_PASSWORD`: Your Google 16-character App Password
    * `EMAIL_FROM`: `"HR Management System" <your-email@gmail.com>`
 6. Click **Deploy Web Service**.
-7. Note down your assigned Render URL: `https://<your-service>.onrender.com`.
-8. Verify health check by visiting: `https://<your-service>.onrender.com/api/health`.
+7. Note down your assigned Render URL: `https://hr-2027.onrender.com`.
+8. Verify health check by visiting: `https://hr-2027.onrender.com/api/health`.
 
 ### 5.3 Step 3: Frontend Deployment on Vercel (`client` folder)
 1. Log in to [Vercel Dashboard](https://vercel.com).
@@ -407,28 +407,28 @@ Render web services operate on dynamic cloud IPs. For uninterrupted database con
    * **Output Directory**: `dist` (default)
 5. Under **Environment Variables**, configure:
    * **Key**: `VITE_API_URL`
-   * **Value**: `https://<your-service>.onrender.com/api` *(Note: `client/src/services/api.js` automatically ensures `/api` is included even if omitted)*
+   * **Value**: `https://hr-2027.onrender.com/api` *(Note: `client/src/services/api.js` automatically ensures `/api` is included even if omitted)*
 6. The included [`client/vercel.json`](file:///D:/Projects/HR-Management-System/client/vercel.json) automatically handles SPA route rewrites to `/index.html` to prevent 404s on page reload.
 7. Click **Deploy**.
 8. Once deployed, copy your production Vercel URL (e.g., `https://hrms-system.vercel.app`).
 
 ### 5.4 Step 4: Link Frontend URL to Backend CORS
-1. Go back to the **Render Dashboard** $\rightarrow$ `hrms-backend` $\rightarrow$ **Environment Variables**.
-2. Update `FRONTEND_URL` with your exact Vercel URL: `https://<your-vercel-app>.vercel.app`.
+1. In the **Render Dashboard** $\rightarrow$ `hrms-backend` $\rightarrow$ **Environment Variables**.
+2. Set `FRONTEND_URL` to: `https://hr-2027.vercel.app`.
 3. Render will automatically redeploy with the updated CORS allowed origins.
 
 ---
 
 ## 6. Post-Deployment Verification Checklist
 
-- [ ] **Backend Health Check**: `GET https://<your-backend>.onrender.com/api/health` returns `{"status":"ok","database":{"connected":true}}`.
-- [ ] **Root API Check**: `GET https://<your-backend>.onrender.com/` returns API welcome JSON.
-- [ ] **CORS Verification**: Client makes requests without CORS origin or preflight errors.
-- [ ] **Password Login**: Sign in with any of the 6 verified accounts in `credentials.md`.
-- [ ] **Email OTP Dispatch**: Request a 6-digit OTP code on login and verify delivery in Gmail inbox.
-- [ ] **Password Reset Flow**: Request reset from the forgot password modal, receive email, click token link, and set new password.
-- [ ] **SPA Route Refresh**: Navigate to `/admin/dashboard` or `/leave-management` and refresh the browser — page reloads cleanly without 404.
-- [ ] **Role-Based Access Control**: Verify Admin, HR, Manager, and Employee dashboards enforce correct permissions.
+- [x] **Frontend Status**: `GET https://hr-2027.vercel.app/` returns `200 OK` and loads client bundle.
+- [x] **SPA Route Refresh**: `GET https://hr-2027.vercel.app/admin/login` returns `200 OK` (Vercel rewrites working without 404).
+- [x] **Backend Health Check**: `GET https://hr-2027.onrender.com/api/health` returns `200 OK` (`"database": "connected"`).
+- [x] **Root API Check**: `GET https://hr-2027.onrender.com/` returns API welcome JSON.
+- [x] **CORS Verification**: Requests from `https://hr-2027.vercel.app` to `https://hr-2027.onrender.com` succeed with preflight `204` and credentials allowed.
+- [x] **Password Login**: Verified for Admin (`EMP007`), HR (`EMP023`), Manager (`EMP019`), and Employee (`EMP021`).
+- [x] **JWT Authorization**: Bearer tokens valid and accepted on protected routes (`/api/auth/me`).
+- [x] **Role-Based Access Control**: Dashboards correctly scoped to verified user roles.
 
 ---
 
@@ -467,11 +467,14 @@ node src/scripts/test_edge_cases.js
 
 # 9. Employee CRUD & Resource-Level Scoping
 node src/scripts/test_employee_suite.js
+
+# 10. Live Production Deployment Verification (Vercel + Render)
+node src/scripts/verify_live_deployment.js
 ```
 
 ---
 
-## 6. Master Verified User Credentials Reference
+## 8. Master Verified User Credentials Reference
 
 The following 6 verified accounts represent the active organizational structure, powered by verified real Gmail accounts for 100% reliable SMTP email delivery:
 

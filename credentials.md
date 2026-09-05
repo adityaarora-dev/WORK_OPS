@@ -34,13 +34,16 @@ The reporting hierarchy is enforced consistently across profiles, manager dashbo
 
 ## 3. Login Modes & Access Instructions
 
+* **Live Render API Endpoint**: `https://hr-2027.onrender.com/api`
+* **Live System Health Check**: `https://hr-2027.onrender.com/api/health`
+
 ### A. Password-Based Login
-* Unified Portal URL: `http://localhost:5173/`
+* Unified Portal URL: `http://localhost:5173/` (or your deployed Vercel URL)
 * Role-Specific Direct Portals:
-  * **Admin**: `http://localhost:5173/admin/login`
-  * **HR**: `http://localhost:5173/hr/login`
-  * **Manager**: `http://localhost:5173/manager/login`
-  * **Employee**: `http://localhost:5173/employee/login`
+  * **Admin**: `http://localhost:5173/admin/login` (or `/admin/login` on Vercel)
+  * **HR**: `http://localhost:5173/hr/login` (or `/hr/login` on Vercel)
+  * **Manager**: `http://localhost:5173/manager/login` (or `/manager/login` on Vercel)
+  * **Employee**: `http://localhost:5173/employee/login` (or `/employee/login` on Vercel)
 * Enter either the **Registered Gmail Address** or **Employee ID**, provide the Password, and click **Sign In**.
 
 ### B. Passwordless Email OTP Login
