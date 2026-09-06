@@ -1,12 +1,16 @@
 const mongoose = require('mongoose');
 const dns = require('dns');
 
-// Ensure reliable DNS resolution for mongodb+srv:// SRV records (especially on Windows)
+// Ensure reliable DNS resolution for mongodb+srv:// SRV records
 try {
   if (dns.setDefaultResultOrder) {
     dns.setDefaultResultOrder('ipv4first');
   }
-  dns.setServers(['8.8.8.8', '1.1.1.1']);
+  // Set custom DNS resolvers on Windows where local ISP/OS resolvers often fail SRV queries,
+  // while preserving Linux/Docker/Render system resolvers in production.
+  if (process.platform === 'win32' || process.env.FORCE_CUSTOM_DNS === 'true') {
+    dns.setServers(['8.8.8.8', '1.1.1.1']);
+  }
 } catch {
   // Gracefully fallback to system default resolver
 }
@@ -38,18 +42,72 @@ const isDatabaseConnected = () => {
 };
 
 /**
+ * Sanitizes and repairs common formatting anomalies in MongoDB URIs.
+ * Handles:
+ * - Accidental surrounding quotes ("...", '...', `...`)
+ * - Leading variable assignment ("MONGODB_URI=..." or "MONGO_URI=...")
+ * - Dropped '=' in query params (e.g., retryWritestrue -> retryWrites=true)
+ * - Dropped '=' in w=majority (e.g., wmajority -> w=majority)
+ * - HTML-encoded ampersands (&amp; -> &)
+ * - Leading and trailing whitespace
+ *
+ * @param {string} rawUri - The raw connection string from environment
+ * @returns {string} Sanitized MongoDB URI
+ */
+function sanitizeMongoUri(rawUri) {
+  if (!rawUri || typeof rawUri !== 'string') return '';
+  let cleaned = rawUri.trim();
+
+  // Strip leading/trailing escaped or unescaped quotes/backticks
+  cleaned = cleaned.replace(/^(\\?['"`])+/g, '').replace(/(\\?['"`])+$/g, '').trim();
+
+  // Strip leading variable assignment if user pasted "MONGODB_URI=..." or "MONGO_URI=..." into Render
+  cleaned = cleaned.replace(/^(MONGODB_URI|MONGO_URI)\s*=\s*/i, '');
+
+  // Strip again if quotes were after the variable name
+  cleaned = cleaned.replace(/^(\\?['"`])+/g, '').replace(/(\\?['"`])+$/g, '').trim();
+
+  // Repair missing '=' in query parameters (e.g., retryWritestrue -> retryWrites=true)
+  cleaned = cleaned.replace(/retryWritestrue/gi, 'retryWrites=true');
+  cleaned = cleaned.replace(/wmajority/gi, 'w=majority');
+
+  // Fix HTML-encoded entities
+  cleaned = cleaned.replace(/&amp;/g, '&');
+
+  return cleaned;
+}
+
+/**
+ * Returns a password-masked version of the MongoDB URI for safe diagnostic logging.
+ * @param {string} uri
+ * @returns {string} Masked URI string
+ */
+function maskMongoUri(uri) {
+  if (!uri) return '[EMPTY]';
+  return uri.replace(/(mongodb(?:\+srv)?:\/\/[^:]+:)([^@]+)(@)/, '$1****$3');
+}
+
+/**
  * Connects to MongoDB Atlas using Mongoose.
  * Validates the connection URI and registers event listeners for connection lifecycle.
  * @returns {Promise<boolean>} Resolves to true if connected, false otherwise.
  */
 const connectDB = async () => {
-  const mongoURI = process.env.MONGO_URI || process.env.MONGODB_URI;
+  const rawUri = process.env.MONGO_URI || process.env.MONGODB_URI;
+  const mongoURI = sanitizeMongoUri(rawUri);
 
-  if (!mongoURI || mongoURI.trim() === '' || mongoURI.includes('your_mongodb_connection_string') || mongoURI.includes('<db_password>')) {
-    console.error('❌ [Database] Connection Error: MONGO_URI / MONGODB_URI is not configured or contains placeholder values.');
+  if (
+    !mongoURI ||
+    !mongoURI.startsWith('mongodb') ||
+    mongoURI.includes('your_mongodb_connection_string') ||
+    mongoURI.includes('<db_password>')
+  ) {
+    console.error('❌ [Database] Connection Error: MONGO_URI / MONGODB_URI is not configured or contains invalid/placeholder values.');
     console.warn('⚠️  [Database] Please set a valid MongoDB Atlas URI in server environment variables.');
     return false;
   }
+
+  console.log(`🔌 [Database] Connecting to: ${maskMongoUri(mongoURI)}`);
 
   // Register event listeners once to avoid duplicates on re-connections
   if (!mongoose.connection.listenerCount('error')) {
@@ -69,8 +127,8 @@ const connectDB = async () => {
   try {
     console.log('⏳ [Database] Attempting connection to MongoDB Atlas...');
     const conn = await mongoose.connect(mongoURI, {
-      serverSelectionTimeoutMS: 5000,
-      connectTimeoutMS: 10000,
+      serverSelectionTimeoutMS: 8000,
+      connectTimeoutMS: 15000,
       socketTimeoutMS: 45000,
       family: 4,
     });
@@ -99,4 +157,6 @@ module.exports = {
   closeDB,
   getDatabaseStatus,
   isDatabaseConnected,
+  sanitizeMongoUri,
+  maskMongoUri,
 };
