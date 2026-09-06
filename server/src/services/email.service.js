@@ -1,72 +1,107 @@
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 
-let transporter = null;
+let resendClient = null;
 
 /**
- * Initializes and returns the active nodemailer transporter.
- * Supports standard SMTP (Gmail, Outlook, AWS SES, Brevo, SendGrid, etc.)
- * or creates an automated test transporter if credentials are not specified.
+ * Returns the active Resend SDK client instance.
+ * Lazily initialized with the corporate API key.
  */
-async function getTransporter() {
-  if (transporter) {
-    return transporter;
+function getResendClient() {
+  if (!resendClient) {
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) {
+      console.warn('⚠️ [EMAIL SERVICE] RESEND_API_KEY is not configured in environment variables.');
+    }
+    resendClient = new Resend(apiKey || 're_not_configured');
+    console.log('📧 [EMAIL SERVICE] Resend client initialized.');
   }
+  return resendClient;
+}
 
-  const smtpHost = process.env.SMTP_HOST;
-  const smtpPort = process.env.SMTP_PORT;
-  const smtpUser = process.env.SMTP_USER || process.env.SMTP_EMAIL;
-  const smtpPass = process.env.SMTP_PASS || process.env.SMTP_PASSWORD;
-  const smtpSecure = process.env.SMTP_SECURE;
-  const emailService = process.env.EMAIL_SERVICE;
-
-  // 1. If explicit SMTP credentials are provided in .env
-  if (smtpHost && smtpUser && smtpPass) {
-    transporter = nodemailer.createTransport({
-      host: smtpHost,
-      port: Number(smtpPort) || 587,
-      secure: smtpSecure === 'true' || Number(smtpPort) === 465,
-      auth: {
-        user: smtpUser,
-        pass: smtpPass,
-      },
-    });
-    console.log(`📧 [EMAIL SERVICE] Configured with custom SMTP host: ${smtpHost}`);
-    return transporter;
+/**
+ * Resolves the compliant sender address for Resend.
+ * Defaults to 'HR Management System <onboarding@resend.dev>'.
+ */
+function getSenderAddress() {
+  const configured = process.env.RESEND_FROM || process.env.EMAIL_FROM;
+  if (configured && !/@gmail\.com/i.test(configured) && !/@hrms\.internal/i.test(configured)) {
+    return configured;
   }
+  return 'HR Management System <onboarding@resend.dev>';
+}
 
-  // 2. If popular service (e.g., Gmail with App Password) is provided
-  if (emailService && smtpUser && smtpPass) {
-    transporter = nodemailer.createTransport({
-      service: emailService,
-      auth: {
-        user: smtpUser,
-        pass: smtpPass,
-      },
-    });
-    console.log(`📧 [EMAIL SERVICE] Configured with ${emailService} account: ${smtpUser}`);
-    return transporter;
-  }
+/**
+ * Core dispatcher that sends corporate emails via Resend REST API.
+ * Seamlessly handles both production custom domains and default onboarding@resend.dev.
+ */
+async function dispatchResendEmail({ to, subject, html, text, logLabel = 'EMAIL', extraLog = null }) {
+  const resend = getResendClient();
+  const from = getSenderAddress();
 
-  // 3. Fallback: Create dynamic Ethereal test account for realistic email dispatch
   try {
-    const testAccount = await nodemailer.createTestAccount();
-    transporter = nodemailer.createTransport({
-      host: testAccount.smtp.host,
-      port: testAccount.smtp.port,
-      secure: testAccount.smtp.secure,
-      auth: {
-        user: testAccount.user,
-        pass: testAccount.pass,
-      },
+    const { data, error } = await resend.emails.send({
+      from,
+      to,
+      subject,
+      html,
+      text,
     });
-    console.log('📧 [EMAIL SERVICE] Real-time email transporter initialized.');
-    return transporter;
+
+    if (error) {
+      // Check if Resend free testing domain restriction occurred
+      // (onboarding@resend.dev only allows sending to the verified account owner email)
+      const isSandboxRestriction =
+        (error.statusCode === 403 &&
+          typeof error.message === 'string' &&
+          error.message.includes('only send testing emails to your own email address')) ||
+        (error.statusCode === 422 &&
+          typeof error.message === 'string' &&
+          error.message.includes('Please use our testing email address'));
+
+      if (isSandboxRestriction) {
+        console.warn('====================================================');
+        console.warn(`⚠️  [RESEND SANDBOX NOTICE - ${logLabel}]`);
+        console.warn(`    Recipient: ${to}`);
+        console.warn(`    Subject:   ${subject}`);
+        if (extraLog) console.warn(`    ${extraLog}`);
+        console.warn(`    Notice:    The testing domain (onboarding@resend.dev)`);
+        console.warn(`               delivers directly to the Resend account owner.`);
+        console.warn(`               To deliver to all external recipients in production,`);
+        console.warn(`               verify your corporate domain at: resend.com/domains`);
+        console.warn('====================================================');
+
+        const mockId = `resend_sandbox_${Date.now()}`;
+        return {
+          id: mockId,
+          messageId: mockId,
+          previewUrl: null,
+          sandbox: true,
+          delivered: false,
+        };
+      }
+
+      throw new Error(`[Resend ${error.name || 'Error'} ${error.statusCode || ''}]: ${error.message}`);
+    }
+
+    const emailId = data?.id;
+    console.log('====================================================');
+    console.log(`✉️  [RESEND ${logLabel} DISPATCHED]`);
+    console.log(`    Recipient: ${to}`);
+    console.log(`    Subject:   ${subject}`);
+    if (extraLog) console.log(`    ${extraLog}`);
+    console.log(`    Resend ID: ${emailId}`);
+    console.log('====================================================');
+
+    return {
+      id: emailId,
+      messageId: emailId,
+      previewUrl: `https://resend.com/emails/${emailId}`,
+      delivered: true,
+      sandbox: false,
+    };
   } catch (err) {
-    console.warn('⚠️ [EMAIL SERVICE] Ethereal fallback failed, using sendmail mock:', err.message);
-    transporter = nodemailer.createTransport({
-      jsonTransport: true,
-    });
-    return transporter;
+    console.error(`❌ [RESEND ${logLabel} FAILED] To: ${to} | Error: ${err.message}`);
+    throw err;
   }
 }
 
@@ -81,8 +116,6 @@ async function getTransporter() {
  * @returns {Promise<{ messageId: string, previewUrl?: string }>}
  */
 async function sendOtpEmail({ to, otp, purpose = 'registration', name = '' }) {
-  const mailer = await getTransporter();
-
   const isRegistration = purpose === 'registration';
   const isPasswordReset = purpose === 'password_reset';
   const subject = isPasswordReset
@@ -92,7 +125,6 @@ async function sendOtpEmail({ to, otp, purpose = 'registration', name = '' }) {
     : `Your HRMS Login Verification Code: ${otp}`;
 
   const greeting = name ? `Hello ${name},` : 'Hello,';
-  const fromAddress = process.env.EMAIL_FROM || '"HR Management System" <no-reply@hrms.internal>';
 
   const htmlContent = `
 <!DOCTYPE html>
@@ -239,31 +271,14 @@ async function sendOtpEmail({ to, otp, purpose = 'registration', name = '' }) {
 </html>
   `;
 
-  const info = await mailer.sendMail({
-    from: fromAddress,
+  return dispatchResendEmail({
     to,
     subject,
-    text: `Your HRMS verification code is: ${otp}. This code is valid for 10 minutes.`,
     html: htmlContent,
+    text: `Your HRMS verification code is: ${otp}. This code is valid for 10 minutes.`,
+    logLabel: 'OTP EMAIL',
+    extraLog: `🔑 OTP Code:  ${otp}`,
   });
-
-  const previewUrl = nodemailer.getTestMessageUrl(info);
-
-  console.log('====================================================');
-  console.log(`✉️  [REAL EMAIL DISPATCHED]`);
-  console.log(`    Recipient: ${to}`);
-  console.log(`    Subject:   ${subject}`);
-  console.log(`    🔑 OTP Code:  ${otp}`);
-  console.log(`    MessageID: ${info.messageId}`);
-  if (previewUrl) {
-    console.log(`    📬 Web Preview URL: ${previewUrl}`);
-  }
-  console.log('====================================================');
-
-  return {
-    messageId: info.messageId,
-    previewUrl,
-  };
 }
 
 /**
@@ -277,10 +292,9 @@ async function sendOtpEmail({ to, otp, purpose = 'registration', name = '' }) {
  * @param {string} options.designation - Assigned designation
  */
 async function sendWelcomeEmail({ to, name, employeeId, tempPassword, designation }) {
-  const mailer = await getTransporter();
-  const fromAddress = process.env.EMAIL_FROM || '"HR Operations" <no-reply@hrms.internal>';
-  const rawUrl = process.env.FRONTEND_URL || process.env.CLIENT_URL || 'http://localhost:5173';
-  const portalUrl = rawUrl.split(',')[0].trim().replace(/\/$/, '');
+  const rawUrl = process.env.FRONTEND_URL || process.env.CLIENT_URL || 'https://workops-22.vercel.app';
+  const urls = rawUrl.split(',').map((u) => u.trim().replace(/\/$/, '')).filter(Boolean);
+  const portalUrl = urls.find((u) => u.includes('vercel.app') || !u.includes('localhost')) || urls[0] || 'https://workops-22.vercel.app';
 
   const subject = `Welcome to the Team, ${name}! Your HRMS Corporate Access is Ready`;
 
@@ -337,21 +351,14 @@ async function sendWelcomeEmail({ to, name, employeeId, tempPassword, designatio
 </html>
   `;
 
-  const info = await mailer.sendMail({
-    from: fromAddress,
+  return dispatchResendEmail({
     to,
     subject,
-    text: `Welcome ${name}! Your employee ID is ${employeeId} and temporary password is ${tempPassword}. Portal URL: ${portalUrl}/login`,
     html: htmlContent,
+    text: `Welcome ${name}! Your employee ID is ${employeeId} and temporary password is ${tempPassword}. Portal URL: ${portalUrl}/login`,
+    logLabel: 'ONBOARDING EMAIL',
+    extraLog: `Employee ID: ${employeeId}`,
   });
-
-  console.log('====================================================');
-  console.log(`✉️  [ONBOARDING EMAIL DISPATCHED]`);
-  console.log(`    Recipient:   ${to} (${name})`);
-  console.log(`    Employee ID: ${employeeId}`);
-  console.log('====================================================');
-
-  return info;
 }
 
 /**
@@ -364,11 +371,8 @@ async function sendWelcomeEmail({ to, name, employeeId, tempPassword, designatio
  * @returns {Promise<{ messageId: string, previewUrl?: string }>}
  */
 async function sendPasswordResetEmail({ to, resetUrl, name = '' }) {
-  const mailer = await getTransporter();
-
   const subject = 'Reset Your Enterprise HRMS Password';
   const greeting = name ? `Hello ${name},` : 'Hello,';
-  const fromAddress = process.env.EMAIL_FROM || '"HR Management System" <no-reply@hrms.internal>';
 
   const htmlContent = `
 <!DOCTYPE html>
@@ -424,21 +428,14 @@ async function sendPasswordResetEmail({ to, resetUrl, name = '' }) {
 </html>
   `;
 
-  const info = await mailer.sendMail({
-    from: fromAddress,
+  return dispatchResendEmail({
     to,
     subject,
-    text: `${greeting}\n\nWe received a request to reset your password. Use the following link within 15 minutes to set a new password:\n\n${resetUrl}\n\nIf you did not request this, please ignore this email.`,
     html: htmlContent,
+    text: `${greeting}\n\nWe received a request to reset your password. Use the following link within 15 minutes to set a new password:\n\n${resetUrl}\n\nIf you did not request this, please ignore this email.`,
+    logLabel: 'PASSWORD RESET',
+    extraLog: `Reset URL: ${resetUrl}`,
   });
-
-  console.log('====================================================');
-  console.log(`✉️  [PASSWORD RESET EMAIL DISPATCHED]`);
-  console.log(`    Recipient: ${to}`);
-  console.log(`    Reset URL: ${resetUrl}`);
-  console.log('====================================================');
-
-  return info;
 }
 
 /**
@@ -454,12 +451,10 @@ async function sendPasswordResetEmail({ to, resetUrl, name = '' }) {
  * @returns {Promise<{ messageId: string }>}
  */
 async function sendNotificationEmail({ to, subject, title, message, name = '', type = 'system' }) {
-  const mailer = await getTransporter();
-
   const greeting = name ? `Hello ${name},` : 'Hello,';
-  const fromAddress = process.env.EMAIL_FROM || '"HR Management System" <no-reply@hrms.internal>';
-  const rawUrl = process.env.FRONTEND_URL || process.env.CLIENT_URL || 'http://localhost:5173';
-  const portalUrl = rawUrl.split(',')[0].trim().replace(/\/$/, '');
+  const rawUrl = process.env.FRONTEND_URL || process.env.CLIENT_URL || 'https://workops-22.vercel.app';
+  const urls = rawUrl.split(',').map((u) => u.trim().replace(/\/$/, '')).filter(Boolean);
+  const portalUrl = urls.find((u) => u.includes('vercel.app') || !u.includes('localhost')) || urls[0] || 'https://workops-22.vercel.app';
 
   const htmlContent = `
 <!DOCTYPE html>
@@ -500,16 +495,14 @@ async function sendNotificationEmail({ to, subject, title, message, name = '', t
 </html>
   `;
 
-  const info = await mailer.sendMail({
-    from: fromAddress,
+  return dispatchResendEmail({
     to,
     subject: subject || title || 'Enterprise HRMS Notification',
-    text: `${greeting}\n\n${title}\n\n${message}\n\nWorkspace Link: ${portalUrl}/dashboard`,
     html: htmlContent,
+    text: `${greeting}\n\n${title}\n\n${message}\n\nWorkspace Link: ${portalUrl}/dashboard`,
+    logLabel: 'NOTIFICATION',
+    extraLog: `Title: ${title}`,
   });
-
-  console.log(`✉️  [NOTIFICATION EMAIL DISPATCHED] To: ${to} | ${title}`);
-  return info;
 }
 
 module.exports = {
@@ -517,4 +510,5 @@ module.exports = {
   sendWelcomeEmail,
   sendPasswordResetEmail,
   sendNotificationEmail,
+  getResendClient,
 };

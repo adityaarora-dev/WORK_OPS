@@ -713,9 +713,23 @@ const verifyResetOtp = async (req, res, next) => {
     user.resetTokenExpiry = new Date(Date.now() + 10 * 60 * 1000);
     await user.save({ validateBeforeSave: false });
 
-    // Determine client frontend URL dynamically
-    const clientUrl = process.env.FRONTEND_URL || (process.env.CLIENT_URL ? process.env.CLIENT_URL.split(',')[0].trim() : 'http://localhost:5173');
-    const cleanClientUrl = clientUrl.replace(/\/$/, '');
+    // Determine client frontend URL dynamically:
+    // 1. Prefer incoming HTTP request origin/referer from active client session
+    // 2. Use FRONTEND_URL or deployed CLIENT_URL from environment variables
+    // 3. Fall back to production Vercel deployment URL
+    let cleanClientUrl = 'https://workops-22.vercel.app';
+    const reqOrigin = req ? (req.get ? req.get('origin') : req.headers?.origin) : null;
+
+    if (reqOrigin && !reqOrigin.includes('undefined') && !reqOrigin.includes('null')) {
+      cleanClientUrl = reqOrigin.replace(/\/$/, '');
+    } else if (process.env.FRONTEND_URL) {
+      cleanClientUrl = process.env.FRONTEND_URL.split(',')[0].trim().replace(/\/$/, '');
+    } else if (process.env.CLIENT_URL) {
+      const urls = process.env.CLIENT_URL.split(',').map((u) => u.trim().replace(/\/$/, '')).filter(Boolean);
+      const prodUrl = urls.find((u) => u.includes('vercel.app') || !u.includes('localhost'));
+      cleanClientUrl = prodUrl || urls[0] || 'https://workops-22.vercel.app';
+    }
+
     const resetUrl = `${cleanClientUrl}/reset-password?token=${resetToken}`;
 
     logAuditEvent({

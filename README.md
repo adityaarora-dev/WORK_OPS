@@ -356,42 +356,27 @@ The application is deployed across **Render** (API runtime) and **Vercel** (SPA 
 
 ## 💻 Local Development Quickstart
 
-### Prerequisites
-* **Node.js**: `v20.x` or `v24.x`
-* **npm**: `v10.x` or higher
-* **MongoDB Atlas** cluster URI
+### 🚀 Starting Local Development
 
-### Step-by-Step Setup
+Run the backend and frontend in two separate terminals:
 
-1. **Clone the Repository**:
-   ```bash
-   git clone https://github.com/adityaarora-dev/HR_2027.git
-   cd HR-Management-System
-   ```
+#### 1. Backend Server
+```bash
+cd server
+npm run dev
+```
+* **API Entry**: [`http://localhost:5000/api`](http://localhost:5000/api)
+* **Health Check**: [`http://localhost:5000/api/health`](http://localhost:5000/api/health)
+* **Seed Database**: `npm run seed`
 
-2. **Start the Backend API Server**:
-   ```bash
-   cd server
-   npm install
-   # Create .env from template and configure MONGODB_URI
-   npm run dev
-   ```
-   * Backend runs at: `http://localhost:5000/api`
-   * Health check at: `http://localhost:5000/api/health`
-
-3. **Start the Frontend Client** (in a separate terminal):
-   ```bash
-   cd client
-   npm install
-   npm run dev
-   ```
-   * Frontend runs at: `http://localhost:5173`
-
-4. **Compile Production Bundle**:
-   ```bash
-   cd client
-   npm run build
-   ```
+#### 2. Frontend Client
+```bash
+cd client
+npm run dev
+```
+* **Portal Entry**: [`http://localhost:5173`](http://localhost:5173)
+* **Build Production Bundle**: `npm run build`
+* **Default Verified Logins**: See [`credentials.md`](credentials.md) (e.g., Admin: `EMP007` / `Corp@EMP007#`)
 
 ---
 

@@ -227,14 +227,24 @@ export const ForgotPasswordModal = ({ isOpen, onClose, initialEmail = '' }) => {
 
     try {
       const res = await verifyResetOtp(email.trim(), code);
-      if (res.success && res.resetUrl) {
-        setResetUrl(res.resetUrl);
+      if (res.success && (res.resetUrl || res.token)) {
+        // Resolve target URL: guarantee it uses the deployed origin (window.location.origin)
+        // rather than localhost when running on deployed Vercel
+        let resolvedResetUrl = res.resetUrl;
+        if (typeof window !== 'undefined' && window.location?.origin) {
+          const currentOrigin = window.location.origin.replace(/\/$/, '');
+          if (!resolvedResetUrl || (resolvedResetUrl.includes('localhost') && !currentOrigin.includes('localhost'))) {
+            resolvedResetUrl = `${currentOrigin}/reset-password?token=${res.token}`;
+          }
+        }
+
+        setResetUrl(resolvedResetUrl);
         setStep('success');
         toast.success('Verification successful! Opening reset page in a new tab.');
 
         // Automatically open new tab pointing to Reset Password page
         try {
-          const openedTab = window.open(res.resetUrl, '_blank', 'noopener,noreferrer');
+          const openedTab = window.open(resolvedResetUrl, '_blank', 'noopener,noreferrer');
           if (!openedTab || openedTab.closed || typeof openedTab.closed === 'undefined') {
             console.warn('[AUTH] Popup blocked by browser policy. Providing manual button.');
           }
