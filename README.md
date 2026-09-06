@@ -6,19 +6,36 @@
 [![Live Application](https://img.shields.io/badge/Live%20Demo-workops--22.vercel.app-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://workops-22.vercel.app/)
 [![API Status](https://img.shields.io/badge/API%20Backend-Render%20Cloud-46E3B7?style=for-the-badge&logo=render&logoColor=black)](https://hr-2027.onrender.com/api/health)
 [![Database](https://img.shields.io/badge/Database-MongoDB%20Atlas-47A248?style=for-the-badge&logo=mongodb&logoColor=white)](https://cloud.mongodb.com)
-[![Email Engine](https://img.shields.io/badge/Email-Resend%20API-black?style=for-the-badge&logo=resend&logoColor=white)](https://resend.com)
 [![Client](https://img.shields.io/badge/Client-React%2019%20%2B%20Vite%208-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev)
 [![Server](https://img.shields.io/badge/Server-Node.js%20%2B%20Express%205-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org)
 
 <p align="center">
-  A streamlined full-stack enterprise workforce platform built for employee lifecycle management, multi-tiered hierarchy workflows, real-time shift tracking, automated payroll, performance OKRs, ATS hiring pipelines, and transactional email automation powered by Resend.
+  A streamlined full-stack enterprise workforce platform built for employee lifecycle management, multi-tiered hierarchy workflows, real-time shift tracking, automated payroll, performance OKRs, ATS hiring pipelines, and secure role-scoped operations.
 </p>
 
-[🌐 Open Live Application](https://workops-22.vercel.app/) • [📡 Backend Health Status](https://hr-2027.onrender.com/api/health) • [⚡ Resend Email Engine](#-email-delivery-engine-powered-by-resend) • [🔒 Security Principles](#-security-architecture--zero-trust-principles)
+[🌐 Open Live Application](https://workops-22.vercel.app/) • [🔑 Pre-Configured Role Credentials](#-pre-configured-role-credentials) • [🛡️ Multi-Tier RBAC](#-multi-tier-role-based-access-control-rbac) • [🔒 Security Principles](#-security-architecture--zero-trust-principles)
 
 ---
 
 </div>
+
+## 🔑 Pre-Configured Role Credentials
+
+Instant access credentials verified directly against **MongoDB Atlas** for exploring each isolated role workflow in the live production environment. You can sign in using either the **Employee ID** or **Email Address**.
+
+| Role & Tier | Employee ID | Name & Designation | Registered Email | Verified Password | One-Click Login Portal |
+| :--- | :--- | :--- | :--- | :--- | :---: |
+| 🛡️ **Admin** | `EMP007` | **Aditya Arora**<br><sub>Chief Technology Officer & Director</sub> | `a4adityaarora@gmail.com` | `Corp@EMP007#` | [Enter as Admin →](https://workops-22.vercel.app/admin/login) |
+| 📋 **HR Lead** | `EMP023` | **Tanishq Goyal**<br><sub>Head of People Operations & HR Lead</sub> | `tnu23505@gmail.com` | `Corp@EMP023#` | [Enter as HR →](https://workops-22.vercel.app/hr/login) |
+| 👔 **Manager** | `EMP019` | **Akshat Wadagbalkar**<br><sub>Cloud & Infra Engineering Manager</sub> | `akshat.wadagbalkar@gmail.com` | `Corp@EMP019#` | [Enter as Manager →](https://workops-22.vercel.app/manager/login) |
+| 👔 **Manager** | `EMP018` | **Chiranthan Suvidh**<br><sub>Software Development Manager</sub> | `suvidh.vibrance@gmail.com` | `Corp@EMP018#` | [Enter as Manager →](https://workops-22.vercel.app/manager/login) |
+| 💻 **Employee** | `EMP021` | **Abhik Sinha**<br><sub>Backend Software Engineer (Reports to EMP018)</sub> | `abhiksinha06@gmail.com` | `Corp@EMP021#` | [Enter as Employee →](https://workops-22.vercel.app/employee/login) |
+| 💻 **Employee** | `EMP020` | **Uttkarsh Kumar**<br><sub>AI & Cloud Engineer (Reports to EMP019)</sub> | `u23022686@gmail.com` | `Corp@EMP020#` | [Enter as Employee →](https://workops-22.vercel.app/employee/login) |
+
+> [!TIP]
+> **Authentication Options**: Each portal supports standard password authentication with the verified passwords above, as well as passwordless **6-digit Email OTP** verification dispatched in real time to the user's registered inbox.
+
+---
 
 ## ✨ Key Platform Highlights
 
@@ -32,29 +49,6 @@
 | 🎯 **Performance OKRs** | Quarterly objective cycles, key results weighting, self & manager reviews | Clear KPI progress tracking and structured performance assessments |
 | 💼 **ATS Recruitment** | 5-stage candidate pipeline (Applied ➔ Screened ➔ Interview ➔ Offer ➔ Hired) | 1-click candidate-to-employee conversion with automated welcome credentials |
 | 📜 **Audit & Telemetry** | Immutable action logging with sensitive credential redaction | Comprehensive compliance traceability across administrative operations |
-
----
-
-## 📧 Email Delivery Engine (Powered by Resend)
-
-The platform utilizes **[Resend](https://resend.com)** as its modern, developer-first transactional email provider instead of legacy SMTP protocols. This eliminates traditional SMTP socket connection delays, port 587 blocks, and transport timeouts in cloud environments.
-
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                          RESEND REST API PIPELINE                           │
-├────────────────────┬────────────────────────────────────────────────────────┤
-│ 🔑 Auth OTPs       │ Instant 6-digit verification codes for sign-in         │
-│ 🛡️ Password Resets │ Cryptographically secure single-use 15-minute links    │
-│ 🚀 Onboarding      │ Automated credential dispatch for newly provisioned staff│
-│ 🔔 Notifications   │ Real-time alerts for leave approvals & shift updates   │
-└────────────────────┴────────────────────────────────────────────────────────┘
-```
-
-### Why Resend over Legacy SMTP?
-* **Sub-Second Delivery**: Dispatches emails over secure HTTPS REST endpoints rather than long-lived TCP/SMTP connections that frequently drop or face firewall restrictions on cloud hosts.
-* **High Inbox Deliverability**: High reputation delivery infrastructure ensuring verification codes and onboarding messages land directly in user inboxes.
-* **Dynamic HTML Templates**: Responsive email layouts with corporate branding, highlighted verification codes, action links, and security advisories.
-* **Resilient Fallback Handling**: Automatic detection for development testing with sandbox fallback logging when operating without a verified production domain.
 
 ---
 
@@ -198,25 +192,6 @@ The application is deployed across **Render** (REST API runtime) and **Vercel** 
     "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
   }
   ```
-
----
-
-## 🧪 Automated Verification & Quality Assurance
-
-The backend includes 10 automated test suites verifying business logic, security constraints, and live cloud endpoints:
-
-| Suite | Test Script | Verification Focus |
-| :---: | :--- | :--- |
-| **01** | `verify_live_deployment.js` | Cloud health check across Vercel frontend & Render API endpoints |
-| **02** | `test_forgot_password.js` | Cryptographic reset token generation & brute-force rate limiters |
-| **03** | `test_invite_only_policy.js` | Access policy enforcement & Resend OTP verification flows |
-| **04** | `test_all_modules_suite.js` | Workforce CRUD, attendance, leave approval & payroll pipelines |
-| **05** | `test_stage9_performance.js` | OKR goal weighting, self-evaluations & manager performance scoring |
-| **06** | `test_stage10_recruitment.js` | 5-stage recruitment ATS pipeline & automated employee onboarding |
-| **07** | `test_stage11_reports_notifications_audit.js` | Department analytics, transactional alerts & sanitized audit trails |
-| **08** | `test_stage12_hardening_and_e2e.js` | Security hardening, unauthorized access rejections & CORS compliance |
-| **09** | `test_edge_cases.js` | Token expiry, account deactivation states & error handling |
-| **10** | `test_employee_suite.js` | Role-based resource boundaries & employee CRUD lifecycle |
 
 ---
 
