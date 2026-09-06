@@ -1,100 +1,69 @@
 <div align="center">
 
 # 🏛️ Enterprise HR Management System (HRMS)
-### Next-Generation Human Capital Governance & Autonomous Workforce Platform
+### Modern Workforce Management, Identity Governance & Automated Operations
 
-[![Live Frontend](https://img.shields.io/badge/Frontend-Vercel%20Production-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://hr-2027.vercel.app)
-[![Live Backend](https://img.shields.io/badge/Backend-Render%20Cloud-46E3B7?style=for-the-badge&logo=render&logoColor=black)](https://hr-2027.onrender.com/api/health)
+[![Live Application](https://img.shields.io/badge/Live%20Demo-workops--22.vercel.app-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://workops-22.vercel.app/)
+[![API Status](https://img.shields.io/badge/API%20Backend-Render%20Cloud-46E3B7?style=for-the-badge&logo=render&logoColor=black)](https://hr-2027.onrender.com/api/health)
 [![Database](https://img.shields.io/badge/Database-MongoDB%20Atlas-47A248?style=for-the-badge&logo=mongodb&logoColor=white)](https://cloud.mongodb.com)
-[![React 19](https://img.shields.io/badge/Client-React%2019%20%2B%20Vite%208-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev)
-[![Node Runtime](https://img.shields.io/badge/Server-Node.js%20v24%20%2B%20Express%205-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org)
-[![Verification Status](https://img.shields.io/badge/Test%20Suites-100%25%20Verified%20(29%2F29)-success?style=for-the-badge&logo=checkmarx)](https://hr-2027.onrender.com/api/health)
+[![Email Engine](https://img.shields.io/badge/Email-Resend%20API-black?style=for-the-badge&logo=resend&logoColor=white)](https://resend.com)
+[![Client](https://img.shields.io/badge/Client-React%2019%20%2B%20Vite%208-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev)
+[![Server](https://img.shields.io/badge/Server-Node.js%20%2B%20Express%205-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org)
 
 <p align="center">
-  <b>A production-hardened, invite-only enterprise platform orchestrating identity provisioning, multi-tiered hierarchy workflows, attendance telemetry, automated payroll disbursement, OKR goals, ATS recruitment, and immutable audit trails.</b>
+  A streamlined full-stack enterprise workforce platform built for employee lifecycle management, multi-tiered hierarchy workflows, real-time shift tracking, automated payroll, performance OKRs, ATS hiring pipelines, and transactional email automation powered by Resend.
 </p>
 
-[🌐 Live Production Portal](https://hr-2027.vercel.app) • [📡 Cloud API Health](https://hr-2027.onrender.com/api/health) • [🔑 Verified Credentials](credentials.md) • [📋 Architecture Overview](#-system-architecture--cloud-topology)
+[🌐 Open Live Application](https://workops-22.vercel.app/) • [📡 Backend Health Status](https://hr-2027.onrender.com/api/health) • [⚡ Resend Email Engine](#-email-delivery-engine-powered-by-resend) • [🔒 Security Principles](#-security-architecture--zero-trust-principles)
 
 ---
 
 </div>
 
-## 📌 Executive Summary
+## ✨ Key Platform Highlights
 
-The **Enterprise HR Management System (HRMS)** is an institutional-grade, full-stack application architected to manage the complete lifecycle of corporate human capital. Built upon the **MERN** stack (**MongoDB Atlas, Express 5, React 19, Node.js v24, Vite 8**), the platform enforces **zero-trust identity verification**, **hierarchical approval chains**, and **strict role-based resource scoping**.
-
-Every active account is bound to a verified real-world corporate email, ensuring reliable **Google SMTP dispatch** for passwordless 6-digit OTP verification, single-use password resets, leave approvals, and shift alerts.
-
-```
-┌─────────────────────────────────────────────────────────────────────────────────────────────────┐
-│                                    PLATFORM CAPABILITIES                                        │
-├──────────────────────┬──────────────────────┬──────────────────────┬────────────────────────────┤
-│ 🔐 Identity & Auth   │ 👥 Workforce Graph   │ ⏱️ Shift Telemetry   │ 💰 Automated Payroll       │
-│ • Password + OTP     │ • Strict Hierarchy   │ • 1-Click Clock-In   │ • Salary Breakdowns        │
-│ • SHA-256 Hashing    │ • Dept & Team Scoping│ • Hours Calculation  │ • Allowances & Deductions  │
-│ • Single-Use Tokens  │ • Manager Assignment │ • Historical Logs    │ • Instant Paystub PDF/CSV  │
-├──────────────────────┼──────────────────────┼──────────────────────┼────────────────────────────┤
-│ 🏖️ Leave Governance  │ 🎯 Performance OKRs  │ 💼 Recruitment ATS   │ 📜 Audit & Telemetry       │
-│ • Multi-Tier Approval│ • Quarterly Cycles   │ • 5-Stage Pipeline   │ • Immutable Logging        │
-│ • Real-time Balance  │ • KPI Weightings     │ • Candidate Conversion│ • Sensitive Redaction     │
-│ • Auto-Routing       │ • Self/Manager Review│ • Auto-Provisioning  │ • Real-Time Health Probes  │
-└──────────────────────┴──────────────────────┴──────────────────────┴────────────────────────────┘
-```
+| Module | Core Capabilities | Operational Value |
+| :--- | :--- | :--- |
+| 🔐 **Identity & Auth** | Password & passwordless 6-digit OTP verification, single-use token resets | Eliminates credential sprawl with zero-trust token enforcement |
+| 👥 **Workforce Directory** | Multi-tier reporting hierarchy, department scoping, role-gated access | Direct visibility into organizational lines and reporting trees |
+| ⏱️ **Attendance Telemetry** | 1-click Shift Clock-In/Out, active duration timers, historical logs | Transparent shift accounting with instant status indicators |
+| 🏖️ **Leave Governance** | Multi-tiered approval chains, quota tracking, instant manager alerts | Automated routing to designated supervisors with real-time balance checks |
+| 💰 **Automated Payroll** | Base salary, allowances, deductions, net pay computation, PDF/CSV stubs | Accurate disbarment calculations and instant employee self-service |
+| 🎯 **Performance OKRs** | Quarterly objective cycles, key results weighting, self & manager reviews | Clear KPI progress tracking and structured performance assessments |
+| 💼 **ATS Recruitment** | 5-stage candidate pipeline (Applied ➔ Screened ➔ Interview ➔ Offer ➔ Hired) | 1-click candidate-to-employee conversion with automated welcome credentials |
+| 📜 **Audit & Telemetry** | Immutable action logging with sensitive credential redaction | Comprehensive compliance traceability across administrative operations |
 
 ---
 
-## 🏗️ System Architecture & Cloud Topology
+## 📧 Email Delivery Engine (Powered by Resend)
 
-The platform separates client presentation from server-side domain logic, security pipelines, and cloud database persistence.
-
-### High-Level Architectural Flow
+The platform utilizes **[Resend](https://resend.com)** as its modern, developer-first transactional email provider instead of legacy SMTP protocols. This eliminates traditional SMTP socket connection delays, port 587 blocks, and transport timeouts in cloud environments.
 
 ```
-                                  USER BROWSER / CLIENT
-                                            │
-                                            ▼
-                        ┌───────────────────────────────────────┐
-                        │      Vercel Global Edge Network       │
-                        │    (React 19 + Vite 8 Single Page)    │
-                        │      https://hr-2027.vercel.app       │
-                        └───────────────────┬───────────────────┘
-                                            │
-                                            │ HTTPS / REST / JSON
-                                            │ (Bearer JWT Token)
-                                            ▼
-                        ┌───────────────────────────────────────┐
-                        │       Render Cloud Web Service        │
-                        │      (Node.js v24 + Express 5)        │
-                        │     https://hr-2027.onrender.com      │
-                        ├───────────────────────────────────────┤
-                        │ • Helmet Security Headers             │
-                        │ • Dynamic CORS Origin Matching        │
-                        │ • IP Rate Limiting (1500 req/15m)     │
-                        │ • JWT Verification & RBAC Guards      │
-                        │ • Domain Controllers & Services       │
-                        └───────────────┬───────┬───────────────┘
-                                        │       │
-                     Mongoose 9 TLS/SSL │       │ Google Cloud SMTP
-                                        │       │ (TLS Port 587)
-                                        ▼       ▼
-         ┌─────────────────────────────────┐ ┌─────────────────────────────────┐
-         │       MongoDB Atlas Cloud       │ │     Corporate Email Delivery    │
-         │  (Replica Set Clusters / M0)    │ │   (Real-Time 6-Digit OTP /      │
-         │   • Users & Roles               │ │    Password Resets / Alerts)    │
-         │   • Employees & Departments     │ └─────────────────────────────────┘
-         │   • Attendance & Leaves         │
-         │   • Payroll & Performance       │
-         │   • Audit Logs & Notifications  │
-         └─────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          RESEND REST API PIPELINE                           │
+├────────────────────┬────────────────────────────────────────────────────────┤
+│ 🔑 Auth OTPs       │ Instant 6-digit verification codes for sign-in         │
+│ 🛡️ Password Resets │ Cryptographically secure single-use 15-minute links    │
+│ 🚀 Onboarding      │ Automated credential dispatch for newly provisioned staff│
+│ 🔔 Notifications   │ Real-time alerts for leave approvals & shift updates   │
+└────────────────────┴────────────────────────────────────────────────────────┘
 ```
 
-### Detailed Component Interaction
+### Why Resend over Legacy SMTP?
+* **Sub-Second Delivery**: Dispatches emails over secure HTTPS REST endpoints rather than long-lived TCP/SMTP connections that frequently drop or face firewall restrictions on cloud hosts.
+* **High Inbox Deliverability**: High reputation delivery infrastructure ensuring verification codes and onboarding messages land directly in user inboxes.
+* **Dynamic HTML Templates**: Responsive email layouts with corporate branding, highlighted verification codes, action links, and security advisories.
+* **Resilient Fallback Handling**: Automatic detection for development testing with sandbox fallback logging when operating without a verified production domain.
+
+---
+
+## 🔄 Detailed Component Interaction
 
 ```mermaid
 graph TD
     subgraph ClientLayer ["Client Layer (React 19 + Vite 8)"]
-        UI["Tailwind + Custom Navy CSS (18px radii)"]
+        UI["Tailwind CSS + Modular Components"]
         Router["React Router 7 (SPA Engine)"]
         AuthCtx["AuthContext (Session & JWT)"]
         AxiosInst["Axios Interceptor (Bearer Auth)"]
@@ -129,17 +98,18 @@ graph TD
         AuthMW --> AuditCtrl
     end
 
-    subgraph PersistenceLayer ["Persistence & External Infrastructure"]
+    subgraph PersistenceLayer ["Persistence & External Services"]
         AtlasDB[("MongoDB Atlas Cloud")]
-        SMTP["Google SMTP Relay"]
+        ResendAPI["Resend Email API (REST)"]
         AuthCtrl -- Read/Write --> AtlasDB
         EmpCtrl -- Read/Write --> AtlasDB
         LeaveCtrl -- Read/Write --> AtlasDB
         PayCtrl -- Read/Write --> AtlasDB
         RecruitCtrl -- Read/Write --> AtlasDB
         AuditCtrl -- Write-Only --> AtlasDB
-        AuthCtrl -- Send OTP --> SMTP
-        LeaveCtrl -- Notifications --> SMTP
+        AuthCtrl -- Send OTP / Reset --> ResendAPI
+        EmpCtrl -- Onboarding Welcome --> ResendAPI
+        LeaveCtrl -- Workflow Alerts --> ResendAPI
     end
 ```
 
@@ -148,25 +118,25 @@ graph TD
 ## 🔒 Security Architecture & Zero-Trust Principles
 
 1. **Authentication Engine**:
-   * **Dual Login Paradigms**: Enterprise Password-based login alongside Passwordless **Google SMTP 6-Digit OTP** dispatch.
-   * **Cryptographic Salt & Pepper**: Passwords hashed using `bcryptjs` with 10 salt rounds.
-   * **SHA-256 OTP Storage**: Verification codes are hashed with SHA-256 before database insertion; plain text OTPs are never stored.
-   * **Single-Use Reset Tokens**: Forgotten password links utilize cryptographically random tokens with 15-minute expirations, invalidated immediately upon redemption.
+   * **Dual Login Paradigms**: Enterprise password authentication paired with passwordless **Resend-powered 6-digit OTP** email verification.
+   * **Cryptographic Salting**: Passwords hashed securely using `bcryptjs` with 10 salt rounds.
+   * **SHA-256 OTP Storage**: Verification codes are hashed with SHA-256 before persistence; plain text OTPs are never stored in the database.
+   * **Single-Use Reset Tokens**: Forgotten password workflows generate cryptographically random tokens with 15-minute expiration windows, invalidated immediately upon use.
 2. **Dynamic Cross-Origin Resource Sharing (CORS)**:
-   * Origin matching authorizes production frontend (`https://hr-2027.vercel.app`), Vercel preview environments (`*.vercel.app`), and local development environments (`localhost`).
-   * Explicit credential passing with `credentials: true` and preflight `204` caching.
+   * Origin matching authorizes the live production frontend (`https://workops-22.vercel.app`), preview deployments, and development origins.
+   * Configured with explicit `credentials: true` support and preflight `204` caching.
 3. **Adaptive IP Rate Limiting**:
-   * **General Limiter**: 1500 requests per 15-minute window for standard API interactions.
-   * **Authentication Limiter**: 200 requests per 15-minute window for `/api/auth/*` endpoints to prevent brute-force attacks.
+   * **General Limiter**: 1500 requests per 15-minute window for standard API operations.
+   * **Authentication Limiter**: 200 requests per 15-minute window on `/api/auth/*` endpoints to defend against brute-force attacks.
 4. **Data Redaction & Immutable Auditing**:
-   * Audit logging captures every state mutation (method, route, user ID, client IP, timestamp).
-   * Password hashes, reset tokens, and sensitive personal identifiers are stripped prior to audit persistence.
+   * Audit logging records all state mutations (HTTP method, endpoint, user identifier, client IP, timestamp).
+   * Password hashes, tokens, and sensitive personal identifiers are strictly sanitized prior to log storage.
 
 ---
 
 ## 🛡️ Multi-Tier Role-Based Access Control (RBAC)
 
-The system enforces strict multi-tenant authorization barriers across **4 organizational tiers**:
+The system enforces strict multi-tier authorization barriers across 4 organizational roles:
 
 ```
                               [ LEVEL 1: ADMIN ]
@@ -180,13 +150,13 @@ The system enforces strict multi-tenant authorization barriers across **4 organi
                              [ LEVEL 4: EMPLOYEE ]
 ```
 
-| Operational Dimension | Admin | HR Lead | Manager | Employee |
+| Operational Scope | Admin | HR Lead | Manager | Employee |
 | :--- | :---: | :---: | :---: | :---: |
-| **System Governance & Tenant Settings** | ✅ Full Access | ❌ Restricted | ❌ Restricted | ❌ Restricted |
-| **Audit Logs & Redacted System Trails** | ✅ Full Access | ❌ Restricted | ❌ Restricted | ❌ Restricted |
-| **Employee Provisioning & Deactivation**| ✅ Full Access | ✅ Full Access | ❌ Restricted | ❌ Restricted |
+| **System Governance & Global Settings** | ✅ Full Access | ❌ Restricted | ❌ Restricted | ❌ Restricted |
+| **Audit Logs & System Mutation Trails** | ✅ Full Access | ❌ Restricted | ❌ Restricted | ❌ Restricted |
+| **Employee Provisioning & Offboarding** | ✅ Full Access | ✅ Full Access | ❌ Restricted | ❌ Restricted |
 | **Department Architecture & Assignments**| ✅ Full Access | ✅ Full Access | ❌ Restricted | ❌ Restricted |
-| **Direct Team Approvals & Roster** | ✅ All Teams | ✅ All Teams | ✅ Assigned Team | ❌ Restricted |
+| **Team Approvals & Direct Report Roster**| ✅ All Teams | ✅ All Teams | ✅ Assigned Team | ❌ Restricted |
 | **Payroll Generation & Disbursement** | ✅ Global | ✅ Global | ❌ Restricted | ❌ Self Only |
 | **Leave Approval Queue** | ✅ Override | ✅ All Requests | ✅ Direct Reports | ❌ Self Requests |
 | **ATS Candidate-to-Employee Conversion**| ✅ Global | ✅ Global | ❌ Interview Only| ❌ Restricted |
@@ -195,157 +165,34 @@ The system enforces strict multi-tenant authorization barriers across **4 organi
 
 ---
 
-## 👥 Master Organizational Hierarchy & Live Demo Accounts
+## ⚡ Production Cloud Deployment
 
-The database is seeded with a 6-tier corporate reporting structure backed by verified Gmail accounts for email and OTP delivery:
+The application is deployed across **Render** (REST API runtime) and **Vercel** (Edge SPA client).
 
-```
-                            Aditya Arora (EMP007)
-                      Chief Technology Officer & Director
-                                       │
-        ┌──────────────────────────────┼──────────────────────────────┐
-        ▼                              ▼                              ▼
-  Tanishq Goyal (EMP023)    Akshat Wadagbalkar (EMP019)    Chiranthan Suvidh (EMP018)
-    Head of People & HR       Cloud & Infra Manager        Software Dev Manager
-                                       │                              │
-                                       ▼                              ▼
-                             Uttkarsh Kumar (EMP020)         Abhik Sinha (EMP021)
-                               AI & Cloud Engineer         Backend Software Engineer
-```
-
-### Verified Live Demo Credentials
-
-| Role | Employee ID | Name | Registered Corporate Gmail | Default Password | Assigned Department | Direct Manager |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| 🛡️ **Admin** | `EMP007` | Aditya Arora | `a4adityaarora@gmail.com` | `Corp@EMP007#` | Technology & Systems | *Director (Top Level)* |
-| 📋 **HR Lead** | `EMP023` | Tanishq Goyal | `tnu23505@gmail.com` | `Corp@EMP023#` | Human Resources | Aditya Arora (`EMP007`) |
-| 👔 **Manager** | `EMP019` | Akshat Wadagbalkar | `akshat.wadagbalkar@gmail.com` | `Corp@EMP019#` | Technology & Systems | Aditya Arora (`EMP007`) |
-| 👔 **Manager** | `EMP018` | Chiranthan Suvidh | `suvidh.vibrance@gmail.com` | `Corp@EMP018#` | Engineering | Aditya Arora (`EMP007`) |
-| 💻 **Employee**| `EMP021` | Abhik Sinha | `abhiksinha06@gmail.com` | `Corp@EMP021#` | Engineering | Chiranthan Suvidh (`EMP018`) |
-| 💻 **Employee**| `EMP020` | Uttkarsh Kumar | `u23022686@gmail.com` | `Corp@EMP020#` | Technology & Systems | Akshat Wadagbalkar (`EMP019`) |
-
-*All credentials above are documented and maintained in [`credentials.md`](credentials.md).*
-
----
-
-## 📦 Monorepo Directory Architecture
-
-The repository maintains an isolated separation between client presentation and backend services:
-
-```
-HR-Management-System/
-├── .gitignore                          # Monorepo git exclusion definitions
-├── credentials.md                      # Master verified user credentials and reporting structure
-├── README.md                           # Master architectural reference and deployment guide
-│
-├── client/                             # Frontend Single Page App (Vercel Ready)
-│   ├── vercel.json                     # SPA routing rewrite rule (prevents 404 on refresh)
-│   ├── index.html                      # HTML5 web entrypoint
-│   ├── vite.config.js                  # Bundler config (React 19 plugin, dev proxy :5000)
-│   ├── package.json                    # Client dependencies (React 19, Lucide, Axios, Sonner)
-│   ├── src/
-│   │   ├── main.jsx                    # React DOM root render
-│   │   ├── App.jsx                     # Route table, Route Guards, Context Provider Tree
-│   │   ├── index.css                   # Executive Navy design system tokens
-│   │   │
-│   │   ├── components/                 # Atomic and reusable UI components
-│   │   │   ├── common/                 # Metric cards, Action queues, Error boundaries
-│   │   │   ├── layout/                 # Topbar with notifications, authenticated shells
-│   │   │   ├── navigation/             # Role-filtered responsive sidebar
-│   │   │   └── ProtectedRoute.jsx      # Client-side RBAC guard
-│   │   │
-│   │   ├── context/                    # Global React Contexts
-│   │   │   ├── AuthContext.jsx         # User session, JWT lifecycle, auto-logout
-│   │   │   └── NotificationContext.jsx # Live in-app alerts and notifications
-│   │   │
-│   │   ├── pages/                      # Application route views
-│   │   │   ├── portal/                 # Gateway role selection & dedicated login views
-│   │   │   ├── dashboards/             # Scoped dashboards (Admin, HR, Manager, Employee)
-│   │   │   ├── employees/              # Employee directory, detail tabs, profile wizard
-│   │   │   ├── departments/            # Department management & roster breakdowns
-│   │   │   ├── attendance/             # 1-click Clock-In/Clock-Out & historical shifts
-│   │   │   ├── leave/                  # PTO requests & multi-tier manager approval queue
-│   │   │   ├── payroll/                # Salary computation, allowance items, paystubs
-│   │   │   ├── performance/            # OKR objective tracking & quarterly review forms
-│   │   │   ├── recruitment/            # 5-stage candidate ATS & one-click conversion
-│   │   │   ├── reports/                # Departmental cross-filtering & CSV exports
-│   │   │   ├── notifications/          # Notification inbox & badge management
-│   │   │   └── audit/                  # Immutable system trails & security logs
-│   │   │
-│   │   └── services/                   # Modular API clients
-│   │       ├── api.js                  # Centralized Axios client with automatic URL resolution
-│   │       └── [domain]Service.js      # Auth, Employee, Leave, Payroll, etc.
-│   │
-│   └── dist/                           # Production static assets (generated via npm run build)
-│
-└── server/                             # Backend RESTful API (Render Ready)
-    ├── server.js                       # HTTP server entrypoint, lifecycle events, graceful shutdown
-    ├── app.js                          # Express 5 initialization, Helmet, CORS, Rate Limiters
-    ├── package.json                    # Backend dependencies (Express 5, Mongoose 9, JWT, Nodemailer)
-    ├── .env.example                    # Reference environment configuration
-    │
-    └── src/
-        ├── config/
-        │   └── db.js                   # Mongoose connection manager with DNS fallback
-        │
-        ├── models/                     # Mongoose Schema Definitions
-        │   ├── User.js                 # Authentication identity & credential hashes
-        │   ├── Employee.js             # Institutional workforce metadata & reporting link
-        │   ├── Department.js           # Business units, department leads, headcounts
-        │   ├── Attendance.js           # Shift records, timestamps, durations
-        │   ├── Leave.js                # Leave applications, reason, status, approver ID
-        │   ├── Payroll.js              # Earnings, deductions, net pay calculations
-        │   ├── Goal.js                 # Performance OKRs, key results, review status
-        │   ├── JobApplication.js       # ATS recruitment candidate pipeline
-        │   ├── Notification.js         # Targeted in-app alerts and read statuses
-        │   ├── AuditLog.js             # Security audit logs with sanitized metadata
-        │   └── Otp.js                  # SHA-256 hashed one-time passwords with TTL
-        │
-        ├── controllers/                # HTTP request handlers & business dispatchers
-        ├── middlewares/                # Auth token verification, role checks, error handlers
-        ├── routes/                     # REST API route mappings (`/api/*`)
-        ├── services/                   # Nodemailer SMTP transport & automated notifications
-        └── scripts/                    # Database seed scripts & automated test suites
-```
-
----
-
-## ⚡ Production Deployment Configuration
-
-The application is deployed across **Render** (API runtime) and **Vercel** (SPA frontend).
-
-### 1. Backend on Render (`server/`)
+### 1. Backend Service (Render)
 * **Live Service**: [https://hr-2027.onrender.com](https://hr-2027.onrender.com)
-* **Root Directory**: `server`
-* **Build Command**: `npm install`
-* **Start Command**: `npm start`
-* **Environment Variables**:
+* **API Health Check**: [`/api/health`](https://hr-2027.onrender.com/api/health)
+* **Environment Configuration**:
   ```env
   PORT=5000
   NODE_ENV=production
-  MONGO_URI=mongodb+srv://<user>:<password>@cluster.mongodb.net/hr_db?retryWrites=true&w=majority
-  FRONTEND_URL=https://hr-2027.vercel.app
-  JWT_SECRET=<32_character_cryptographic_secret>
+  MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/hrms_db?retryWrites=true&w=majority
+  FRONTEND_URL=https://workops-22.vercel.app
+  CLIENT_URL=https://workops-22.vercel.app
+  JWT_SECRET=<secure_32_character_secret>
   JWT_EXPIRES_IN=24h
-  SMTP_HOST=smtp.gmail.com
-  SMTP_PORT=587
-  SMTP_SECURE=false
-  SMTP_EMAIL=your-corporate-email@gmail.com
-  SMTP_PASSWORD=your-16-digit-app-password
-  EMAIL_FROM="HR Management System" <your-corporate-email@gmail.com>
+  RESEND_API_KEY=re_your_resend_api_key_here
+  RESEND_FROM="HR Management System <onboarding@resend.dev>"
   ```
 
-### 2. Frontend on Vercel (`client/`)
-* **Live Service**: [https://hr-2027.vercel.app](https://hr-2027.vercel.app)
-* **Framework Preset**: `Vite`
-* **Root Directory**: `client`
-* **Build Command**: `npm run build`
-* **Output Directory**: `dist`
-* **Environment Variables**:
+### 2. Frontend Client (Vercel)
+* **Live Application**: [https://workops-22.vercel.app](https://workops-22.vercel.app)
+* **Framework Preset**: Vite + React 19 SPA
+* **Environment Configuration**:
   ```env
   VITE_API_URL=https://hr-2027.onrender.com/api
   ```
-* **SPA Routing**: Managed via [`client/vercel.json`](client/vercel.json):
+* **SPA Routing Configuration** (`vercel.json`):
   ```json
   {
     "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
@@ -354,86 +201,28 @@ The application is deployed across **Render** (API runtime) and **Vercel** (SPA 
 
 ---
 
-## 💻 Local Development Quickstart
+## 🧪 Automated Verification & Quality Assurance
 
-### 🚀 Starting Local Development
+The backend includes 10 automated test suites verifying business logic, security constraints, and live cloud endpoints:
 
-Run the backend and frontend in two separate terminals:
-
-#### 1. Backend Server
-```bash
-cd server
-npm run dev
-```
-* **API Entry**: [`http://localhost:5000/api`](http://localhost:5000/api)
-* **Health Check**: [`http://localhost:5000/api/health`](http://localhost:5000/api/health)
-* **Seed Database**: `npm run seed`
-
-#### 2. Frontend Client
-```bash
-cd client
-npm run dev
-```
-* **Portal Entry**: [`http://localhost:5173`](http://localhost:5173)
-* **Build Production Bundle**: `npm run build`
-* **Default Verified Logins**: See [`credentials.md`](credentials.md) (e.g., Admin: `EMP007` / `Corp@EMP007#`)
-
----
-
-## 🧪 Comprehensive Automated Test Suites
-
-The backend includes **10 automated verification test suites** covering business workflows, security constraints, and live production endpoints:
-
-```bash
-cd server
-```
-
-```bash
-# 1. Verify Live Cloud Deployments (Vercel + Render End-to-End)
-node src/scripts/verify_live_deployment.js
-
-# 2. OTP-Based Password Reset & Brute-Force Rate Limiting
-node src/scripts/test_forgot_password.js
-
-# 3. Invite-Only Enterprise Access Policy & Google SMTP Dispatch
-node src/scripts/test_invite_only_policy.js
-
-# 4. Core Workforce Modules (Employees, Depts, Attendance, Leaves, Payroll)
-node src/scripts/test_all_modules_suite.js
-
-# 5. Performance OKRs & Goal Scoring
-node src/scripts/test_stage9_performance.js
-
-# 6. Recruitment ATS & Candidate-to-Employee Conversion
-node src/scripts/test_stage10_recruitment.js
-
-# 7. Aggregation Reports, Notifications & Redacted Audit Logs
-node src/scripts/test_stage11_reports_notifications_audit.js
-
-# 8. End-to-End Security Hardening & Penetration Testing
-node src/scripts/test_stage12_hardening_and_e2e.js
-
-# 9. Authentication Token Expiry & Account Deactivation
-node src/scripts/test_edge_cases.js
-
-# 10. Multi-Role Resource Scoping & Employee CRUD
-node src/scripts/test_employee_suite.js
-```
-
----
-
-## 🎨 Design System & UX Philosophy
-
-* **Color Architecture**: Deep Institutional Navy (`#0B2447`), Trust Indigo (`#2563EB`), Crisp Slate (`#F8FAFC`), and Alert Emerald/Amber/Rose.
-* **Component Geometries**: 18px continuous radii on cards and modals, soft shadows, and subtle micro-interaction hover lifts (`translateY(-2px)`).
-* **Responsive Layouts**: Collapsible sidebar navigation, mobile viewports with hamburger menus, and accessible contrast ratios across all dashboards.
-* **Telemetry & Feedback**: Asynchronous notifications dispatched via `Sonner` toasts with contextual action triggers.
+| Suite | Test Script | Verification Focus |
+| :---: | :--- | :--- |
+| **01** | `verify_live_deployment.js` | Cloud health check across Vercel frontend & Render API endpoints |
+| **02** | `test_forgot_password.js` | Cryptographic reset token generation & brute-force rate limiters |
+| **03** | `test_invite_only_policy.js` | Access policy enforcement & Resend OTP verification flows |
+| **04** | `test_all_modules_suite.js` | Workforce CRUD, attendance, leave approval & payroll pipelines |
+| **05** | `test_stage9_performance.js` | OKR goal weighting, self-evaluations & manager performance scoring |
+| **06** | `test_stage10_recruitment.js` | 5-stage recruitment ATS pipeline & automated employee onboarding |
+| **07** | `test_stage11_reports_notifications_audit.js` | Department analytics, transactional alerts & sanitized audit trails |
+| **08** | `test_stage12_hardening_and_e2e.js` | Security hardening, unauthorized access rejections & CORS compliance |
+| **09** | `test_edge_cases.js` | Token expiry, account deactivation states & error handling |
+| **10** | `test_employee_suite.js` | Role-based resource boundaries & employee CRUD lifecycle |
 
 ---
 
 <div align="center">
 
 <b>Enterprise Human Resource Management System</b>  
-Architected with ❤️ for modern, scalable human capital operations.
+Architected for modern, secure, and scalable workforce operations.
 
 </div>
