@@ -136,148 +136,178 @@ async function sendOtpEmail({ to, otp, purpose = 'registration', name = '' }) {
     : `Your HRMS Login Verification Code: ${otp}`;
 
   const greeting = name ? `Hello ${name},` : 'Hello,';
+  const rawUrl = process.env.FRONTEND_URL || process.env.CLIENT_URL || 'https://workops-22.vercel.app';
+  const urls = rawUrl.split(',').map((u) => u.trim().replace(/\/$/, '')).filter(Boolean);
+  const portalUrl = urls.find((u) => u.includes('vercel.app') || !u.includes('localhost')) || urls[0] || 'https://workops-22.vercel.app';
+  const supportEmail = process.env.SUPPORT_EMAIL || 'support@hrms.internal';
+
+  const purposeMessage = isPasswordReset
+    ? 'You requested to reset your HRMS corporate account password.'
+    : isRegistration
+    ? 'Thank you for initiating your corporate account registration. To activate your employee workspace, please verify your email address.'
+    : 'You requested a secure passwordless login to your HRMS workspace.';
 
   const htmlContent = `
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>${subject}</title>
-  <style>
+  <!--[if mso]>
+  <style type="text/css">
+    body, table, td { font-family: Arial, Helvetica, sans-serif !important; }
+  </style>
+  <![endif]-->
+  <style type="text/css">
     body {
+      margin: 0 !important;
+      padding: 0 !important;
+      -webkit-text-size-adjust: 100% !important;
+      -ms-text-size-adjust: 100% !important;
+      background-color: #f8fafc;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #f1f5f9;
-      color: #0f172a;
     }
-    .email-container {
-      max-width: 560px;
-      margin: 30px auto;
-      background-color: #ffffff;
-      border: 1px solid #e2e8f0;
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    table, td {
+      border-collapse: collapse !important;
+      mso-table-lspace: 0pt;
+      mso-table-rspace: 0pt;
     }
-    .email-header {
-      background-color: #0f172a;
-      padding: 24px 32px;
-      border-bottom: 2px solid #2563eb;
+    img {
+      border: 0;
+      height: auto;
+      line-height: 100%;
+      outline: none;
+      text-decoration: none;
     }
-    .email-header h1 {
-      margin: 0;
-      font-size: 18px;
-      font-weight: 700;
-      color: #f8fafc;
-      letter-spacing: -0.01em;
-    }
-    .email-header p {
-      margin: 4px 0 0;
-      font-size: 12px;
-      color: #94a3b8;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-    .email-body {
-      padding: 32px;
-    }
-    .greeting {
-      font-size: 15px;
-      font-weight: 600;
-      margin-bottom: 12px;
-      color: #1e293b;
-    }
-    .message {
-      font-size: 14px;
-      line-height: 1.6;
-      color: #475569;
-      margin-bottom: 24px;
-    }
-    .otp-card {
-      background-color: #f8fafc;
-      border: 1px solid #cbd5e1;
-      border-radius: 6px;
-      padding: 20px;
-      text-align: center;
-      margin-bottom: 24px;
-    }
-    .otp-label {
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: #64748b;
-      margin-bottom: 8px;
-    }
-    .otp-code {
-      font-family: 'SF Mono', Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
-      font-size: 32px;
-      font-weight: 800;
-      letter-spacing: 8px;
-      color: #2563eb;
-      margin: 4px 0;
-    }
-    .otp-expiry {
-      font-size: 12px;
-      color: #94a3b8;
-      margin-top: 6px;
-    }
-    .security-note {
-      font-size: 12px;
-      line-height: 1.5;
-      color: #64748b;
-      border-left: 3px solid #e2e8f0;
-      padding-left: 12px;
-      margin-top: 24px;
-    }
-    .email-footer {
-      background-color: #f8fafc;
-      padding: 16px 32px;
-      font-size: 11px;
-      color: #94a3b8;
-      text-align: center;
-      border-top: 1px solid #e2e8f0;
+    @media only screen and (max-width: 600px) {
+      .email-container {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        border-radius: 0 !important;
+        border-left: none !important;
+        border-right: none !important;
+      }
+      .mobile-padding {
+        padding-left: 24px !important;
+        padding-right: 24px !important;
+      }
+      .otp-code {
+        font-size: 32px !important;
+        letter-spacing: 7px !important;
+      }
     }
   </style>
 </head>
-<body>
-  <div class="email-container">
-    <div class="email-header">
-      <h1>HR Management System</h1>
-      <p>Identity Verification & Workforce Operations</p>
-    </div>
-    <div class="email-body">
-      <div class="greeting">${greeting}</div>
-      <p class="message">
-        ${
-          isPasswordReset
-            ? 'You requested to reset your HRMS corporate account password. Please use the following 6-digit one-time password (OTP) to verify your identity:'
-            : isRegistration
-            ? 'Thank you for initiating your corporate account creation. To verify your email address and activate your employee workspace, please use the following one-time password (OTP):'
-            : 'You requested a secure passwordless login to your HRMS workspace. Please use the following one-time password (OTP) to complete sign-in:'
-        }
-      </p>
-
-      <div class="otp-card">
-        <div class="otp-label">One-Time Verification Code</div>
-        <div class="otp-code">${otp}</div>
-        <div class="otp-expiry">⏱️ Valid for 10 minutes from dispatch</div>
-      </div>
-
-      <p class="message">
-        Enter this 6-digit code on the HRMS sign-in portal to complete verification.
-      </p>
-
-      <div class="security-note">
-        <strong>Security Notice:</strong> Never share this code with anyone. HR personnel will never ask for your verification code. If you did not initiate this request, please contact IT Security immediately.
-      </div>
-    </div>
-    <div class="email-footer">
-      This is an automated system email generated by HR Management System • Please do not reply directly.
-    </div>
+<body style="margin: 0; padding: 32px 12px; background-color: #f8fafc; color: #0f172a;">
+  <!-- Preheader text (Preview in inbox) -->
+  <div style="display: none; font-size: 1px; color: #ffffff; line-height: 1px; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden;">
+    Your HRMS verification code is ${otp}. This code expires in 10 minutes.
   </div>
+
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f8fafc; margin: 0 auto;">
+    <tr>
+      <td align="center">
+        <!-- Main Card Container -->
+        <table role="presentation" class="email-container" width="560" cellpadding="0" cellspacing="0" border="0" style="max-width: 560px; width: 100%; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.04);">
+          <!-- Top Header Brand Accent -->
+          <tr>
+            <td style="height: 4px; background: linear-gradient(90deg, #2563eb, #3b82f6);"></td>
+          </tr>
+
+          <!-- Header Section -->
+          <tr>
+            <td class="mobile-padding" style="padding: 32px 40px 24px 40px; border-bottom: 1px solid #f1f5f9;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td>
+                    <span style="display: inline-block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #2563eb; background-color: #eff6ff; padding: 4px 10px; border-radius: 6px; margin-bottom: 8px;">
+                      Identity & Access Management
+                    </span>
+                    <h1 style="margin: 0; font-size: 19px; font-weight: 700; color: #0f172a; letter-spacing: -0.02em;">
+                      HR Management System
+                    </h1>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Body Content -->
+          <tr>
+            <td class="mobile-padding" style="padding: 32px 40px;">
+              <p style="margin: 0 0 16px 0; font-size: 15px; font-weight: 600; color: #1e293b;">
+                ${greeting}
+              </p>
+              <p style="margin: 0 0 28px 0; font-size: 14.5px; line-height: 1.6; color: #475569;">
+                ${purposeMessage} Please use the 6-digit verification code below to complete authentication:
+              </p>
+
+              <!-- OTP Prominent Minimalist Box -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 28px;">
+                <tr>
+                  <td align="center" style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 24px 16px;">
+                    <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; margin-bottom: 12px;">
+                      One-Time Verification Code
+                    </div>
+                    
+                    <div class="otp-code" style="font-family: 'SF Mono', Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; font-size: 36px; font-weight: 800; letter-spacing: 10px; color: #1d4ed8; padding: 4px 0 12px 0;">
+                      ${otp}
+                    </div>
+
+                    <div style="display: inline-block; font-size: 12px; font-weight: 500; color: #64748b; background-color: #ffffff; border: 1px solid #e2e8f0; padding: 4px 12px; border-radius: 16px;">
+                      ⏱️ Expires in <strong style="color: #0f172a;">10 minutes</strong>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Security Callout -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #fffbeb; border-left: 3px solid #f59e0b; border-radius: 4px; margin-bottom: 32px;">
+                <tr>
+                  <td style="padding: 12px 16px;">
+                    <p style="margin: 0; font-size: 12.5px; line-height: 1.5; color: #92400e;">
+                      <strong>Security Notice:</strong> Never share this code with anyone. HR personnel and IT administrators will never ask for your verification code.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Help & Support Section -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top: 1px solid #f1f5f9; padding-top: 20px;">
+                <tr>
+                  <td>
+                    <p style="margin: 0 0 6px 0; font-size: 13px; font-weight: 600; color: #334155;">
+                      Need help or didn't request this?
+                    </p>
+                    <p style="margin: 0; font-size: 12.5px; line-height: 1.5; color: #64748b;">
+                      Contact our internal IT Helpdesk at 
+                      <a href="mailto:${supportEmail}" style="color: #2563eb; text-decoration: none; font-weight: 500;">${supportEmail}</a> 
+                      or visit the <a href="${portalUrl}" style="color: #2563eb; text-decoration: none; font-weight: 500;">Employee Portal Support Center</a>.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Footer Section -->
+          <tr>
+            <td class="mobile-padding" style="background-color: #f8fafc; padding: 20px 40px; text-align: center; border-top: 1px solid #e2e8f0;">
+              <p style="margin: 0 0 6px 0; font-size: 11.5px; color: #94a3b8;">
+                © 2026 HR Management System. All rights reserved.
+              </p>
+              <p style="margin: 0; font-size: 11px; color: #94a3b8; line-height: 1.4;">
+                This is an automated system email sent for identity verification. Please do not reply directly.
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
 </body>
 </html>
   `;
