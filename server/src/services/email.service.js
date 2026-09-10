@@ -1,109 +1,120 @@
-const { Resend } = require('resend');
+const nodemailer = require('nodemailer');
+const path = require('path');
 
-let resendClient = null;
-
-/**
- * Returns the active Resend SDK client instance.
- * Lazily initialized with the corporate API key.
- */
-function getResendClient() {
-  if (!resendClient) {
-    const apiKey = process.env.RESEND_API_KEY;
-    if (!apiKey) {
-      console.warn('⚠️ [EMAIL SERVICE] RESEND_API_KEY is not configured in environment variables.');
-    }
-    resendClient = new Resend(apiKey || 're_not_configured');
-    console.log('📧 [EMAIL SERVICE] Resend client initialized.');
-  }
-  return resendClient;
+// Ensure environment variables are loaded
+if (!process.env.BREVO_USER) {
+  require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 }
 
 /**
- * Resolves the compliant sender address for Resend.
- * Defaults to 'HR Management System <onboarding@resend.dev>'.
+ * Configure Nodemailer transport using Brevo's SMTP relay on port 2525.
+ * Strictly overriding the port to 2525 to bypass Render's outbound port blocking (ports 587 and 465).
+ */
+const transporter = nodemailer.createTransport({
+  host: 'smtp-relay.brevo.com',
+  port: 2525,
+  secure: false,
+  auth: {
+    user: process.env.BREVO_USER,
+    pass: process.env.BREVO_PASS,
+  },
+});
+
+/**
+ * Resolves the compliant sender address for Brevo SMTP.
+ * Brevo requires a verified sender address (e.g. your account email or verified domain).
+ * The login username (@smtp-brevo.com) is NOT a valid sender address.
  */
 function getSenderAddress() {
-  const configured = process.env.RESEND_FROM || process.env.EMAIL_FROM;
-  if (configured && !/@gmail\.com/i.test(configured) && !/@hrms\.internal/i.test(configured)) {
-    return configured;
+  const configured = process.env.EMAIL_FROM || process.env.BREVO_FROM;
+  if (configured && !configured.includes('resend.dev') && !configured.includes('smtp-brevo.com')) {
+    return configured.includes('<') ? configured : `"HR Management System" <${configured}>`;
   }
-  return 'HR Management System <onboarding@resend.dev>';
+  const fallback = process.env.BREVO_SENDER || 'a4adityaarora@gmail.com';
+  return `"HR Management System" <${fallback}>`;
 }
 
 /**
- * Core dispatcher that sends corporate emails via Resend REST API.
- * Seamlessly handles both production custom domains and default onboarding@resend.dev.
+ * Sends an email using Brevo's SMTP relay on port 2525.
+ * Accepts positional parameters: sendEmail(to, subject, html, text)
+ * or options object: sendEmail({ to, subject, html, text }).
+ *
+ * @param {string|Object} toOrOptions - Recipient email or options object
+ * @param {string} [subjectParam] - Email subject
+ * @param {string} [htmlParam] - HTML email body
+ * @param {string} [textParam] - Plaintext email body fallback
+ * @returns {Promise<{ messageId: string, previewUrl: null, success: boolean, info: Object }>}
  */
-async function dispatchResendEmail({ to, subject, html, text, logLabel = 'EMAIL', extraLog = null }) {
-  const resend = getResendClient();
+async function sendEmail(toOrOptions, subjectParam, htmlParam, textParam) {
+  let to;
+  let subject;
+  let html;
+  let text;
+  let logLabel = 'BREVO SMTP EMAIL';
+  let extraLog = null;
+
+  if (typeof toOrOptions === 'object' && toOrOptions !== null) {
+    to = toOrOptions.to;
+    subject = toOrOptions.subject;
+    html = toOrOptions.html;
+    text = toOrOptions.text;
+    if (toOrOptions.logLabel) logLabel = toOrOptions.logLabel;
+    if (toOrOptions.extraLog) extraLog = toOrOptions.extraLog;
+  } else {
+    to = toOrOptions;
+    subject = subjectParam;
+    html = htmlParam;
+    text = textParam;
+  }
+
   const from = getSenderAddress();
+  const mailOptions = {
+    from,
+    to,
+    subject,
+    html,
+    text: text || (html ? html.replace(/<[^>]*>?/gm, '').trim() : ''),
+  };
 
   try {
-    const { data, error } = await resend.emails.send({
-      from,
-      to,
-      subject,
-      html,
-      text,
-    });
+    const info = await transporter.sendMail(mailOptions);
 
-    if (error) {
-      // Check if Resend free testing domain restriction occurred
-      // (onboarding@resend.dev only allows sending to the verified account owner email)
-      const isSandboxRestriction =
-        (error.statusCode === 403 &&
-          typeof error.message === 'string' &&
-          error.message.includes('only send testing emails to your own email address')) ||
-        (error.statusCode === 422 &&
-          typeof error.message === 'string' &&
-          error.message.includes('Please use our testing email address'));
-
-      if (isSandboxRestriction) {
-        console.warn('====================================================');
-        console.warn(`⚠️  [RESEND SANDBOX NOTICE - ${logLabel}]`);
-        console.warn(`    Recipient: ${to}`);
-        console.warn(`    Subject:   ${subject}`);
-        if (extraLog) console.warn(`    ${extraLog}`);
-        console.warn(`    Notice:    The testing domain (onboarding@resend.dev)`);
-        console.warn(`               delivers directly to the Resend account owner.`);
-        console.warn(`               To deliver to all external recipients in production,`);
-        console.warn(`               verify your corporate domain at: resend.com/domains`);
-        console.warn('====================================================');
-
-        const mockId = `resend_sandbox_${Date.now()}`;
-        return {
-          id: mockId,
-          messageId: mockId,
-          previewUrl: null,
-          sandbox: true,
-          delivered: false,
-        };
-      }
-
-      throw new Error(`[Resend ${error.name || 'Error'} ${error.statusCode || ''}]: ${error.message}`);
-    }
-
-    const emailId = data?.id;
     console.log('====================================================');
-    console.log(`✉️  [RESEND ${logLabel} DISPATCHED]`);
-    console.log(`    Recipient: ${to}`);
-    console.log(`    Subject:   ${subject}`);
+    console.log(`✉️  [${logLabel} DISPATCHED]`);
+    console.log(`    Provider:   Brevo SMTP (smtp-relay.brevo.com:2525)`);
+    console.log(`    From:       ${from}`);
+    console.log(`    Recipient:  ${to}`);
+    console.log(`    Subject:    ${subject}`);
     if (extraLog) console.log(`    ${extraLog}`);
-    console.log(`    Resend ID: ${emailId}`);
+    console.log(`    Message ID: ${info.messageId}`);
     console.log('====================================================');
 
     return {
-      id: emailId,
-      messageId: emailId,
-      previewUrl: `https://resend.com/emails/${emailId}`,
-      delivered: true,
-      sandbox: false,
+      messageId: info.messageId,
+      previewUrl: null,
+      success: true,
+      info,
     };
-  } catch (err) {
-    console.error(`❌ [RESEND ${logLabel} FAILED] To: ${to} | Error: ${err.message}`);
-    throw err;
+  } catch (error) {
+    console.error('====================================================');
+    console.error(`❌ [${logLabel} FAILED]`);
+    console.error(`    Provider:   Brevo SMTP (smtp-relay.brevo.com:2525)`);
+    console.error(`    From:       ${from}`);
+    console.error(`    Recipient:  ${to}`);
+    console.error(`    Subject:    ${subject}`);
+    console.error(`    Error Code: ${error.code || 'N/A'}`);
+    console.error(`    Error Msg:  ${error.message}`);
+    console.error('====================================================');
+
+    // Throw the error in the catch block so calling controllers know if sending failed
+    throw error;
   }
 }
+
+/**
+ * Unified dispatch alias pointing to sendEmail.
+ */
+const dispatchEmail = sendEmail;
 
 /**
  * Sends a real corporate OTP email to the user's provided email address.
@@ -271,7 +282,7 @@ async function sendOtpEmail({ to, otp, purpose = 'registration', name = '' }) {
 </html>
   `;
 
-  return dispatchResendEmail({
+  return dispatchEmail({
     to,
     subject,
     html: htmlContent,
@@ -351,7 +362,7 @@ async function sendWelcomeEmail({ to, name, employeeId, tempPassword, designatio
 </html>
   `;
 
-  return dispatchResendEmail({
+  return dispatchEmail({
     to,
     subject,
     html: htmlContent,
@@ -428,7 +439,7 @@ async function sendPasswordResetEmail({ to, resetUrl, name = '' }) {
 </html>
   `;
 
-  return dispatchResendEmail({
+  return dispatchEmail({
     to,
     subject,
     html: htmlContent,
@@ -495,7 +506,7 @@ async function sendNotificationEmail({ to, subject, title, message, name = '', t
 </html>
   `;
 
-  return dispatchResendEmail({
+  return dispatchEmail({
     to,
     subject: subject || title || 'Enterprise HRMS Notification',
     html: htmlContent,
@@ -506,9 +517,11 @@ async function sendNotificationEmail({ to, subject, title, message, name = '', t
 }
 
 module.exports = {
+  transporter,
+  sendEmail,
+  dispatchEmail,
   sendOtpEmail,
   sendWelcomeEmail,
   sendPasswordResetEmail,
   sendNotificationEmail,
-  getResendClient,
 };
