@@ -95,7 +95,7 @@ export const PayrollDetailPage = () => {
           maxWidth: '820px',
           margin: '0 auto',
           padding: '36px',
-          backgroundColor: '#ffffff',
+          backgroundColor: 'var(--bg-surface)',
         }}
       >
         {/* Paystub Header */}

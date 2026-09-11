@@ -216,30 +216,30 @@ export const PerformanceReviewDetailPage = () => {
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
-            backgroundColor: '#fffbeb',
-            border: '1px solid #fde68a',
+            backgroundColor: 'var(--warning-subtle)',
+            border: '1px solid var(--warning)',
           }}
         >
-          <div style={{ fontSize: '13px', textTransform: 'uppercase', color: '#92400e', fontWeight: 700, letterSpacing: '0.5px' }}>
+          <div style={{ fontSize: '13px', textTransform: 'uppercase', color: 'var(--warning-text)', fontWeight: 700, letterSpacing: '0.5px' }}>
             Overall Performance Rating
           </div>
-          <div style={{ fontSize: '56px', fontWeight: 900, color: '#b45309', margin: '8px 0' }}>
-            {review.overallRating} <span style={{ fontSize: '24px', fontWeight: 500 }}>/ 5</span>
+          <div style={{ fontSize: '56px', fontWeight: 900, color: 'var(--warning-text)', margin: '8px 0' }}>
+            {review.overallRating} <span style={{ fontSize: '24px', fontWeight: 500, opacity: 0.8 }}>/ 5</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'center', gap: '4px', marginBottom: '8px' }}>
             {[1, 2, 3, 4, 5].map((star) => (
               <Star
                 key={star}
                 size={22}
-                fill={star <= review.overallRating ? '#d97706' : '#e2e8f0'}
-                color={star <= review.overallRating ? '#d97706' : '#cbd5e1'}
+                fill={star <= review.overallRating ? 'var(--warning)' : 'transparent'}
+                color={star <= review.overallRating ? 'var(--warning)' : 'var(--text-muted)'}
               />
             ))}
           </div>
-          <div style={{ fontSize: '16px', fontWeight: 700, color: '#78350f' }}>
+          <div style={{ fontSize: '16px', fontWeight: 700, color: 'var(--warning-text)' }}>
             {ratingInfo.label}
           </div>
-          <div style={{ fontSize: '12px', color: '#92400e', marginTop: '4px' }}>
+          <div style={{ fontSize: '12px', color: 'var(--warning-text)', opacity: 0.85, marginTop: '4px' }}>
             {ratingInfo.desc}
           </div>
         </div>

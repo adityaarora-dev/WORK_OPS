@@ -215,6 +215,44 @@ async function seedDatabase() {
         country: 'India',
       },
     },
+    {
+      employeeId: 'EMP024',
+      firstName: 'Ashu',
+      lastName: 'Kakkar',
+      email: 'kakkar.ashu1982@gmail.com',
+      phone: '+91 98111 22233',
+      password: 'Corp@EMP024#',
+      role: 'hr',
+      designation: 'Senior HR Business Partner',
+      deptName: 'Human Resources',
+      joiningDate: new Date('2023-01-15'),
+      address: {
+        street: '45 Connaught Place',
+        city: 'New Delhi',
+        state: 'Delhi',
+        postalCode: '110001',
+        country: 'India',
+      },
+    },
+    {
+      employeeId: 'EMP025',
+      firstName: 'Anmol',
+      lastName: 'Singla',
+      email: 'singlaanmol101@gmail.com',
+      phone: '+91 98444 55566',
+      password: 'Corp@EMP025#',
+      role: 'employee',
+      designation: 'Software Development Engineer',
+      deptName: 'Technology & Systems',
+      joiningDate: new Date('2024-02-01'),
+      address: {
+        street: '12 Sector 17',
+        city: 'Chandigarh',
+        state: 'Punjab',
+        postalCode: '160017',
+        country: 'India',
+      },
+    },
   ];
 
   const userDocs = {};
@@ -269,13 +307,15 @@ async function seedDatabase() {
   console.log('\n🔗 Configuring strict employee reporting hierarchy...');
   await Employee.findByIdAndUpdate(empDocs['EMP021']._id, { manager: empDocs['EMP018']._id });
   await Employee.findByIdAndUpdate(empDocs['EMP020']._id, { manager: empDocs['EMP019']._id });
+  await Employee.findByIdAndUpdate(empDocs['EMP025']._id, { manager: empDocs['EMP019']._id });
   await Employee.findByIdAndUpdate(empDocs['EMP018']._id, { manager: empDocs['EMP007']._id });
   await Employee.findByIdAndUpdate(empDocs['EMP019']._id, { manager: empDocs['EMP007']._id });
   await Employee.findByIdAndUpdate(empDocs['EMP023']._id, { manager: empDocs['EMP007']._id });
+  await Employee.findByIdAndUpdate(empDocs['EMP024']._id, { manager: empDocs['EMP007']._id });
 
   console.log('  ✅ Abhik Sinha (EMP021) -> Reports to Chiranthan Suvidh (EMP018)');
-  console.log('  ✅ Uttkarsh Kumar (EMP020) -> Reports to Akshat Wadagbalkar (EMP019)');
-  console.log('  ✅ Managers & HR -> Report to Aditya Arora (EMP007)');
+  console.log('  ✅ Uttkarsh Kumar (EMP020) & Anmol Singla (EMP025) -> Report to Akshat Wadagbalkar (EMP019)');
+  console.log('  ✅ Managers & HR (Tanishq Goyal, Ashu Kakkar) -> Report to Aditya Arora (EMP007)');
 
   // Assign Department Heads
   await Department.findByIdAndUpdate(deptMap['Technology & Systems']._id, { departmentHead: empDocs['EMP007']._id });

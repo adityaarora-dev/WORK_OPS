@@ -214,11 +214,11 @@ export const InterviewsPage = () => {
                             fontWeight: 700,
                             padding: '2px 6px',
                             borderRadius: 'var(--radius-sm)',
-                            backgroundColor: '#fffbeb',
-                            color: '#b45309',
+                            backgroundColor: 'var(--warning-subtle)',
+                            color: 'var(--warning-text)',
                           }}
                         >
-                          <Star size={11} fill="#d97706" /> {item.rating} / 5
+                          <Star size={11} fill="var(--warning)" color="var(--warning)" /> {item.rating} / 5
                         </span>
                       ) : (
                         <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Pending</span>

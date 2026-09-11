@@ -331,7 +331,7 @@ export const RecruitmentDashboardPage = () => {
                       style={{
                         fontSize: '11px',
                         fontWeight: 700,
-                        backgroundColor: '#ffffff',
+                        backgroundColor: 'var(--bg-surface)',
                         padding: '1px 7px',
                         borderRadius: '999px',
                         border: '1px solid var(--border-default)',
@@ -352,11 +352,11 @@ export const RecruitmentDashboardPage = () => {
                         <div
                           key={app._id}
                           style={{
-                            backgroundColor: '#ffffff',
+                            backgroundColor: 'var(--bg-surface)',
                             borderRadius: '10px',
                             border: '1px solid var(--border-default)',
                             padding: '12px',
-                            boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                            boxShadow: 'var(--shadow-sm)',
                           }}
                         >
                           <div style={{ fontWeight: 600, fontSize: '13px', color: 'var(--text-primary)', marginBottom: '3px' }}>
@@ -380,9 +380,11 @@ export const RecruitmentDashboardPage = () => {
                               onChange={(e) => handleStageChange(app._id, e.target.value)}
                               style={{
                                 fontSize: '11px',
-                                padding: '3px 6px',
+                                padding: '3px 8px',
                                 borderRadius: '6px',
                                 border: '1px solid var(--border-default)',
+                                backgroundColor: 'var(--bg-surface-raised)',
+                                color: 'var(--text-primary)',
                                 outline: 'none',
                                 cursor: 'pointer',
                               }}

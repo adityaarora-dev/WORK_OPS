@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { AlertTriangle, X } from 'lucide-react';
+import Button from '../ui/button';
 
 export const ConfirmModal = ({
   isOpen,
@@ -12,11 +13,26 @@ export const ConfirmModal = ({
   isDestructive = false,
   loading = false,
 }) => {
+  const dialogRef = useRef(null);
+
+  // Close on Escape key press
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && !loading) {
+        onCancel();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, loading, onCancel]);
+
   if (!isOpen) return null;
 
   return (
-    <div className="modal-backdrop" onClick={onCancel}>
+    <div className="modal-backdrop" onClick={loading ? undefined : onCancel}>
       <div
+        ref={dialogRef}
         className="modal-dialog"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
@@ -24,13 +40,18 @@ export const ConfirmModal = ({
         aria-labelledby="modal-title"
       >
         <div className="modal-header">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div className="flex items-center gap-2.5">
             {isDestructive && (
-              <AlertTriangle size={18} style={{ color: 'var(--danger)', flexShrink: 0 }} />
+              <div className="w-7 h-7 rounded-lg bg-[var(--danger-subtle)] border border-[var(--danger-border)] flex items-center justify-center text-[var(--danger)] flex-shrink-0">
+                <AlertTriangle size={15} strokeWidth={2} />
+              </div>
             )}
-            <h3 id="modal-title">{title}</h3>
+            <h3 id="modal-title" className="text-sm font-semibold text-[var(--text-primary)]">
+              {title}
+            </h3>
           </div>
           <button
+            type="button"
             className="modal-close-btn"
             onClick={onCancel}
             aria-label="Close dialog"
@@ -40,29 +61,31 @@ export const ConfirmModal = ({
           </button>
         </div>
 
-        <div className="modal-body">
-          <p style={{ color: 'var(--text-secondary)', fontSize: '13px', lineHeight: 1.6 }}>
+        <div className="modal-body p-5">
+          <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
             {message}
           </p>
         </div>
 
-        <div className="modal-footer">
-          <button
+        <div className="modal-footer flex items-center justify-end gap-2.5 p-4 border-t border-[var(--border-subtle)] bg-[var(--bg-surface-subtle)]">
+          <Button
             type="button"
-            className="btn btn-secondary"
+            variant="secondary"
+            size="sm"
             onClick={onCancel}
             disabled={loading}
           >
             {cancelText}
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
-            className={`btn ${isDestructive ? 'btn-danger-solid' : 'btn-primary'}`}
+            variant={isDestructive ? 'destructive' : 'primary'}
+            size="sm"
             onClick={onConfirm}
-            disabled={loading}
+            loading={loading}
           >
-            {loading ? 'Processing...' : confirmText}
-          </button>
+            {confirmText}
+          </Button>
         </div>
       </div>
     </div>

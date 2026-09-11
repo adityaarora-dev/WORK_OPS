@@ -265,12 +265,12 @@ export const PerformanceReviewsPage = () => {
                             fontWeight: 700,
                             padding: '3px 8px',
                             borderRadius: 'var(--radius-sm)',
-                            backgroundColor: '#fffbeb',
-                            color: '#b45309',
-                            border: '1px solid #fde68a',
+                            backgroundColor: 'var(--warning-subtle)',
+                            color: 'var(--warning-text)',
+                            border: '1px solid var(--warning)',
                           }}
                         >
-                          <Star size={12} fill="#d97706" /> {r.overallRating} / 5
+                          <Star size={12} fill="var(--warning)" color="var(--warning)" /> {r.overallRating} / 5
                         </span>
                         <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
                           {RATING_DEFINITIONS.find((d) => d.value === r.overallRating)?.label}

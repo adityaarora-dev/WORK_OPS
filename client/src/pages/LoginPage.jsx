@@ -442,9 +442,9 @@ export const LoginPage = () => {
           </div>
         )}
 
-        {/* Verified Corporate Accounts Quick Fill (Only fills credentials for the 6 Real Accounts) */}
+        {/* Verified Corporate Accounts Quick Fill */}
         <div className="quick-fill-section">
-          <div className="quick-fill-title">Authorized Corporate Accounts (6 Verified Profiles)</div>
+          <div className="quick-fill-title">Authorized Corporate Accounts (Verified Profiles)</div>
           <div className="quick-fill-grid">
             <button
               type="button"
@@ -452,8 +452,18 @@ export const LoginPage = () => {
               onClick={() => handleQuickFill('a4adityaarora@gmail.com', 'Corp@EMP007#')}
               title="Chief Technology Officer & Director"
             >
-              <Shield size={13} style={{ color: '#7c3aed' }} />
+              <Shield size={13} style={{ color: 'var(--role-admin)' }} />
               <span>Aditya A. (Admin)</span>
+            </button>
+
+            <button
+              type="button"
+              className="quick-btn"
+              onClick={() => handleQuickFill('kakkar.ashu1982@gmail.com', 'Corp@EMP024#')}
+              title="Senior HR Business Partner"
+            >
+              <Briefcase size={13} style={{ color: 'var(--role-hr)' }} />
+              <span>Ashu K. (HR)</span>
             </button>
 
             <button
@@ -462,7 +472,7 @@ export const LoginPage = () => {
               onClick={() => handleQuickFill('tnu23505@gmail.com', 'Corp@EMP023#')}
               title="Head of People Operations"
             >
-              <Briefcase size={13} style={{ color: '#2563eb' }} />
+              <Briefcase size={13} style={{ color: 'var(--role-hr)' }} />
               <span>Tanishq G. (HR Lead)</span>
             </button>
 
@@ -472,7 +482,7 @@ export const LoginPage = () => {
               onClick={() => handleQuickFill('akshat.wadagbalkar@gmail.com', 'Corp@EMP019#')}
               title="Cloud & Infrastructure Engineering Manager"
             >
-              <Users size={13} style={{ color: '#0d9488' }} />
+              <Users size={13} style={{ color: 'var(--role-manager)' }} />
               <span>Akshat W. (Manager 1)</span>
             </button>
 
@@ -482,8 +492,18 @@ export const LoginPage = () => {
               onClick={() => handleQuickFill('suvidh.vibrance@gmail.com', 'Corp@EMP018#')}
               title="Software Development Engineering Manager"
             >
-              <Users size={13} style={{ color: '#0d9488' }} />
+              <Users size={13} style={{ color: 'var(--role-manager)' }} />
               <span>Chiranthan S. (Manager 2)</span>
+            </button>
+
+            <button
+              type="button"
+              className="quick-btn"
+              onClick={() => handleQuickFill('singlaanmol101@gmail.com', 'Corp@EMP025#')}
+              title="Software Development Engineer (Reports to Akshat)"
+            >
+              <User size={13} style={{ color: 'var(--role-employee)' }} />
+              <span>Anmol S. (Dev)</span>
             </button>
 
             <button
@@ -492,7 +512,7 @@ export const LoginPage = () => {
               onClick={() => handleQuickFill('abhiksinha06@gmail.com', 'Corp@EMP021#')}
               title="Backend Software Engineer (Reports to Chiranthan)"
             >
-              <User size={13} style={{ color: '#475569' }} />
+              <User size={13} style={{ color: 'var(--role-employee)' }} />
               <span>Abhik S. (Dev)</span>
             </button>
 
@@ -502,7 +522,7 @@ export const LoginPage = () => {
               onClick={() => handleQuickFill('u23022686@gmail.com', 'Corp@EMP020#')}
               title="AI & Cloud Engineer (Reports to Akshat)"
             >
-              <User size={13} style={{ color: '#475569' }} />
+              <User size={13} style={{ color: 'var(--role-employee)' }} />
               <span>Uttkarsh K. (AI Eng)</span>
             </button>
           </div>

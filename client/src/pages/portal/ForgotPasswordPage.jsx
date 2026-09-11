@@ -231,9 +231,7 @@ export const ForgotPasswordPage = () => {
     <div
       style={{
         minHeight: '100vh',
-        backgroundColor: '#F8FAFC',
-        backgroundImage: 'radial-gradient(rgba(15, 23, 42, 0.05) 1px, transparent 1px)',
-        backgroundSize: '24px 24px',
+        backgroundColor: 'var(--bg-canvas)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -278,12 +276,12 @@ export const ForgotPasswordPage = () => {
         style={{
           maxWidth: '440px',
           width: '100%',
-          backgroundColor: '#ffffff',
+          backgroundColor: 'var(--bg-surface)',
           borderRadius: '18px',
           padding: '36px 32px',
-          boxShadow: '0 6px 24px rgba(15, 23, 42, 0.06)',
+          boxShadow: 'var(--shadow)',
           border: '1px solid var(--border-default)',
-          borderTop: '4px solid var(--primary, #0B2447)',
+          borderTop: '3px solid var(--primary)',
         }}
       >
         {/* Error Notice */}
@@ -365,7 +363,8 @@ export const ForgotPasswordPage = () => {
                       fontSize: '13px',
                       borderRadius: '12px',
                       border: '1px solid var(--border-default)',
-                      backgroundColor: '#ffffff',
+                      backgroundColor: 'var(--bg-surface)',
+                      color: 'var(--text-primary)',
                       outline: 'none',
                       boxSizing: 'border-box',
                     }}
@@ -479,13 +478,13 @@ export const ForgotPasswordPage = () => {
                     fontFamily: 'var(--font-mono, monospace)',
                     borderRadius: '10px',
                     border: digit
-                      ? '2px solid var(--primary, #0B2447)'
-                      : '1px solid var(--border-default, #cbd5e1)',
-                    backgroundColor: digit ? '#f8fafc' : '#ffffff',
-                    color: 'var(--text-primary, #0f172a)',
+                      ? '2px solid var(--primary)'
+                      : '1px solid var(--border-default)',
+                    backgroundColor: digit ? 'var(--bg-surface-raised)' : 'var(--bg-surface)',
+                    color: 'var(--text-primary)',
                     outline: 'none',
                     transition: 'all 150ms ease',
-                    boxShadow: digit ? '0 1px 3px rgba(11, 36, 71, 0.1)' : 'none',
+                    boxShadow: digit ? 'var(--shadow-xs)' : 'none',
                   }}
                 />
               ))}

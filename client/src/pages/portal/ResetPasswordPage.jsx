@@ -129,9 +129,7 @@ export const ResetPasswordPage = () => {
     <div
       style={{
         minHeight: '100vh',
-        backgroundColor: '#F8FAFC',
-        backgroundImage: 'radial-gradient(rgba(15, 23, 42, 0.05) 1px, transparent 1px)',
-        backgroundSize: '24px 24px',
+        backgroundColor: 'var(--bg-canvas)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -176,12 +174,12 @@ export const ResetPasswordPage = () => {
         style={{
           maxWidth: '440px',
           width: '100%',
-          backgroundColor: '#ffffff',
+          backgroundColor: 'var(--bg-surface)',
           borderRadius: '18px',
           padding: '36px 32px',
-          boxShadow: '0 6px 24px rgba(15, 23, 42, 0.06)',
+          boxShadow: 'var(--shadow)',
           border: '1px solid var(--border-default)',
-          borderTop: '4px solid var(--primary, #0B2447)',
+          borderTop: '3px solid var(--primary)',
         }}
       >
         {/* Token Verification in Progress */}
@@ -428,7 +426,8 @@ export const ResetPasswordPage = () => {
                       fontSize: '13px',
                       borderRadius: '12px',
                       border: '1px solid var(--border-default)',
-                      backgroundColor: '#ffffff',
+                      backgroundColor: 'var(--bg-surface)',
+                      color: 'var(--text-primary)',
                       outline: 'none',
                       boxSizing: 'border-box',
                     }}
@@ -484,7 +483,8 @@ export const ResetPasswordPage = () => {
                       fontSize: '13px',
                       borderRadius: '12px',
                       border: '1px solid var(--border-default)',
-                      backgroundColor: '#ffffff',
+                      backgroundColor: 'var(--bg-surface)',
+                      color: 'var(--text-primary)',
                       outline: 'none',
                       boxSizing: 'border-box',
                     }}

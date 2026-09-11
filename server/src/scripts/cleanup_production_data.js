@@ -73,6 +73,26 @@ async function runCleanup() {
       designation: 'AI & Cloud Engineer',
       deptCode: 'TECH',
     },
+    {
+      employeeId: 'EMP024',
+      firstName: 'Ashu',
+      lastName: 'Kakkar',
+      email: 'kakkar.ashu1982@gmail.com',
+      role: 'hr',
+      password: 'Corp@EMP024#',
+      designation: 'Senior HR Business Partner',
+      deptCode: 'HR',
+    },
+    {
+      employeeId: 'EMP025',
+      firstName: 'Anmol',
+      lastName: 'Singla',
+      email: 'singlaanmol101@gmail.com',
+      role: 'employee',
+      password: 'Corp@EMP025#',
+      designation: 'Software Development Engineer',
+      deptCode: 'TECH',
+    },
   ];
 
   const approvedEmails = approvedAccounts.map(a => a.email);
@@ -220,6 +240,25 @@ async function runCleanup() {
     { _id: chiranthanEmp._id },
     { $set: { manager: adminEmp._id } }
   );
+  const ashuEmp = await mongoose.connection.db.collection('employees').findOne({ employeeId: 'EMP024' });
+  const anmolEmp = await mongoose.connection.db.collection('employees').findOne({ employeeId: 'EMP025' });
+
+  // Anmol Singla reports to Akshat Wadagbalkar
+  if (anmolEmp && akshatEmp) {
+    await mongoose.connection.db.collection('employees').updateOne(
+      { _id: anmolEmp._id },
+      { $set: { manager: akshatEmp._id } }
+    );
+  }
+
+  // Ashu Kakkar reports to Aditya (Admin)
+  if (ashuEmp && adminEmp) {
+    await mongoose.connection.db.collection('employees').updateOne(
+      { _id: ashuEmp._id },
+      { $set: { manager: adminEmp._id } }
+    );
+  }
+
   await mongoose.connection.db.collection('employees').updateOne(
     { _id: hrEmp._id },
     { $set: { manager: adminEmp._id } }
@@ -229,7 +268,7 @@ async function runCleanup() {
     { $set: { manager: null } }
   );
 
-  console.log('\n--- VERIFIED USERS (EXACTLY 6) ---');
+  console.log('\n--- VERIFIED USERS (EXACTLY 8) ---');
   const remainingUsers = await mongoose.connection.db.collection('users').find({}).sort({ employeeId: 1 }).toArray();
   remainingUsers.forEach(u => console.log(u.employeeId, `[${u.role.toUpperCase()}]`, u.firstName, u.lastName, u.email));
 

@@ -41,11 +41,13 @@ import {
 } from '../../services/reportService';
 import StatCard from '../../components/common/StatCard';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
+import { useChartTheme } from '../../lib/chartTheme';
 
 const CHART_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#ec4899', '#6366f1'];
 
 export const ReportsDashboardPage = () => {
   const { user } = useAuth();
+  const chartTheme = useChartTheme();
   const role = (user?.role || '').toLowerCase();
   const isAdminOrHr = role === 'admin' || role === 'hr';
   const isEmployee = role === 'employee';
@@ -311,11 +313,11 @@ export const ReportsDashboardPage = () => {
                   <div style={{ height: '280px' }}>
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={data.byDepartment || []}>
-                        <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
-                        <XAxis dataKey="departmentName" stroke="var(--text-muted)" fontSize={12} />
-                        <YAxis stroke="var(--text-muted)" fontSize={12} />
-                        <Tooltip />
-                        <Legend />
+                        <CartesianGrid strokeDasharray="3 3" stroke={chartTheme.gridStroke} opacity={chartTheme.gridOpacity} />
+                        <XAxis dataKey="departmentName" stroke={chartTheme.axisStroke} tick={{ fill: chartTheme.tickFill, fontSize: chartTheme.tickFontSize }} />
+                        <YAxis stroke={chartTheme.axisStroke} tick={{ fill: chartTheme.tickFill, fontSize: chartTheme.tickFontSize }} />
+                        <Tooltip contentStyle={chartTheme.tooltipContentStyle} itemStyle={chartTheme.tooltipItemStyle} labelStyle={chartTheme.tooltipLabelStyle} />
+                        <Legend wrapperStyle={{ color: chartTheme.legendTextColor, fontSize: '11px' }} />
                         <Bar dataKey="count" name="Total Headcount" fill="#3b82f6" radius={[4, 4, 0, 0]} />
                         <Bar dataKey="active" name="Active" fill="#10b981" radius={[4, 4, 0, 0]} />
                       </BarChart>
@@ -347,7 +349,7 @@ export const ReportsDashboardPage = () => {
                             <Cell key={`cell-${idx}`} fill={CHART_COLORS[idx % CHART_COLORS.length]} />
                           ))}
                         </Pie>
-                        <Tooltip />
+                        <Tooltip contentStyle={chartTheme.tooltipContentStyle} itemStyle={chartTheme.tooltipItemStyle} labelStyle={chartTheme.tooltipLabelStyle} />
                       </PieChart>
                     </ResponsiveContainer>
                   </div>
@@ -439,14 +441,14 @@ export const ReportsDashboardPage = () => {
                 <div style={{ height: '300px' }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={data.dailyTrends || []}>
-                      <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
-                      <XAxis dataKey="date" stroke="var(--text-muted)" fontSize={12} />
-                      <YAxis stroke="var(--text-muted)" fontSize={12} />
-                      <Tooltip />
-                      <Legend />
-                      <Line type="monotone" dataKey="present" name="Present" stroke="#10b981" strokeWidth={2} />
-                      <Line type="monotone" dataKey="late" name="Late" stroke="#f59e0b" strokeWidth={2} />
-                      <Line type="monotone" dataKey="absent" name="Absent" stroke="#ef4444" strokeWidth={2} />
+                      <CartesianGrid strokeDasharray="3 3" stroke={chartTheme.gridStroke} opacity={chartTheme.gridOpacity} />
+                      <XAxis dataKey="date" stroke={chartTheme.axisStroke} tick={{ fill: chartTheme.tickFill, fontSize: chartTheme.tickFontSize }} />
+                      <YAxis stroke={chartTheme.axisStroke} tick={{ fill: chartTheme.tickFill, fontSize: chartTheme.tickFontSize }} />
+                      <Tooltip contentStyle={chartTheme.tooltipContentStyle} itemStyle={chartTheme.tooltipItemStyle} labelStyle={chartTheme.tooltipLabelStyle} />
+                      <Legend wrapperStyle={{ color: chartTheme.legendTextColor, fontSize: '11px' }} />
+                      <Line type="monotone" dataKey="present" name="Present" stroke="#10b981" strokeWidth={2} dot={{ r: 3 }} />
+                      <Line type="monotone" dataKey="late" name="Late" stroke="#f59e0b" strokeWidth={2} dot={{ r: 3 }} />
+                      <Line type="monotone" dataKey="absent" name="Absent" stroke="#ef4444" strokeWidth={2} dot={{ r: 3 }} />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
@@ -497,11 +499,11 @@ export const ReportsDashboardPage = () => {
                   <div style={{ height: '280px' }}>
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={data.monthlyTrends || []}>
-                        <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
-                        <XAxis dataKey="month" stroke="var(--text-muted)" fontSize={12} />
-                        <YAxis stroke="var(--text-muted)" fontSize={12} />
-                        <Tooltip />
-                        <Legend />
+                        <CartesianGrid strokeDasharray="3 3" stroke={chartTheme.gridStroke} opacity={chartTheme.gridOpacity} />
+                        <XAxis dataKey="month" stroke={chartTheme.axisStroke} tick={{ fill: chartTheme.tickFill, fontSize: chartTheme.tickFontSize }} />
+                        <YAxis stroke={chartTheme.axisStroke} tick={{ fill: chartTheme.tickFill, fontSize: chartTheme.tickFontSize }} />
+                        <Tooltip contentStyle={chartTheme.tooltipContentStyle} itemStyle={chartTheme.tooltipItemStyle} labelStyle={chartTheme.tooltipLabelStyle} />
+                        <Legend wrapperStyle={{ color: chartTheme.legendTextColor, fontSize: '11px' }} />
                         <Bar dataKey="approvedDays" name="Approved Days" fill="#10b981" radius={[4, 4, 0, 0]} />
                         <Bar dataKey="pendingDays" name="Pending Days" fill="#f59e0b" radius={[4, 4, 0, 0]} />
                       </BarChart>
@@ -533,7 +535,7 @@ export const ReportsDashboardPage = () => {
                             <Cell key={`cell-${idx}`} fill={CHART_COLORS[idx % CHART_COLORS.length]} />
                           ))}
                         </Pie>
-                        <Tooltip />
+                        <Tooltip contentStyle={chartTheme.tooltipContentStyle} itemStyle={chartTheme.tooltipItemStyle} labelStyle={chartTheme.tooltipLabelStyle} />
                       </PieChart>
                     </ResponsiveContainer>
                   </div>
@@ -603,11 +605,11 @@ export const ReportsDashboardPage = () => {
                 <div style={{ height: '300px' }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={data.monthlyTrends || []}>
-                      <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
-                      <XAxis dataKey="month" stroke="var(--text-muted)" fontSize={12} tickFormatter={(m) => `M${m}`} />
-                      <YAxis stroke="var(--text-muted)" fontSize={12} tickFormatter={(v) => `₹${(v / 1000)}k`} />
-                      <Tooltip formatter={(v) => `₹${Number(v).toLocaleString()}`} />
-                      <Legend />
+                      <CartesianGrid strokeDasharray="3 3" stroke={chartTheme.gridStroke} opacity={chartTheme.gridOpacity} />
+                      <XAxis dataKey="month" stroke={chartTheme.axisStroke} tick={{ fill: chartTheme.tickFill, fontSize: chartTheme.tickFontSize }} tickFormatter={(m) => `M${m}`} />
+                      <YAxis stroke={chartTheme.axisStroke} tick={{ fill: chartTheme.tickFill, fontSize: chartTheme.tickFontSize }} tickFormatter={(v) => `₹${(v / 1000)}k`} />
+                      <Tooltip formatter={(v) => `₹${Number(v).toLocaleString()}`} contentStyle={chartTheme.tooltipContentStyle} itemStyle={chartTheme.tooltipItemStyle} labelStyle={chartTheme.tooltipLabelStyle} />
+                      <Legend wrapperStyle={{ color: chartTheme.legendTextColor, fontSize: '11px' }} />
                       <Bar dataKey="gross" name="Gross Total" fill="#3b82f6" radius={[4, 4, 0, 0]} />
                       <Bar dataKey="net" name="Net Disbursed" fill="#10b981" radius={[4, 4, 0, 0]} />
                     </BarChart>
@@ -659,10 +661,10 @@ export const ReportsDashboardPage = () => {
                 <div style={{ height: '280px' }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={data.overview?.ratingDistribution || []}>
-                      <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
-                      <XAxis dataKey="stars" stroke="var(--text-muted)" fontSize={12} tickFormatter={(s) => `${s} Stars`} />
-                      <YAxis stroke="var(--text-muted)" fontSize={12} />
-                      <Tooltip />
+                      <CartesianGrid strokeDasharray="3 3" stroke={chartTheme.gridStroke} opacity={chartTheme.gridOpacity} />
+                      <XAxis dataKey="stars" stroke={chartTheme.axisStroke} tick={{ fill: chartTheme.tickFill, fontSize: chartTheme.tickFontSize }} tickFormatter={(s) => `${s} Stars`} />
+                      <YAxis stroke={chartTheme.axisStroke} tick={{ fill: chartTheme.tickFill, fontSize: chartTheme.tickFontSize }} />
+                      <Tooltip contentStyle={chartTheme.tooltipContentStyle} itemStyle={chartTheme.tooltipItemStyle} labelStyle={chartTheme.tooltipLabelStyle} />
                       <Bar dataKey="count" name="Reviews Count" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
@@ -713,10 +715,10 @@ export const ReportsDashboardPage = () => {
                 <div style={{ height: '320px' }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={data.funnel || []} layout="vertical">
-                      <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
-                      <XAxis type="number" stroke="var(--text-muted)" fontSize={12} />
-                      <YAxis dataKey="stage" type="category" stroke="var(--text-muted)" fontSize={12} width={90} />
-                      <Tooltip />
+                      <CartesianGrid strokeDasharray="3 3" stroke={chartTheme.gridStroke} opacity={chartTheme.gridOpacity} />
+                      <XAxis type="number" stroke={chartTheme.axisStroke} tick={{ fill: chartTheme.tickFill, fontSize: chartTheme.tickFontSize }} />
+                      <YAxis dataKey="stage" type="category" stroke={chartTheme.axisStroke} tick={{ fill: chartTheme.tickFill, fontSize: chartTheme.tickFontSize }} width={90} />
+                      <Tooltip contentStyle={chartTheme.tooltipContentStyle} itemStyle={chartTheme.tooltipItemStyle} labelStyle={chartTheme.tooltipLabelStyle} />
                       <Bar dataKey="count" name="Candidates in Stage" fill="#3b82f6" radius={[0, 4, 4, 0]}>
                         {(data.funnel || []).map((_, idx) => (
                           <Cell key={`funnel-${idx}`} fill={CHART_COLORS[idx % CHART_COLORS.length]} />

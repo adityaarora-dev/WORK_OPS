@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Menu, LogOut, Bell, Check } from 'lucide-react';
+import { Menu, LogOut, Bell, Check, ChevronRight } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { getNotifications, getUnreadCount, markAsRead, markAllAsRead } from '../../services/notificationService';
+import ThemeToggle from '../common/ThemeToggle';
 
 export const Topbar = ({ onToggleSidebar }) => {
   const { user, logout } = useAuth();
@@ -133,13 +134,16 @@ export const Topbar = ({ onToggleSidebar }) => {
           <h1 className="topbar-page-heading">{getContextName()}</h1>
           <div className="topbar-breadcrumb">
             <span className="breadcrumb-root">HRMS</span>
-            <span className="breadcrumb-sep">/</span>
+            <ChevronRight size={11} className="text-[var(--text-muted)]" />
             <span className="breadcrumb-current">{getContextName()}</span>
           </div>
         </div>
       </div>
 
       <div className="topbar-right">
+        {/* Centralized Theme Toggle (Segmented Pill) */}
+        <ThemeToggle variant="segmented" />
+
         {/* Notifications Bell & Popover */}
         <div className="topbar-notification-wrapper" ref={dropdownRef}>
           <button
@@ -149,9 +153,9 @@ export const Topbar = ({ onToggleSidebar }) => {
             aria-label="Open notifications"
             title="System notifications"
           >
-            <Bell size={18} />
+            <Bell size={17} strokeWidth={1.8} />
             {unreadCount > 0 && (
-              <span className="notification-badge">
+              <span className="notification-badge tabular-nums">
                 {unreadCount > 99 ? '99+' : unreadCount}
               </span>
             )}
@@ -160,13 +164,12 @@ export const Topbar = ({ onToggleSidebar }) => {
           {dropdownOpen && (
             <div className="notification-dropdown">
               <div className="notification-dropdown-header">
-                <h4>Notifications</h4>
+                <h4 className="text-xs font-semibold text-[var(--text-primary)]">Notifications</h4>
                 {unreadCount > 0 && (
                   <button
                     type="button"
-                    className="btn btn-xs btn-ghost"
+                    className="text-[11px] font-medium text-[var(--primary)] hover:underline cursor-pointer"
                     onClick={handleMarkAll}
-                    style={{ fontSize: '11px', color: 'var(--primary)' }}
                   >
                     Mark all read
                   </button>
@@ -175,12 +178,12 @@ export const Topbar = ({ onToggleSidebar }) => {
 
               <div className="notification-dropdown-body">
                 {loadingNotifs ? (
-                  <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '12px' }}>
+                  <div className="p-6 text-center text-xs text-[var(--text-muted)]">
                     Loading notifications...
                   </div>
                 ) : notifications.length === 0 ? (
-                  <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '12px' }}>
-                    No notifications right now
+                  <div className="p-6 text-center text-xs text-[var(--text-muted)]">
+                    No new notifications
                   </div>
                 ) : (
                   notifications.map((n) => (
@@ -190,14 +193,14 @@ export const Topbar = ({ onToggleSidebar }) => {
                       onClick={() => navigate('/notifications')}
                     >
                       {!n.read && <div className="notification-item-unread-dot" />}
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: '12.5px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '2px' }}>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-xs font-semibold text-[var(--text-primary)] mb-0.5">
                           {n.title}
                         </div>
-                        <div style={{ fontSize: '11.5px', color: 'var(--text-secondary)', lineHeight: 1.4 }}>
+                        <div className="text-[11.5px] text-[var(--text-secondary)] leading-relaxed">
                           {n.message}
                         </div>
-                        <div style={{ fontSize: '10.5px', color: 'var(--text-muted)', marginTop: '4px' }}>
+                        <div className="text-[10px] text-[var(--text-muted)] mt-1 tabular-nums">
                           {new Date(n.createdAt).toLocaleDateString()}
                         </div>
                       </div>
@@ -206,8 +209,8 @@ export const Topbar = ({ onToggleSidebar }) => {
                           type="button"
                           className="btn btn-xs btn-ghost btn-icon"
                           title="Mark as read"
+                          aria-label="Mark notification as read"
                           onClick={(e) => handleMarkItemRead(e, n._id)}
-                          style={{ padding: '2px', color: 'var(--text-muted)' }}
                         >
                           <Check size={13} />
                         </button>
@@ -220,8 +223,7 @@ export const Topbar = ({ onToggleSidebar }) => {
               <div className="notification-dropdown-footer">
                 <Link
                   to="/notifications"
-                  className="btn btn-sm btn-ghost"
-                  style={{ fontSize: '12px', width: '100%', justifyContent: 'center' }}
+                  className="text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors inline-flex items-center justify-center w-full py-1"
                 >
                   View All Notifications →
                 </Link>
@@ -230,7 +232,7 @@ export const Topbar = ({ onToggleSidebar }) => {
           )}
         </div>
 
-        {/* Profile Avatar with Ring & Click to Profile */}
+        {/* Profile Avatar with Ring & Link to Profile */}
         <Link
           to="/profile"
           className="topbar-avatar-link"
@@ -242,12 +244,12 @@ export const Topbar = ({ onToggleSidebar }) => {
         {/* Clean Minimal Sign Out */}
         <button
           type="button"
-          className="btn btn-ghost btn-icon"
+          className="btn btn-ghost btn-icon hover:text-[var(--danger)]"
           onClick={handleLogout}
           title="Sign out of your session"
           aria-label="Sign out"
         >
-          <LogOut size={16} />
+          <LogOut size={16} strokeWidth={1.8} />
         </button>
       </div>
     </header>

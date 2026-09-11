@@ -1,4 +1,5 @@
 import React from 'react';
+import { TrendingUp, TrendingDown } from 'lucide-react';
 
 const renderIcon = (icon) => {
   if (!icon) return null;
@@ -8,13 +9,13 @@ const renderIcon = (icon) => {
     (typeof icon === 'object' && icon !== null && icon.$$typeof)
   ) {
     const IconComponent = icon;
-    return <IconComponent size={18} />;
+    return <IconComponent size={16} strokeWidth={1.8} />;
   }
   return icon;
 };
 
-export const StatCard = ({ title, value, icon, subtitle, trend = null, variant = null }) => {
-  // Infer tactical color variant if not explicitly provided
+export const StatCard = ({ title, value, icon, subtitle, trend = null, variant = null, className = '' }) => {
+  // Infer tactical semantic color if needed
   const inferVariant = () => {
     if (variant) return variant;
     const t = (title || '').toLowerCase();
@@ -33,7 +34,7 @@ export const StatCard = ({ title, value, icon, subtitle, trend = null, variant =
   const activeVariant = inferVariant();
 
   return (
-    <div className={`stat-card stat-card-${activeVariant}`}>
+    <div className={`stat-card stat-card-${activeVariant} group ${className}`}>
       <div className="stat-card-header">
         <span className="stat-card-title">{title}</span>
         {icon && (
@@ -42,14 +43,21 @@ export const StatCard = ({ title, value, icon, subtitle, trend = null, variant =
           </div>
         )}
       </div>
+
       <div className="stat-card-body">
-        <div className="stat-card-value">{value}</div>
+        <div className="stat-card-value tabular-nums">{value}</div>
         {trend && (
-          <span className={`stat-card-trend ${trend.positive ? 'trend-up' : 'trend-down'}`}>
-            {trend.positive ? '↑' : '↓'} {trend.text}
+          <span className={`stat-card-trend tabular-nums ${trend.positive ? 'trend-up' : 'trend-down'}`}>
+            {trend.positive ? (
+              <TrendingUp size={12} strokeWidth={2.2} />
+            ) : (
+              <TrendingDown size={12} strokeWidth={2.2} />
+            )}
+            <span>{trend.text}</span>
           </span>
         )}
       </div>
+
       {subtitle && <div className="stat-card-subtitle">{subtitle}</div>}
     </div>
   );

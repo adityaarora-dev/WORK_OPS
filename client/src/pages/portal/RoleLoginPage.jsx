@@ -16,6 +16,7 @@ import { toast } from 'sonner';
 import { useAuth } from '../../hooks/useAuth';
 import { sendLoginOtp, verifyLoginOtp } from '../../services/authService';
 import ForgotPasswordModal from '../../components/auth/ForgotPasswordModal';
+import ThemeToggle from '../../components/common/ThemeToggle';
 
 const ROLE_CONFIGS = {
   admin: {
@@ -23,9 +24,11 @@ const ROLE_CONFIGS = {
     title: 'Admin Login',
     badge: 'Executive Governance',
     subtitle: 'Sign in to access system administration, audit logs, and security governance.',
-    accentColor: '#0A2947',
+    accentColor: 'var(--role-admin, #2563eb)',
+    buttonBg: 'var(--role-admin, #2563eb)',
+    buttonHover: 'var(--role-admin-hover, #1d4ed8)',
     icon: ShieldCheck,
-    topBorder: '4px solid #0A2947',
+    topBorder: '3px solid var(--role-admin, #2563eb)',
     dashboardPath: '/admin/dashboard',
     defaultEmail: 'a4adityaarora@gmail.com',
     defaultPass: 'Corp@EMP007#',
@@ -38,14 +41,16 @@ const ROLE_CONFIGS = {
     title: 'HR Login',
     badge: 'Human Resources',
     subtitle: 'Sign in to manage employee directory, recruitment, attendance, and payroll.',
-    accentColor: '#8B5E3C',
+    accentColor: 'var(--role-hr, #b45309)',
+    buttonBg: 'var(--role-hr, #b45309)',
+    buttonHover: 'var(--role-hr-hover, #92400e)',
     icon: Users,
-    topBorder: '4px solid #8B5E3C',
+    topBorder: '3px solid var(--role-hr, #b45309)',
     dashboardPath: '/hr/dashboard',
-    defaultEmail: 'tnu23505@gmail.com',
-    defaultPass: 'Corp@EMP023#',
-    empName: 'Tanishq Goyal',
-    empId: 'EMP023',
+    defaultEmail: 'kakkar.ashu1982@gmail.com',
+    defaultPass: 'Corp@EMP024#',
+    empName: 'Ashu Kakkar',
+    empId: 'EMP024',
     roleTag: 'HR ADMIN',
   },
   manager: {
@@ -53,9 +58,11 @@ const ROLE_CONFIGS = {
     title: 'Manager Login',
     badge: 'Team Leadership',
     subtitle: 'Sign in to review direct reports, approve leaves, and oversee team performance.',
-    accentColor: '#556B2F',
+    accentColor: 'var(--role-manager, #059669)',
+    buttonBg: 'var(--role-manager, #059669)',
+    buttonHover: 'var(--role-manager-hover, #047857)',
     icon: Briefcase,
-    topBorder: '4px solid #556B2F',
+    topBorder: '3px solid var(--role-manager, #059669)',
     dashboardPath: '/manager/dashboard',
     defaultEmail: 'akshat.wadagbalkar@gmail.com',
     defaultPass: 'Corp@EMP019#',
@@ -68,14 +75,16 @@ const ROLE_CONFIGS = {
     title: 'Employee Login',
     badge: 'Self-Service',
     subtitle: 'Sign in to check in attendance, apply for leaves, and download paystubs.',
-    accentColor: '#2563eb',
+    accentColor: 'var(--role-employee, #7c3aed)',
+    buttonBg: 'var(--role-employee, #7c3aed)',
+    buttonHover: 'var(--role-employee-hover, #6d28d9)',
     icon: User,
-    topBorder: '4px solid #2563eb',
+    topBorder: '3px solid var(--role-employee, #7c3aed)',
     dashboardPath: '/employee/dashboard',
-    defaultEmail: 'abhiksinha06@gmail.com',
-    defaultPass: 'Corp@EMP021#',
-    empName: 'Abhik Sinha',
-    empId: 'EMP021',
+    defaultEmail: 'singlaanmol101@gmail.com',
+    defaultPass: 'Corp@EMP025#',
+    empName: 'Anmol Singla (Reports to Akshat)',
+    empId: 'EMP025',
     roleTag: 'EMPLOYEE',
   },
 };
@@ -248,7 +257,7 @@ export const RoleLoginPage = ({ role: propRole }) => {
 
   return (
     <div className="login-container" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px', backgroundColor: 'var(--bg-canvas)' }}>
-      {/* Return to Portal Link */}
+      {/* Return to Portal Link & Theme Toggle */}
       <div style={{ width: '100%', maxWidth: '440px', marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Link
           to="/"
@@ -265,9 +274,9 @@ export const RoleLoginPage = ({ role: propRole }) => {
           <ArrowLeft size={14} />
           <span>Role Selection Portal</span>
         </Link>
-        <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-          VTOP Secure Gateway
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <ThemeToggle />
+        </div>
       </div>
 
       {/* Main Login Card with Thin Colored Top Border */}
@@ -276,7 +285,7 @@ export const RoleLoginPage = ({ role: propRole }) => {
         style={{
           maxWidth: '440px',
           width: '100%',
-          backgroundColor: '#ffffff',
+          backgroundColor: 'var(--bg-surface)',
           borderRadius: '18px',
           padding: '32px',
           boxShadow: 'var(--shadow)',
@@ -368,7 +377,7 @@ export const RoleLoginPage = ({ role: propRole }) => {
               fontSize: '12px',
               fontWeight: 600,
               cursor: 'pointer',
-              backgroundColor: activeTab === 'password' ? '#ffffff' : 'transparent',
+              backgroundColor: activeTab === 'password' ? 'var(--bg-surface)' : 'transparent',
               color: activeTab === 'password' ? 'var(--text-primary)' : 'var(--text-muted)',
               boxShadow: activeTab === 'password' ? '0 1px 2px rgba(0,0,0,0.06)' : 'none',
               transition: 'all 220ms ease',
@@ -390,7 +399,7 @@ export const RoleLoginPage = ({ role: propRole }) => {
               fontSize: '12px',
               fontWeight: 600,
               cursor: 'pointer',
-              backgroundColor: activeTab === 'otp' ? '#ffffff' : 'transparent',
+              backgroundColor: activeTab === 'otp' ? 'var(--bg-surface)' : 'transparent',
               color: activeTab === 'otp' ? 'var(--text-primary)' : 'var(--text-muted)',
               boxShadow: activeTab === 'otp' ? '0 1px 2px rgba(0,0,0,0.06)' : 'none',
               transition: 'all 220ms ease',
@@ -441,7 +450,8 @@ export const RoleLoginPage = ({ role: propRole }) => {
                     fontSize: '13px',
                     borderRadius: '8px',
                     border: '1px solid var(--border-default)',
-                    backgroundColor: '#ffffff',
+                    backgroundColor: 'var(--bg-surface)',
+                    color: 'var(--text-primary)',
                     outline: 'none',
                   }}
                   required
@@ -463,7 +473,7 @@ export const RoleLoginPage = ({ role: propRole }) => {
                     padding: 0,
                     cursor: 'pointer',
                     fontSize: '11.5px',
-                    color: roleConfig.accentColor === '#0A2947' ? 'var(--primary)' : roleConfig.accentColor,
+                    color: roleConfig.accentColor,
                     fontWeight: 600,
                     textDecoration: 'none',
                   }}
@@ -484,7 +494,8 @@ export const RoleLoginPage = ({ role: propRole }) => {
                     fontSize: '13px',
                     borderRadius: '8px',
                     border: '1px solid var(--border-default)',
-                    backgroundColor: '#ffffff',
+                    backgroundColor: 'var(--bg-surface)',
+                    color: 'var(--text-primary)',
                     outline: 'none',
                   }}
                   required
@@ -494,19 +505,27 @@ export const RoleLoginPage = ({ role: propRole }) => {
 
             <button
               type="submit"
-              className="btn btn-primary"
+              className="btn btn-primary login-submit-btn"
               disabled={submitting}
               style={{
                 width: '100%',
-                padding: '10px 16px',
-                fontSize: '13.5px',
+                padding: '11px 16px',
+                fontSize: '14px',
                 fontWeight: 600,
-                backgroundColor: roleConfig.accentColor === '#0A2947' ? 'var(--primary)' : roleConfig.accentColor,
-                borderColor: roleConfig.accentColor,
+                backgroundColor: roleConfig.buttonBg || 'var(--primary)',
+                borderColor: roleConfig.buttonBg || 'var(--primary)',
+                color: '#ffffff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                borderRadius: '8px',
+                boxShadow: 'var(--shadow-sm)',
+                cursor: submitting ? 'not-allowed' : 'pointer',
               }}
             >
               <span>{submitting ? 'Verifying Credentials...' : `Sign in as ${roleConfig.title.replace(' Login', '')}`}</span>
-              <ArrowRight size={14} />
+              <ArrowRight size={15} />
             </button>
           </form>
         ) : (
@@ -530,7 +549,8 @@ export const RoleLoginPage = ({ role: propRole }) => {
                       fontSize: '13px',
                       borderRadius: '8px',
                       border: '1px solid var(--border-default)',
-                      backgroundColor: '#ffffff',
+                      backgroundColor: 'var(--bg-surface)',
+                      color: 'var(--text-primary)',
                       outline: 'none',
                     }}
                     required
@@ -539,19 +559,27 @@ export const RoleLoginPage = ({ role: propRole }) => {
 
                 <button
                   type="submit"
-                  className="btn btn-primary"
+                  className="btn btn-primary login-submit-btn"
                   disabled={otpLoading}
                   style={{
                     width: '100%',
-                    padding: '10px 16px',
-                    fontSize: '13.5px',
+                    padding: '11px 16px',
+                    fontSize: '14px',
                     fontWeight: 600,
-                    backgroundColor: roleConfig.accentColor,
-                    borderColor: roleConfig.accentColor,
+                    backgroundColor: roleConfig.buttonBg || 'var(--primary)',
+                    borderColor: roleConfig.buttonBg || 'var(--primary)',
+                    color: '#ffffff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    borderRadius: '8px',
+                    boxShadow: 'var(--shadow-sm)',
+                    cursor: otpLoading ? 'not-allowed' : 'pointer',
                   }}
                 >
                   <span>{otpLoading ? 'Dispatching...' : 'Send Verification OTP'}</span>
-                  <ArrowRight size={14} />
+                  <ArrowRight size={15} />
                 </button>
               </form>
             ) : (
@@ -576,6 +604,8 @@ export const RoleLoginPage = ({ role: propRole }) => {
                       fontFamily: 'var(--font-mono)',
                       borderRadius: '8px',
                       border: '1px solid var(--border-default)',
+                      backgroundColor: 'var(--bg-surface)',
+                      color: 'var(--text-primary)',
                       outline: 'none',
                     }}
                     required
@@ -597,19 +627,27 @@ export const RoleLoginPage = ({ role: propRole }) => {
 
                 <button
                   type="submit"
-                  className="btn btn-primary"
+                  className="btn btn-primary login-submit-btn"
                   disabled={otpLoading}
                   style={{
                     width: '100%',
-                    padding: '10px 16px',
-                    fontSize: '13.5px',
+                    padding: '11px 16px',
+                    fontSize: '14px',
                     fontWeight: 600,
-                    backgroundColor: roleConfig.accentColor,
-                    borderColor: roleConfig.accentColor,
+                    backgroundColor: roleConfig.buttonBg || 'var(--primary)',
+                    borderColor: roleConfig.buttonBg || 'var(--primary)',
+                    color: '#ffffff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    borderRadius: '8px',
+                    boxShadow: 'var(--shadow-sm)',
+                    cursor: otpLoading ? 'not-allowed' : 'pointer',
                   }}
                 >
                   <span>{otpLoading ? 'Verifying...' : 'Authenticate & Enter'}</span>
-                  <CheckCircle2 size={14} />
+                  <CheckCircle2 size={15} />
                 </button>
 
                 <div style={{ textAlign: 'center', marginTop: '12px' }}>
